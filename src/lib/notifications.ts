@@ -7,8 +7,9 @@ const twilioPhone = process.env.TWILIO_PHONE_NUMBER || "";
 
 function getTwilioClient() {
   if (!twilioAccountSid || !twilioAuthToken) return null;
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require("twilio")(twilioAccountSid, twilioAuthToken);
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const tw = require("twilio");
+  return tw(twilioAccountSid, twilioAuthToken);
 }
 
 // ─── EMAIL ────────────────────────────────────
