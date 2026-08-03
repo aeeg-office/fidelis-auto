@@ -114,9 +114,23 @@ model Inquiry {
   createdAt DateTime @default(now())
 }
 
+// ── Users & Auth ──────────────────────────────
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listingRequests ListingRequest[]
+}
+
 // ── Vehicle Listing Requests (public submissions) ──
 model ListingRequest {
   id            String   @id @default(cuid())
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id])
   status        String   @default("pending") // pending, approved, rejected
   name          String
   email         String
@@ -131,7 +145,8 @@ model ListingRequest {
   engine        String?
   transmission  String?
   description   String?  @db.Text
-  photoUrls     String?  @db.Text // JSON array of uploaded photo paths
+  photoUrls     String?  @db.Text // JSON array of uploaded photo/video paths
+  videoUrls     String?  @db.Text // JSON array of uploaded video paths
   notes         String?  @db.Text // admin notes
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
