@@ -9,8 +9,8 @@ const FOOTER_LINKS = {
   ],
   Connect: [
     { href: "/contact", label: "Contact" },
-    { href: "mailto:info@hermescar.com", label: "Email" },
-    { href: "https://instagram.com/hermescar", label: "Instagram" },
+    { href: "mailto:info@fidelisauto.com", label: "Email" },
+    { href: "https://instagram.com/fidelisauto", label: "Instagram" },
   ],
   Legal: [
     { href: "/privacy", label: "Privacy" },
@@ -30,7 +30,7 @@ export default function Footer() {
                 <span className="w-2 h-2 bg-[var(--color-accent)] rounded-full" />
               </span>
               <span className="font-[family-name:var(--font-cormorant)] text-lg font-semibold">
-                Hermes Car
+                Fidelis Auto
               </span>
             </Link>
             <p className="text-sm text-[var(--color-text-secondary)] max-w-xs">
@@ -63,7 +63,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-[var(--color-text-secondary)]">
-            &copy; {new Date().getFullYear()} Hermes Car. All rights reserved.
+            &copy; {new Date().getFullYear()} Fidelis Auto. All rights reserved.
           </p>
           <p className="text-xs text-[var(--color-text-secondary)]">
             Own the story.

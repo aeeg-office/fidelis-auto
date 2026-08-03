@@ -1,5 +1,5 @@
 {
-  "name": "hermes-car",
+  "name": "fidelis-auto",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -27,5 +27,6 @@
     "prisma": "^7.9.1",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "Premium collector vehicle digital showroom and marketplace"
 }

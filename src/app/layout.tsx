@@ -19,8 +19,8 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: {
-    default: "Hermes Car — Premium Collector Vehicle Showroom",
-    template: "%s | Hermes Car",
+    default: "Fidelis Auto — Premium Collector Vehicle Showroom",
+    template: "%s | Fidelis Auto",
   },
   description:
     "A premium digital showroom for collector, classic, and enthusiast vehicles. Every vehicle tells a story. Own the story.",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Hermes Car",
+    siteName: "Fidelis Auto",
   },
 };
 

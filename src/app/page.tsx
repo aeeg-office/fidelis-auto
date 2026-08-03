@@ -91,7 +91,7 @@ export default function HomePage() {
             Curated. Verified. Extraordinary.
           </h2>
           <p className="text-lg text-[var(--color-text-inverse)]/70 leading-relaxed">
-            Hermes Car is more than a showroom. It&apos;s a commitment to provenance,
+            Fidelis Auto is more than a showroom. It&apos;s a commitment to provenance,
             a celebration of craftsmanship, and a platform built on trust.
             Every vehicle in our collection has been carefully selected,
             thoroughly documented, and presented with the authenticity it deserves.

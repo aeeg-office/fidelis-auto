@@ -24,7 +24,7 @@ export default function Header() {
             <span className="w-3 h-3 bg-[var(--color-accent)] rounded-full" />
           </span>
           <span className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold tracking-wide text-[var(--color-text-primary)]">
-            Hermes Car
+            Fidelis Auto
           </span>
         </Link>
 
