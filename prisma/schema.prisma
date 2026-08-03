@@ -120,9 +120,14 @@ model User {
   name         String
   email        String    @unique
   passwordHash String
+  phone        String?
   verified     Boolean   @default(false)
   verificationCode       String?
   verificationCodeExpiry DateTime?
+  phoneVerified Boolean  @default(false)
+  phoneVerificationCode  String?
+  phoneVerificationCodeExpiry DateTime?
+  emailResendCount Int   @default(0)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
