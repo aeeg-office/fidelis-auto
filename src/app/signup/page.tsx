@@ -83,9 +83,9 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number</label>
+            <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number (optional)</label>
             <PhoneInput value={phone} onChange={setPhone} />
-            <p className="text-xs text-[var(--color-text-secondary)] mt-1">Select your country code, then enter your number without the leading zero</p>
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1">For future SMS notifications</p>
           </div>
 
           <div>
