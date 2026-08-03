@@ -19,8 +19,10 @@ export async function POST(request: Request) {
         exteriorColor: body.exteriorColor || null, interiorColor: body.interiorColor || null,
         engine: body.engine || null, transmission: body.transmission || null,
         description: body.description || null,
-        photoUrls: body.photoUrls ? JSON.stringify(body.photoUrls) : null,
-        videoUrls: body.videoUrls ? JSON.stringify(body.videoUrls) : null,
+        photoUrls: body.photoUrls?.length ? JSON.stringify(body.photoUrls) : null,
+        videoUrls: body.videoUrls?.length ? JSON.stringify(body.videoUrls) : null,
+        city: body.city || null, state: body.state || null,
+        country: body.country || null, zipCode: body.zipCode || null,
       },
     });
 

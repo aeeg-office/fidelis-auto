@@ -28,10 +28,10 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-sm">
       <div className="container-page flex items-center justify-between h-16 md:h-20">
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="w-8 h-8 rounded-full border-2 border-[var(--color-accent)] flex items-center justify-center">
-            <span className="w-3 h-3 bg-[var(--color-accent)] rounded-full" />
+          <span className="w-10 h-10 rounded-full border-2 border-[var(--color-accent)] flex items-center justify-center">
+            <span className="w-4 h-4 bg-[var(--color-accent)] rounded-full" />
           </span>
-          <span className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold tracking-wide text-[var(--color-text-primary)]">
+          <span className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-bold tracking-wider text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors uppercase">
             Fidelis Auto
           </span>
         </Link>
