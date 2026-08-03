@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Gauge, Wrench, Palette } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
