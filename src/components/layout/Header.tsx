@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/vehicles/porsche-911e", label: "Vehicles" },
   { href: "/journal", label: "Journal" },
+  { href: "/submit", label: "Sell Your Car" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

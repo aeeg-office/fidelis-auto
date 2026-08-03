@@ -8,7 +8,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ── Vehicles ──────────────────────────────────
@@ -113,4 +112,27 @@ model Inquiry {
   source    String   @default("contact-form")
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+// ── Vehicle Listing Requests (public submissions) ──
+model ListingRequest {
+  id            String   @id @default(cuid())
+  status        String   @default("pending") // pending, approved, rejected
+  name          String
+  email         String
+  phone         String?
+  year          Int
+  make          String
+  model         String
+  trim          String?
+  mileage       Int?
+  exteriorColor String?
+  interiorColor String?
+  engine        String?
+  transmission  String?
+  description   String?  @db.Text
+  photoUrls     String?  @db.Text // JSON array of uploaded photo paths
+  notes         String?  @db.Text // admin notes
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
