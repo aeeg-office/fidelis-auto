@@ -27,7 +27,7 @@ export async function sendVerificationCode(email: string, code: string): Promise
       method: "POST",
       headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Fidelis Auto <onboarding@resend.dev>",
+        from: "Fidelis Auto <aeeg.education@gmail.com>",
         to: email,
         subject: "Verify your Fidelis Auto account",
         html: `
