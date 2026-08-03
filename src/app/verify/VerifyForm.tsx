@@ -34,7 +34,7 @@ export default function VerifyForm() {
     });
     setLoading(false);
     if (res.ok) { setEmailDone(true); checkBoth(); }
-    else { const d = await res.json(); setError(d.error); }
+    else { const d = await res.json(); setError(d.error || "Wrong code"); setEmailCode(""); }
   }
 
   async function verifyPhone(e: FormEvent) {
@@ -47,7 +47,7 @@ export default function VerifyForm() {
     });
     setLoading(false);
     if (res.ok) { setPhoneDone(true); checkBoth(); }
-    else { const d = await res.json(); setError(d.error); }
+    else { const d = await res.json(); setError(d.error || "Wrong code"); setPhoneCode(""); }
   }
 
   function checkBoth() {
@@ -106,7 +106,9 @@ export default function VerifyForm() {
       {!phoneDone && (
         <div className="p-6 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)]">
           <h2 className="font-semibold text-[var(--color-text-primary)] mb-1">Step 2: Verify Phone</h2>
-          <p className="text-xs text-[var(--color-text-secondary)] mb-4">SMS sent to your phone</p>
+          <p className="text-xs text-[var(--color-text-secondary)] mb-2">
+            SMS sent to your phone. <span className="text-[var(--color-accent)]">Check server logs for code if SMS not received</span>
+          </p>
           <form onSubmit={verifyPhone} className="space-y-3">
             <input type="text" inputMode="numeric" maxLength={6} value={phoneCode}
               onChange={(e) => setPhoneCode(e.target.value.replace(/\D/g, ""))} required

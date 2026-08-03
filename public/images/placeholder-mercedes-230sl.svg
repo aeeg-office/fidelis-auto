@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d14"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="car2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#c9a84c"/>
+      <stop offset="100%" style="stop-color:#b8953a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg2)"/>
+  <rect x="0" y="650" width="1600" height="250" fill="#0d0d14"/>
+  <line x1="0" y1="725" x2="1600" y2="725" stroke="#333" stroke-width="2" stroke-dasharray="40 20"/>
+  <g transform="translate(350, 220) scale(1.5)">
+    <ellipse cx="300" cy="420" rx="260" ry="18" fill="rgba(0,0,0,0.4)"/>
+    <!-- 230SL Pagoda body -->
+    <path d="M70 290 L100 250 L160 230 L320 230 L420 250 L470 270 L500 300 L510 350 L510 400 L80 400 L65 370 L55 340 Z" fill="#C0C0C0" stroke="#999" stroke-width="2"/>
+    <!-- Roof - Pagoda concave -->
+    <path d="M160 230 L220 180 L290 170 L350 175 L420 250 L320 230 Z" fill="#A8A8A8" stroke="#999" stroke-width="2"/>
+    <!-- Windows -->
+    <path d="M200 210 L235 185 L290 178 L345 185 L380 210 Z" fill="#87CEEB" opacity="0.5"/>
+    <!-- Chrome trim -->
+    <line x1="70" y1="290" x2="500" y2="290" stroke="#FFD700" stroke-width="2" opacity="0.6"/>
+    <!-- Wheels -->
+    <circle cx="160" cy="400" r="42" fill="#1a1a1a"/>
+    <circle cx="160" cy="400" r="22" fill="#333"/>
+    <circle cx="160" cy="400" r="6" fill="#c9a84c"/>
+    <circle cx="440" cy="400" r="42" fill="#1a1a1a"/>
+    <circle cx="440" cy="400" r="22" fill="#333"/>
+    <circle cx="440" cy="400" r="6" fill="#c9a84c"/>
+    <!-- Headlights -->
+    <ellipse cx="505" cy="320" rx="10" ry="7" fill="#FFD700" opacity="0.7"/>
+    <ellipse cx="58" cy="340" rx="7" ry="5" fill="#FF4444" opacity="0.6"/>
+    <!-- Star emblem -->
+    <circle cx="480" cy="285" r="8" fill="none" stroke="#c9a84c" stroke-width="1"/>
+  </g>
+  <text x="800" y="820" text-anchor="middle" fill="#c9a84c" font-family="Georgia,serif" font-size="14" opacity="0.6">1967 MERCEDES-BENZ 230SL PAGODA · FULLY RESTORED</text>
+</svg>

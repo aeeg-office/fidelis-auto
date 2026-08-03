@@ -53,11 +53,8 @@ export default function VehicleDetailPage() {
       {/* Vehicle Hero */}
       <section className="container-page">
         <div className="aspect-[21/9] bg-[var(--color-surface-dark)] rounded-lg overflow-hidden mb-8">
-          <div className="w-full h-full bg-gradient-to-br from-[var(--color-surface-dark)] to-[var(--color-text-secondary)]/20 flex items-center justify-center">
-            <span className="text-[var(--color-text-inverse)]/30 font-[family-name:var(--font-cormorant)] text-2xl">
-              Gallery Placeholder — 4K Images Incoming
-            </span>
-          </div>
+          <img src="/images/placeholder-porsche-911e.svg" alt="1971 Porsche 911E"
+            className="w-full h-full object-cover" />
         </div>
       </section>
 

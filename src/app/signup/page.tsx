@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import PhoneInput from "@/components/PhoneInput";
 
 export default function SignupPage() {
   const [error, setError] = useState("");
@@ -82,12 +83,9 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number (with country code)</label>
-            <input id="phone" name="phone" type="tel" required placeholder="+201234567890"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
-            <p className="text-xs text-[var(--color-text-secondary)] mt-1">Include country code, e.g., +20 for Egypt, +971 for UAE</p>
+            <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number</label>
+            <PhoneInput value={phone} onChange={setPhone} />
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1">Select your country code, then enter your number without the leading zero</p>
           </div>
 
           <div>

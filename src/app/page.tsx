@@ -7,14 +7,14 @@ const FEATURED_VEHICLES = [
     slug: "porsche-911e",
     title: "1971 Porsche 911E",
     subtitle: "Albert Blue · 3,742 Original Miles",
-    image: "/placeholder-vehicle.jpg",
+    image: "/images/placeholder-porsche-911e.svg",
     year: 1971,
   },
   {
     slug: "mercedes-230sl",
     title: "1967 Mercedes 230SL",
     subtitle: "Pagoda · Fully Restored",
-    image: "/placeholder-vehicle.jpg",
+    image: "/images/placeholder-mercedes-230sl.svg",
     year: 1967,
   },
 ];
@@ -66,11 +66,8 @@ export default function HomePage() {
                 className="group block"
               >
                 <div className="aspect-[16/10] bg-[var(--color-surface-dark)] rounded-lg overflow-hidden mb-4">
-                  <div className="w-full h-full bg-gradient-to-br from-[var(--color-surface-dark)] to-[var(--color-text-secondary)]/20 flex items-center justify-center">
-                    <span className="text-[var(--color-text-inverse)]/40 font-[family-name:var(--font-cormorant)] text-lg">
-                      {vehicle.year} {vehicle.title.split(" ").slice(1).join(" ")}
-                    </span>
-                  </div>
+                  <img src={vehicle.image} alt={vehicle.title}
+                    className="w-full h-full object-cover" />
                 </div>
                 <h3 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
                   {vehicle.title}
