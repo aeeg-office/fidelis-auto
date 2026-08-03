@@ -3,6 +3,9 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
 import { Car, FileText, Plus } from "lucide-react";
+import type { Vehicle, VehicleImage } from "@prisma/client";
+
+type VehicleWithImage = Vehicle & { images: VehicleImage[] };
 
 export default async function AdminVehiclesPage() {
   if (!(await verifySession())) redirect("/admin/login");
@@ -23,7 +26,7 @@ export default async function AdminVehiclesPage() {
         <div className="divide-y divide-[var(--color-border)]">
           {vehicles.length === 0 ? (
             <p className="p-6 text-sm text-[var(--color-text-secondary)]">No vehicles yet.</p>
-          ) : vehicles.map((v: any) => (
+          ) : (vehicles as VehicleWithImage[]).map((v) => (
             <div key={v.id} className="flex items-center gap-4 p-4 px-6">
               <div className="w-16 h-12 bg-[var(--color-surface-dark)] rounded flex items-center justify-center shrink-0">
                 <Car size={20} className="text-[var(--color-text-inverse)]/30" />
@@ -65,7 +68,7 @@ function Sidebar() {
         <SidebarLink href="/admin/vehicles" icon={<Car size={16} />} label="Vehicles" active />
       </nav>
       <div className="absolute bottom-6 left-6 right-6">
-        <a href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</a>
+        <Link href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</Link>
       </div>
     </div>
   );

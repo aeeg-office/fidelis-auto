@@ -3,11 +3,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
 import { Car, FileText, Plus } from "lucide-react";
+import type { ListingRequest } from "@prisma/client";
 
 export default async function AdminSubmissionsPage() {
   if (!(await verifySession())) redirect("/admin/login");
 
-  const submissions = await prisma.listingRequest.findMany({
+  const submissions: ListingRequest[] = await prisma.listingRequest.findMany({
     orderBy: { createdAt: "desc" },
   });
 
@@ -17,7 +18,7 @@ export default async function AdminSubmissionsPage() {
         <div className="divide-y divide-[var(--color-border)]">
           {submissions.length === 0 ? (
             <p className="p-6 text-sm text-[var(--color-text-secondary)]">No submissions yet.</p>
-          ) : submissions.map((s: any) => (
+          ) : submissions.map((s) => (
             <div key={s.id} className="p-4 px-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -61,7 +62,7 @@ function Sidebar() {
         <SidebarLink href="/admin/vehicles" icon={<Car size={16} />} label="Vehicles" />
       </nav>
       <div className="absolute bottom-6 left-6 right-6">
-        <a href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</a>
+        <Link href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</Link>
       </div>
     </div>
   );
