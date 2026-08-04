@@ -1,21 +1,125 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import NewsletterSignup from "@/components/NewsletterSignup";
+import VehicleImage from "@/components/VehicleImage";
+import VehicleCard from "@/components/VehicleCard";
+import type { VehicleCardData } from "@/components/VehicleCard";
+import RecentlySold from "@/components/RecentlySold";
 
-// Placeholder data — will be replaced with DB content
-const FEATURED_VEHICLES = [
+// ─── Placeholder data — will be replaced with DB content ──
+
+const FEATURED_VEHICLES: VehicleCardData[] = [
   {
     slug: "porsche-911e",
     title: "1971 Porsche 911E",
     subtitle: "Albert Blue · 3,742 Original Miles",
     image: "/images/placeholder-porsche-911e.svg",
     year: 1971,
+    make: "Porsche",
+    model: "911E",
+    trim: "Coupe",
+    mileage: 3742,
+    mileageUnit: "mi",
+    exteriorColor: "Albert Blue",
+    engine: "2.2L Flat-6",
+    transmission: "5-Speed Manual",
+    price: "USD 425,000",
+    city: "Munich",
+    country: "Germany",
   },
   {
     slug: "mercedes-230sl",
-    title: "1967 Mercedes 230SL",
-    subtitle: "Pagoda · Fully Restored",
+    title: "1967 Mercedes-Benz 230SL Pagoda",
+    subtitle: "Silver · Fully Restored",
     image: "/images/placeholder-mercedes-230sl.svg",
     year: 1967,
+    make: "Mercedes-Benz",
+    model: "230SL",
+    trim: "Roadster",
+    mileage: null,
+    mileageUnit: "mi",
+    exteriorColor: "Silver",
+    engine: "2.3L Inline-6",
+    transmission: "4-Speed Manual",
+    price: "USD 180,000",
+    city: "Dubai",
+    country: "United Arab Emirates",
+  },
+];
+
+// Most recent vehicles (sorted by createdAt descending, top 4)
+const RECENT_VEHICLES: VehicleCardData[] = [
+  {
+    slug: "porsche-911-carrera-rs",
+    title: "1973 Porsche 911 Carrera RS 2.7",
+    subtitle: "Grand Prix Red · Matching Numbers",
+    image: "/images/placeholder-porsche-911-carrera-rs.svg",
+    year: 1973,
+    make: "Porsche",
+    model: "911 Carrera RS",
+    trim: "2.7",
+    mileage: null,
+    mileageUnit: "mi",
+    exteriorColor: "Grand Prix Red",
+    engine: "2.7L Flat-6 (210 hp)",
+    transmission: "5-Speed Manual",
+    price: "POA",
+    city: "Stuttgart",
+    country: "Germany",
+  },
+  {
+    slug: "mercedes-280sl",
+    title: "1969 Mercedes-Benz 280SL",
+    subtitle: "White over Blue · Documented History",
+    image: "/images/placeholder-mercedes-280sl.svg",
+    year: 1969,
+    make: "Mercedes-Benz",
+    model: "280SL",
+    trim: null,
+    mileage: 82300,
+    mileageUnit: "mi",
+    exteriorColor: "White",
+    engine: "2.8L Inline-6",
+    transmission: "Automatic",
+    price: "USD 145,000",
+    city: "Cairo",
+    country: "Egypt",
+  },
+  {
+    slug: "porsche-911e",
+    title: "1971 Porsche 911E",
+    subtitle: "Albert Blue · 3,742 Original Miles",
+    image: "/images/placeholder-porsche-911e.svg",
+    year: 1971,
+    make: "Porsche",
+    model: "911E",
+    trim: "Coupe",
+    mileage: 3742,
+    mileageUnit: "mi",
+    exteriorColor: "Albert Blue",
+    engine: "2.2L Flat-6",
+    transmission: "5-Speed Manual",
+    price: "USD 425,000",
+    city: "Munich",
+    country: "Germany",
+  },
+  {
+    slug: "mercedes-230sl",
+    title: "1967 Mercedes-Benz 230SL Pagoda",
+    subtitle: "Silver · Fully Restored",
+    image: "/images/placeholder-mercedes-230sl.svg",
+    year: 1967,
+    make: "Mercedes-Benz",
+    model: "230SL",
+    trim: "Roadster",
+    mileage: null,
+    mileageUnit: "mi",
+    exteriorColor: "Silver",
+    engine: "2.3L Inline-6",
+    transmission: "4-Speed Manual",
+    price: "USD 180,000",
+    city: "Dubai",
+    country: "United Arab Emirates",
   },
 ];
 
@@ -60,23 +164,47 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 gap-8">
             {FEATURED_VEHICLES.map((vehicle) => (
-              <Link
+              <VehicleCard
                 key={vehicle.slug}
-                href={`/vehicles/${vehicle.slug}`}
-                className="group block"
-              >
-                <div className="aspect-[16/10] bg-[var(--color-surface-dark)] rounded-lg overflow-hidden mb-4">
-                  <img src={vehicle.image} alt={vehicle.title}
-                    className="w-full h-full object-cover" />
-                </div>
-                <h3 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
-                  {vehicle.title}
-                </h3>
-                <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-                  {vehicle.subtitle}
-                </p>
-              </Link>
+                vehicle={vehicle}
+                variant="simple"
+                priority
+              />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recently Added */}
+      <section className="py-16 md:py-24 bg-[var(--color-surface)] border-t border-[var(--color-border)]">
+        <div className="container-page">
+          <div className="text-center mb-12">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3">
+              Recently Added
+            </h2>
+            <p className="text-[var(--color-text-secondary)] max-w-xl mx-auto">
+              The latest additions to our collection — each one carefully documented and verified.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {RECENT_VEHICLES.map((vehicle) => (
+              <VehicleCard
+                key={vehicle.slug}
+                vehicle={vehicle}
+                variant="simple"
+              />
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              href="/vehicles"
+              className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+            >
+              View All Vehicles
+              <ArrowRight size={18} />
+            </Link>
           </div>
         </div>
       </section>
@@ -95,6 +223,9 @@ export default function HomePage() {
           </p>
         </div>
       </section>
+
+      {/* Recently Sold */}
+      <RecentlySold />
 
       {/* CTA */}
       <section className="py-16 md:py-24">
@@ -115,6 +246,9 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* Newsletter Signup */}
+      <NewsletterSignup />
     </>
   );
 }

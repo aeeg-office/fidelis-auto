@@ -4,6 +4,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import JsonLd from "@/components/JsonLd";
+import FavoriteButton from "@/components/FavoriteButton";
+import SocialShare from "@/components/SocialShare";
+import VehicleImage from "@/components/VehicleImage";
+import RelatedVehicles from "@/components/RelatedVehicles";
 
 // ─── Data ──────────────────────────────────────
 
@@ -121,8 +125,15 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <section className="container-page">
-        <div className="aspect-[21/9] bg-[var(--color-surface-dark)] rounded-lg overflow-hidden mb-8">
-          <img src={imagePath} alt={vehicle.title} className="w-full h-full object-cover" />
+        <div className="relative aspect-[21/9] bg-[var(--color-surface-dark)] rounded-lg overflow-hidden mb-8">
+          <VehicleImage
+            src={imagePath}
+            alt={vehicle.title}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 90vw"
+            className="object-cover"
+          />
         </div>
       </section>
 
@@ -160,6 +171,14 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
                 </div>
               )}
             </div>
+
+            <div className="mt-4 space-y-3">
+              <FavoriteButton slug={slug} />
+              <SocialShare
+                url={`https://fidelisauto.com/vehicles/${slug}`}
+                title={vehicle.title}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -187,6 +206,13 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </section>
+
+      {/* Related Vehicles */}
+      <RelatedVehicles
+        currentSlug={vehicle.slug}
+        make={vehicle.make}
+        year={vehicle.year}
+      />
 
       <section className="py-16">
         <div className="container-page text-center">

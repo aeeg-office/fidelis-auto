@@ -43,6 +43,7 @@ model Vehicle {
   documents      Document[]
   milestones     ProvenanceMilestone[]
   journalEntries JournalEntry[]
+  favorites      Favorite[]
 }
 
 model VehicleImage {
@@ -92,6 +93,7 @@ model JournalEntry {
   vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
   slug        String   @unique
   title       String
+  author      String   @default("Fidelis Auto")
   contentEn   String?  @db.Text
   contentAr   String?  @db.Text
   excerpt     String?
@@ -132,6 +134,7 @@ model User {
   updatedAt    DateTime  @updatedAt
 
   listingRequests ListingRequest[]
+  favorites       Favorite[]
 }
 
 // ── Vehicle Listing Requests (public submissions) ──
@@ -162,4 +165,24 @@ model ListingRequest {
   notes         String?  @db.Text // admin notes
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// ── Newsletter Subscriptions ────────────────────
+model NewsletterSubscription {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  subscribed  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+// ── Favorites ───────────────────────────────────
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, vehicleId])
 }

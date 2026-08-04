@@ -3,30 +3,17 @@ import { Suspense } from "react";
 import { MapPin, Gauge, Wrench, Cog } from "lucide-react";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import VehicleCard from "@/components/VehicleCard";
+import VehicleImage from "@/components/VehicleImage";
+import type { VehicleCardData } from "@/components/VehicleCard";
+import RecentlySold from "@/components/RecentlySold";
 import FilterBar from "./FilterBar";
 
 // ─── Types ──────────────────────────────────────
-export interface VehicleCardType {
-  slug: string;
-  title: string;
-  year: number;
-  make: string;
-  model: string;
-  trim?: string | null;
-  mileage?: number | null;
-  mileageUnit: string;
-  exteriorColor?: string | null;
-  engine?: string | null;
-  transmission?: string | null;
-  price?: string | null;
-  city?: string | null;
-  country?: string | null;
-  image: string;
-  createdAt: number;
-}
+// VehicleCardData imported from @/components/VehicleCard
 
 // ─── Placeholder listing data (used when the DB has no vehicles yet) ──
-const PLACEHOLDER_VEHICLES: VehicleCardType[] = [
+const PLACEHOLDER_VEHICLES: VehicleCardData[] = [
   {
     slug: "porsche-911e",
     title: "1971 Porsche 911E",
@@ -131,7 +118,7 @@ function formatPrice(value?: string | null): string {
   return `$${n.toLocaleString()}`;
 }
 
-async function getVehicles(): Promise<VehicleCardType[]> {
+async function getVehicles(): Promise<VehicleCardData[]> {
   let dbVehicles = null;
   try {
     dbVehicles = await prisma.vehicle.findMany({
@@ -166,7 +153,7 @@ async function getVehicles(): Promise<VehicleCardType[]> {
   return PLACEHOLDER_VEHICLES;
 }
 
-function filterVehicles(vehicles: VehicleCardType[], params: Record<string, string | string[] | undefined>): VehicleCardType[] {
+function filterVehicles(vehicles: VehicleCardData[], params: Record<string, string | string[] | undefined>): VehicleCardData[] {
   const q = (params.q || "").toString().toLowerCase().trim();
   const make = (params.make || "").toString().trim();
   const model = (params.model || "").toString().trim();
@@ -199,7 +186,7 @@ function filterVehicles(vehicles: VehicleCardType[], params: Record<string, stri
   });
 }
 
-function sortVehicles(vehicles: VehicleCardType[], sort: string): VehicleCardType[] {
+function sortVehicles(vehicles: VehicleCardData[], sort: string): VehicleCardData[] {
   const arr = [...vehicles];
   switch (sort) {
     case "price-asc":
@@ -211,7 +198,7 @@ function sortVehicles(vehicles: VehicleCardType[], sort: string): VehicleCardTyp
     case "year-asc":
       return arr.sort((a, b) => a.year - b.year);
     default:
-      return arr.sort((a, b) => b.createdAt - a.createdAt);
+      return arr.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   }
 }
 
@@ -311,85 +298,10 @@ export default async function VehiclesPage({
           </nav>
         )}
       </section>
+
+      {/* Recently Sold Sidebar-style section */}
+      <RecentlySold />
     </>
-  );
-}
-
-// ─── Vehicle Card ───────────────────────────────
-function VehicleCard({ vehicle }: { vehicle: VehicleCardType }) {
-  const location =
-    vehicle.city && vehicle.country ? `${vehicle.city}, ${vehicle.country}` : null;
-
-  return (
-    <Link
-      href={`/vehicles/${vehicle.slug}`}
-      className="group block bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] overflow-hidden hover:shadow-lg hover:shadow-black/5 transition-shadow"
-    >
-      <div className="aspect-[16/10] bg-[var(--color-surface-dark)] overflow-hidden">
-        <img
-          src={vehicle.image}
-          alt={vehicle.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <h3 className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors leading-tight">
-            {vehicle.year} {vehicle.make} {vehicle.model}
-          </h3>
-          {vehicle.price && (
-            <span className="shrink-0 text-sm font-semibold text-[var(--color-accent)] text-right">
-              {formatPrice(vehicle.price)}
-            </span>
-          )}
-        </div>
-
-        {vehicle.trim && (
-          <p className="text-sm text-[var(--color-text-secondary)] mb-3">{vehicle.trim}</p>
-        )}
-
-        {/* Specs */}
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm border-t border-[var(--color-border)] pt-3">
-          {vehicle.mileage !== null && vehicle.mileage !== undefined && (
-            <div className="flex items-center gap-1.5 text-[var(--color-text-secondary)]">
-              <Gauge size={14} className="text-[var(--color-accent)] shrink-0" />
-              <span>{vehicle.mileage.toLocaleString()} {vehicle.mileageUnit}</span>
-            </div>
-          )}
-          {vehicle.exteriorColor && (
-            <div className="flex items-center gap-1.5 text-[var(--color-text-secondary)]">
-              <span className="w-3 h-3 rounded-full border border-[var(--color-border)] shrink-0" style={{ background: "var(--color-bg)" }} />
-              <span>{vehicle.exteriorColor}</span>
-            </div>
-          )}
-          {vehicle.engine && (
-            <div className="flex items-center gap-1.5 text-[var(--color-text-secondary)]">
-              <Wrench size={14} className="text-[var(--color-accent)] shrink-0" />
-              <span>{vehicle.engine}</span>
-            </div>
-          )}
-          {vehicle.transmission && (
-            <div className="flex items-center gap-1.5 text-[var(--color-text-secondary)]">
-              <Cog size={14} className="text-[var(--color-accent)] shrink-0" />
-              <span>{vehicle.transmission}</span>
-            </div>
-          )}
-        </div>
-
-        {location && (
-          <div className="flex items-center gap-1.5 text-sm text-[var(--color-text-secondary)] mt-3">
-            <MapPin size={14} className="text-[var(--color-accent)] shrink-0" />
-            <span>{location}</span>
-          </div>
-        )}
-
-        <span className="inline-flex items-center mt-4 text-sm font-medium text-[var(--color-accent)]">
-          View Details
-          <span className="ml-1 transition-transform duration-200 group-hover:translate-x-1">→</span>
-        </span>
-      </div>
-    </Link>
   );
 }
 
