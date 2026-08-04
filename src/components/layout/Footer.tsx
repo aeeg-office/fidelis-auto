@@ -3,14 +3,13 @@ import Link from "next/link";
 const FOOTER_LINKS = {
   Explore: [
     { href: "/", label: "Home" },
-    { href: "/vehicles/porsche-911e", label: "Vehicles" },
+    { href: "/vehicles", label: "Vehicles" },
     { href: "/journal", label: "Journal" },
     { href: "/about", label: "About" },
   ],
   Connect: [
     { href: "/contact", label: "Contact" },
-    { href: "mailto:info@fidelisauto.com", label: "Email" },
-    { href: "https://instagram.com/fidelisauto", label: "Instagram" },
+    { href: "mailto:aeeg.education@gmail.com", label: "Email" },
   ],
   Legal: [
     { href: "/privacy", label: "Privacy" },
@@ -34,8 +33,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm text-[var(--color-text-secondary)] max-w-xs">
-              A premium digital showroom for collector, classic, and enthusiast vehicles.
-              Every vehicle tells a story.
+              For the love of cars. Every car has a story — we help you find yours.
             </p>
           </div>
 
@@ -66,7 +64,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Fidelis Auto. All rights reserved.
           </p>
           <p className="text-xs text-[var(--color-text-secondary)]">
-            Own the story.
+            For the love of cars.
           </p>
         </div>
       </div>

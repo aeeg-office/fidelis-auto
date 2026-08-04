@@ -28,14 +28,14 @@ export default function HomePage() {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center z-20 px-4">
             <h1 className="font-[family-name:var(--font-cormorant)] text-5xl md:text-7xl lg:text-8xl font-semibold text-[var(--color-text-inverse)] mb-4">
-              Own the Story
+              We Love Cars.
             </h1>
             <p className="text-lg md:text-xl text-[var(--color-text-inverse)]/80 max-w-2xl mx-auto mb-8">
-              A premium digital showroom for collector, classic, and enthusiast vehicles.
-              Every vehicle tells a story. We make sure it&apos;s the truth.
+              Every car has a story. We verify it, document it, and tell it honestly.
+              From daily drivers to once-in-a-lifetime finds — find the car you love.
             </p>
             <Link
-              href="/vehicles/porsche-911e"
+              href="/vehicles"
               className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
             >
               Explore Vehicles
@@ -53,8 +53,8 @@ export default function HomePage() {
               Featured Vehicles
             </h2>
             <p className="text-[var(--color-text-secondary)] max-w-xl mx-auto">
-              Each vehicle in our collection is documented, verified, and presented with
-              the care it deserves.
+              Every vehicle we present is documented, verified, and shared with the
+              honesty every car and its story deserves.
             </p>
           </div>
 
@@ -85,13 +85,13 @@ export default function HomePage() {
       <section className="py-16 md:py-24 bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)]">
         <div className="container-page text-center max-w-3xl">
           <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold mb-6">
-            Curated. Verified. Extraordinary.
+            Honest. Verified. Loved.
           </h2>
           <p className="text-lg text-[var(--color-text-inverse)]/70 leading-relaxed">
-            Fidelis Auto is more than a showroom. It&apos;s a commitment to provenance,
-            a celebration of craftsmanship, and a platform built on trust.
-            Every vehicle in our collection has been carefully selected,
-            thoroughly documented, and presented with the authenticity it deserves.
+            Fidelis Auto is more than a marketplace. It&apos;s a celebration of cars —
+            the machines we grew up with, the ones we dreamed about, and the ones we
+            can&apos;t stop thinking about. We document every vehicle honestly so you can
+            buy, sell, and collect with confidence.
           </p>
         </div>
       </section>
@@ -100,11 +100,11 @@ export default function HomePage() {
       <section className="py-16 md:py-24">
         <div className="container-page text-center">
           <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-4">
-            Have a Vehicle to Share?
+            Have a Car to Share?
           </h2>
           <p className="text-[var(--color-text-secondary)] max-w-xl mx-auto mb-8">
-            We&apos;re always interested in exceptional vehicles with documented histories.
-            Get in touch to start the conversation.
+            We&apos;re always interested in great cars with honest stories. Tell us about
+            yours and let&apos;s start the conversation.
           </p>
           <Link
             href="/contact"

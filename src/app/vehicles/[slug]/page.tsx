@@ -1,6 +1,7 @@
 import { ArrowLeft, Calendar, Gauge, Wrench, Palette } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
 
 // Placeholder — will come from DB
 const VEHICLE = {
@@ -33,20 +34,75 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: VEHICLE.title,
     description: `1971 Porsche 911E — ${VEHICLE.mileage.toLocaleString()} original miles. Albert Blue over Beige. Fully documented provenance.`,
+    alternates: {
+      canonical: `https://fidelisauto.com/vehicles/${VEHICLE.slug}`,
+    },
+    openGraph: {
+      title: VEHICLE.title,
+      description: `1971 Porsche 911E — ${VEHICLE.mileage.toLocaleString()} original miles. Albert Blue over Beige. Fully documented provenance.`,
+      url: `https://fidelisauto.com/vehicles/${VEHICLE.slug}`,
+    },
   };
 }
 
 export default function VehicleDetailPage() {
   return (
     <>
+      {/* Structured Data */}
+      <JsonLd
+        type="BreadcrumbList"
+        data={{
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: "https://fidelisauto.com",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: VEHICLE.title,
+              item: `https://fidelisauto.com/vehicles/${VEHICLE.slug}`,
+            },
+          ],
+        }}
+      />
+      <JsonLd
+        type="Vehicle"
+        data={{
+          name: VEHICLE.title,
+          description: VEHICLE.description.trim(),
+          modelDate: VEHICLE.year,
+          manufacturer: {
+            "@type": "Organization",
+            name: VEHICLE.make,
+          },
+          model: VEHICLE.model,
+          vehicleIdentificationNumber: VEHICLE.vin,
+          mileageFromOdometer: {
+            value: VEHICLE.mileage,
+            unitText: "mi",
+          },
+          vehicleTransmission: VEHICLE.transmission,
+          vehicleEngine: {
+            name: VEHICLE.engine,
+          },
+          color: VEHICLE.exteriorColor,
+          vehicleInteriorColor: VEHICLE.interiorColor,
+          vehicleSeatingCapacity: 2,
+          url: `https://fidelisauto.com/vehicles/${VEHICLE.slug}`,
+        }}
+      />
+
       {/* Back Link */}
       <div className="container-page py-6">
         <Link
-          href="/"
+          href="/vehicles"
           className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
         >
           <ArrowLeft size={16} />
-          Back to Home
+          Back to Vehicles
         </Link>
       </div>
 

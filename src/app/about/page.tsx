@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "The story behind Fidelis Auto — a curated collector vehicle showroom built on trust, provenance, and passion.",
+  description: "Fidelis Auto is a home for car lovers. We verify, document, and share the stories behind every car we feature.",
 };
 
 export default function AboutPage() {
@@ -16,68 +16,64 @@ export default function AboutPage() {
         <div className="prose prose-lg max-w-none text-[var(--color-text-secondary)] space-y-6">
           <p>
             <strong className="text-[var(--color-text-primary)]">Fidelis</strong> — from the Latin for
-            &ldquo;faithful&rdquo; — represents our commitment to authenticity, provenance, and trust
-            in every vehicle we present.
+            &ldquo;faithful&rdquo; — represents our commitment to honesty, transparency, and trust
+            in every car we feature.
           </p>
 
           <p>
-            Founded from a passion for automotive history and a frustration with how little
-            trust exists in the collector car market, Fidelis Auto was built to change how
-            exceptional vehicles are presented, documented, and connected with the right
-            owners.
+            We built Fidelis Auto because we love cars. Not just the rare ones, not just the expensive ones —
+            all of them. We believe every car has a story worth telling, and we believe that story should be told honestly.
           </p>
 
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] mt-12">
-            Our Philosophy
+            Why We Exist
           </h2>
 
           <p>
-            We believe every collector vehicle has a story worth telling. Not just a list of
-            specifications, but a narrative of where it&apos;s been, who owned it, what makes it
-            unique. Our platform is designed to give each vehicle the presentation it deserves —
-            gallery-grade photography, verified provenance, and the space to tell its story.
+            The car market is full of noise. Misleading listings, hidden histories, exaggerated claims.
+            We wanted something different — a place where every car is documented thoroughly, where
+            buyers can trust what they see, and where sellers can present their cars with the pride they deserve.
           </p>
 
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] mt-12">
-            What Sets Us Apart
+            What We Do
           </h2>
 
           <ul className="space-y-4">
             <li>
-              <strong className="text-[var(--color-text-primary)]">Verified Provenance</strong>
+              <strong className="text-[var(--color-text-primary)]">Verified Documentation</strong>
               <br />
-              Every document, every service record, every ownership change is presented
-              transparently. We don&apos;t just claim history — we show it.
+              Every service record, ownership change, and detail is presented transparently.
+              We don&apos;t claim history — we show it.
             </li>
             <li>
-              <strong className="text-[var(--color-text-primary)]">Gallery-Grade Presentation</strong>
+              <strong className="text-[var(--color-text-primary)]">Honest Photography</strong>
               <br />
-              Professional photography, 4K resolution, detailed documentation. Each vehicle
-              is presented with the care it deserves.
+              Real photos, real condition. No deceptive angles, no misleading edits.
+              What you see is what you get.
             </li>
             <li>
-              <strong className="text-[var(--color-text-primary)]">Curated Selection</strong>
+              <strong className="text-[var(--color-text-primary)]">A Home for Every Car</strong>
               <br />
-              We don&apos;t list every vehicle. We select vehicles with documented histories,
-              exceptional condition, and compelling stories.
+              Whether it&apos;s a weekend sports car, a daily driver with history, or a
+              once-in-a-generation find — if it has a story, it belongs here.
             </li>
             <li>
-              <strong className="text-[var(--color-text-primary)]">Global Reach, Regional Focus</strong>
+              <strong className="text-[var(--color-text-primary)]">Built for the Middle East, Open to the World</strong>
               <br />
-              Born in Egypt, built for the world. We connect collectors across the MENA
-              region, Europe, and beyond.
+              Born in Egypt, built for the global car community. We connect enthusiasts
+              across the Middle East, Europe, and beyond.
             </li>
           </ul>
 
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] mt-12">
-            The Vision
+            What&rsquo;s Next
           </h2>
 
           <p>
-            Fidelis Auto begins as a personal showroom for four exceptional vehicles and
-            will evolve into a global platform where collectors can showcase, discover, and
-            transact with confidence. Every feature we build serves one purpose: making it
-            easier to trust the story behind the vehicle.
+            Fidelis Auto starts as a curated showcase and will grow into a global platform
+            where car lovers can discover, share, and transact with confidence. Every feature
+            we build serves one purpose: making it easier to trust the story behind the car.
           </p>
         </div>
       </div>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#2a2a4e"/>
+    </linearGradient>
+    <linearGradient id="car" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#c9a84c"/>
+      <stop offset="100%" style="stop-color:#b8953a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <!-- Road -->
+  <rect x="0" y="650" width="1600" height="250" fill="#0d0d14"/>
+  <line x1="0" y1="725" x2="1600" y2="725" stroke="#333" stroke-width="2" stroke-dasharray="40 20"/>
+  <!-- Car body - 1973 Carrera RS wide body -->
+  <g transform="translate(280, 180) scale(1.7)">
+    <!-- Shadow -->
+    <ellipse cx="312" cy="430" rx="290" ry="20" fill="rgba(0,0,0,0.4)"/>
+    <!-- Rear flares (wide body) -->
+    <path d="M60 310 Q40 320 35 350 L30 410 L90 410 Q100 380 120 360 Z" fill="#CC2222" stroke="#990000" stroke-width="2"/>
+    <path d="M520 280 Q560 290 565 340 L570 410 L505 410 Q495 370 475 340 Z" fill="#CC2222" stroke="#990000" stroke-width="2"/>
+    <!-- Main body -->
+    <path d="M60 300 L80 250 L140 220 L340 220 L440 260 L520 270 L540 310 L545 380 L545 410 L90 410 L70 380 L60 340 Z" fill="#CC2222" stroke="#990000" stroke-width="2"/>
+    <!-- Roof -->
+    <path d="M140 220 L200 140 L300 120 L380 130 L440 260 L340 220 Z" fill="#B01818" stroke="#990000" stroke-width="2"/>
+    <!-- Ducktail spoiler -->
+    <path d="M100 260 L95 240 L120 235 L130 255 Z" fill="#B01818" stroke="#990000" stroke-width="1.5"/>
+    <!-- Windows -->
+    <path d="M180 200 L220 155 L290 145 L360 155 L390 200 Z" fill="#87CEEB" opacity="0.6"/>
+    <!-- Front windshield -->
+    <path d="M390 200 L360 155 L390 140 L430 200 Z" fill="#87CEEB" opacity="0.5"/>
+    <!-- Wheels -->
+    <circle cx="160" cy="410" r="48" fill="#1a1a1a"/>
+    <circle cx="160" cy="410" r="28" fill="#333"/>
+    <circle cx="160" cy="410" r="8" fill="#c9a84c"/>
+    <circle cx="460" cy="410" r="48" fill="#1a1a1a"/>
+    <circle cx="460" cy="410" r="28" fill="#333"/>
+    <circle cx="460" cy="410" r="8" fill="#c9a84c"/>
+    <!-- Decals -->
+    <rect x="420" y="295" width="80" height="18" rx="2" fill="white" opacity="0.15"/>
+    <text x="460" y="308" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="8" font-weight="bold" opacity="0.5">CARRERA RS 2.7</text>
+    <!-- Headlight -->
+    <ellipse cx="545" cy="330" rx="12" ry="8" fill="#FFD700" opacity="0.8"/>
+    <!-- Taillight -->
+    <ellipse cx="55" cy="340" rx="8" ry="6" fill="#FF4444" opacity="0.7"/>
+    <!-- Details -->
+    <line x1="140" y1="300" x2="480" y2="300" stroke="#990000" stroke-width="1" opacity="0.5"/>
+  </g>
+  <!-- Badge -->
+  <text x="800" y="820" text-anchor="middle" fill="#c9a84c" font-family="Georgia,serif" font-size="14" opacity="0.6">1973 PORSCHE 911 CARRERA RS 2.7 · MATCHING NUMBERS</text>
+</svg>

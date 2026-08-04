@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#2a2a4e"/>
+    </linearGradient>
+    <linearGradient id="car" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#c9a84c"/>
+      <stop offset="100%" style="stop-color:#b8953a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <!-- Road -->
+  <rect x="0" y="650" width="1600" height="250" fill="#0d0d14"/>
+  <line x1="0" y1="725" x2="1600" y2="725" stroke="#333" stroke-width="2" stroke-dasharray="40 20"/>
+  <!-- Car body - 1969 280SL -->
+  <g transform="translate(280, 200) scale(1.6)">
+    <!-- Shadow -->
+    <ellipse cx="312" cy="430" rx="280" ry="20" fill="rgba(0,0,0,0.4)"/>
+    <!-- Main body -->
+    <path d="M70 290 L90 240 L150 210 L340 210 L430 250 L490 270 L510 310 L520 380 L520 410 L90 410 L75 380 L65 340 Z" fill="#F5F5F0" stroke="#C0C0C0" stroke-width="2"/>
+    <!-- Roof -->
+    <path d="M150 210 L210 130 L300 110 L370 120 L430 250 L340 210 Z" fill="#EBEBE5" stroke="#C0C0C0" stroke-width="2"/>
+    <!-- Removable hardtop line -->
+    <line x1="210" y1="130" x2="150" y2="210" stroke="#B0B0B0" stroke-width="1" stroke-dasharray="4 3"/>
+    <!-- Windows -->
+    <path d="M190 190 L225 145 L290 135 L350 145 L380 190 Z" fill="#87CEEB" opacity="0.55"/>
+    <!-- Chrome trim line -->
+    <path d="M100 280 L340 280 L480 300" fill="none" stroke="#D4D4D4" stroke-width="2" opacity="0.7"/>
+    <!-- Wheels -->
+    <circle cx="160" cy="410" r="45" fill="#1a1a1a"/>
+    <circle cx="160" cy="410" r="25" fill="#333"/>
+    <circle cx="160" cy="410" r="8" fill="#c9a84c"/>
+    <circle cx="460" cy="410" r="45" fill="#1a1a1a"/>
+    <circle cx="460" cy="410" r="25" fill="#333"/>
+    <circle cx="460" cy="410" r="8" fill="#c9a84c"/>
+    <!-- Headlight -->
+    <ellipse cx="512" cy="320" rx="12" ry="8" fill="#FFD700" opacity="0.8"/>
+    <!-- Taillight -->
+    <ellipse cx="65" cy="335" rx="8" ry="6" fill="#FF4444" opacity="0.7"/>
+    <!-- Front grille - Mercedes star hint -->
+    <rect x="440" y="255" width="40" height="20" rx="3" fill="#E8E8E0" stroke="#B0B0B0" stroke-width="1"/>
+    <circle cx="460" cy="265" r="6" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <line x1="460" y1="259" x2="460" y2="271" stroke="#c9a84c" stroke-width="1"/>
+    <line x1="454" y1="265" x2="466" y2="265" stroke="#c9a84c" stroke-width="1"/>
+  </g>
+  <!-- Badge -->
+  <text x="800" y="820" text-anchor="middle" fill="#c9a84c" font-family="Georgia,serif" font-size="14" opacity="0.6">1969 MERCEDES-BENZ 280SL · RECENT RESTORATION</text>
+</svg>
