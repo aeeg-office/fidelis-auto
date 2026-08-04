@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, Gauge, Wrench, Cog } from "lucide-react";
+import { MapPin, Gauge, Wrench, Cog, Star } from "lucide-react";
 import VehicleImage from "./VehicleImage";
 
 export interface VehicleCardData {
@@ -22,6 +22,10 @@ export interface VehicleCardData {
   subtitle?: string | null;
   /** Optional creation timestamp (epoch ms) used for "newest" sorting. */
   createdAt?: number;
+  /** Vehicle category badge. */
+  category?: string;
+  /** Whether this is a featured/ premium listing. */
+  isFeatured?: boolean;
 }
 
 interface VehicleCardProps {
@@ -48,6 +52,14 @@ function formatPrice(value?: string | null): string {
   return `$${n.toLocaleString()}`;
 }
 
+const CATEGORY_STYLES: Record<string, string> = {
+  Modern: "bg-blue-100 text-blue-800 border-blue-200",
+  Classic: "bg-amber-100 text-amber-800 border-amber-200",
+  Vintage: "bg-purple-100 text-purple-800 border-purple-200",
+  EV: "bg-green-100 text-green-800 border-green-200",
+  Other: "bg-gray-100 text-gray-800 border-gray-200",
+};
+
 export default function VehicleCard({
   vehicle,
   variant = "detailed",
@@ -56,6 +68,7 @@ export default function VehicleCard({
 }: VehicleCardProps) {
   const location =
     vehicle.city && vehicle.country ? `${vehicle.city}, ${vehicle.country}` : null;
+  const categoryStyle = CATEGORY_STYLES[vehicle.category || ""] || CATEGORY_STYLES.Other;
 
   return (
     <Link
@@ -72,9 +85,21 @@ export default function VehicleCard({
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        {sold && (
-          <span className="absolute top-3 left-3 z-10 bg-[var(--color-surface-dark)]/85 text-[var(--color-text-inverse)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full border border-[var(--color-text-inverse)]/20">
-            Sold
+        <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-2">
+          {vehicle.isFeatured && (
+            <span className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full inline-flex items-center gap-1 shadow-sm">
+              <Star size={12} /> Featured
+            </span>
+          )}
+          {sold && (
+            <span className="bg-[var(--color-surface-dark)]/85 text-[var(--color-text-inverse)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full border border-[var(--color-text-inverse)]/20">
+              Sold
+            </span>
+          )}
+        </div>
+        {vehicle.category && (
+          <span className={`absolute top-3 right-3 z-10 text-xs font-medium px-2.5 py-1 rounded-full border ${categoryStyle}`}>
+            {vehicle.category}
           </span>
         )}
       </div>

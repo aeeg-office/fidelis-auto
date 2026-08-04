@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, BarChart3, MessageSquare } from "lucide-react";
+import { useCompareStore } from "@/lib/compare-store";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -16,11 +17,13 @@ const NAV_LINKS = [
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<{ name: string } | null>(null);
+  const compareCount = useCompareStore((s) => s.slugs.length);
+  const compareSlugs = useCompareStore((s) => s.slugs);
 
   useEffect(() => {
     fetch("/api/auth/me")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => setUser(d))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setUser(d))
       .catch(() => {});
   }, []);
 
@@ -43,6 +46,29 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
+
+          {/* Compare button */}
+          {compareCount > 0 && (
+            <Link
+              href={`/compare?slugs=${compareSlugs.join(",")}`}
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-accent)] hover:underline"
+            >
+              <BarChart3 size={16} />
+              <span>Compare ({compareCount})</span>
+            </Link>
+          )}
+
+          {/* Messages link (logged in only) */}
+          {user && (
+            <Link
+              href="/messages"
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+            >
+              <MessageSquare size={16} />
+              <span>Messages</span>
+            </Link>
+          )}
+
           {user ? (
             <button onClick={() => fetch("/api/auth/logout", { method: "POST" }).then(() => location.reload())}
               className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-error)] transition-colors">
@@ -72,6 +98,26 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+
+            {compareCount > 0 && (
+              <Link
+                href={`/compare?slugs=${compareSlugs.join(",")}`}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-accent)]"
+              >
+                <BarChart3 size={16} />
+                <span>Compare ({compareCount})</span>
+              </Link>
+            )}
+
+            {user && (
+              <Link href="/messages" onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
+                <MessageSquare size={16} />
+                Messages
+              </Link>
+            )}
+
             {!user && (
               <Link href="/login" onClick={() => setMobileOpen(false)}
                 className="text-base font-medium text-[var(--color-accent)]">

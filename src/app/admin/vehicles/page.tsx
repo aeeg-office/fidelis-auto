@@ -2,16 +2,24 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
-import { Car, FileText, Plus } from "lucide-react";
+import { Car, FileText, Plus, Star, StarOff } from "lucide-react";
 import type { Vehicle, VehicleImage } from "@prisma/client";
 
 type VehicleWithImage = Vehicle & { images: VehicleImage[] };
+
+const CATEGORY_STYLES: Record<string, string> = {
+  Modern: "bg-blue-100 text-blue-800",
+  Classic: "bg-amber-100 text-amber-800",
+  Vintage: "bg-purple-100 text-purple-800",
+  EV: "bg-green-100 text-green-800",
+  Other: "bg-gray-100 text-gray-800",
+};
 
 export default async function AdminVehiclesPage() {
   if (!(await verifySession())) redirect("/admin/login");
 
   const vehicles = await prisma.vehicle.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
     include: { images: { take: 1, where: { isPrimary: true } } },
   });
 
@@ -31,10 +39,26 @@ export default async function AdminVehiclesPage() {
               <div className="w-16 h-12 bg-[var(--color-surface-dark)] rounded flex items-center justify-center shrink-0">
                 <Car size={20} className="text-[var(--color-text-inverse)]/30" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-[var(--color-text-primary)]">{v.year} {v.make} {v.model}</p>
-                <p className="text-xs text-[var(--color-text-secondary)]">Slug: {v.slug} | {v.status} | {v.images.length} image(s)</p>
+                <p className="text-xs text-[var(--color-text-secondary)]">
+                  Slug: {v.slug} | {v.status} | {v.images.length} image(s)
+                </p>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {/* Category badge */}
+                  {v.category && v.category !== "Other" && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${CATEGORY_STYLES[v.category] || "bg-gray-100 text-gray-800"}`}>
+                      {v.category}
+                    </span>
+                  )}
+                  {/* Status badge */}
+                  <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${v.isPublished ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+                    {v.isPublished ? "Published" : "Draft"}
+                  </span>
+                </div>
               </div>
+              {/* Featured toggle */}
+              <FeaturedToggle id={v.id} isFeatured={v.isFeatured} />
               <span className={`text-xs px-2 py-1 rounded-full font-medium ${v.isPublished ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
                 {v.isPublished ? "Published" : "Draft"}
               </span>
@@ -63,7 +87,7 @@ function Sidebar() {
     <div className="fixed left-0 top-0 bottom-0 w-56 bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] p-6">
       <Link href="/admin" className="font-[family-name:var(--font-cormorant)] text-xl font-semibold mb-8 block">Fidelis Auto</Link>
       <nav className="space-y-2">
-        <SidebarLink href="/admin" icon={<Car size={16} />} label="Dashboard" />
+        <SidebarLink href="/admin" icon={<FileText size={16} />} label="Dashboard" />
         <SidebarLink href="/admin/submissions" icon={<FileText size={16} />} label="Submissions" />
         <SidebarLink href="/admin/vehicles" icon={<Car size={16} />} label="Vehicles" active />
       </nav>
@@ -80,5 +104,27 @@ function SidebarLink({ href, icon, label, active }: { href: string; icon: React.
     <Link href={href} className={`${base} ${active ? "bg-white/10 text-white font-medium" : "text-white/70 hover:text-white hover:bg-white/5"}`}>
       {icon} {label}
     </Link>
+  );
+}
+
+function FeaturedToggle({ id, isFeatured }: { id: string; isFeatured: boolean }) {
+  return (
+    <form
+      action={async () => {
+        "use server";
+        const { verifySession } = await import("@/lib/auth");
+        const { prisma } = await import("@/lib/prisma");
+        if (!(await verifySession())) return;
+        await prisma.vehicle.update({ where: { id }, data: { isFeatured: !isFeatured } });
+      }}
+    >
+      <button
+        type="submit"
+        className={`p-1.5 rounded transition-colors ${isFeatured ? "text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]" : "text-gray-300 hover:text-gray-500"}`}
+        title={isFeatured ? "Unfeature" : "Feature this vehicle"}
+      >
+        {isFeatured ? <Star size={16} /> : <StarOff size={16} />}
+      </button>
+    </form>
   );
 }

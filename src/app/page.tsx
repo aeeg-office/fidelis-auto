@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Car, CableCar, Sparkles, Zap } from "lucide-react";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import VehicleImage from "@/components/VehicleImage";
 import VehicleCard from "@/components/VehicleCard";
@@ -26,6 +26,8 @@ const FEATURED_VEHICLES: VehicleCardData[] = [
     price: "USD 425,000",
     city: "Munich",
     country: "Germany",
+    category: "Classic",
+    isFeatured: true,
   },
   {
     slug: "mercedes-230sl",
@@ -44,10 +46,11 @@ const FEATURED_VEHICLES: VehicleCardData[] = [
     price: "USD 180,000",
     city: "Dubai",
     country: "United Arab Emirates",
+    category: "Vintage",
+    isFeatured: true,
   },
 ];
 
-// Most recent vehicles (sorted by createdAt descending, top 4)
 const RECENT_VEHICLES: VehicleCardData[] = [
   {
     slug: "porsche-911-carrera-rs",
@@ -66,6 +69,7 @@ const RECENT_VEHICLES: VehicleCardData[] = [
     price: "POA",
     city: "Stuttgart",
     country: "Germany",
+    category: "Vintage",
   },
   {
     slug: "mercedes-280sl",
@@ -84,6 +88,7 @@ const RECENT_VEHICLES: VehicleCardData[] = [
     price: "USD 145,000",
     city: "Cairo",
     country: "Egypt",
+    category: "Classic",
   },
   {
     slug: "porsche-911e",
@@ -102,6 +107,7 @@ const RECENT_VEHICLES: VehicleCardData[] = [
     price: "USD 425,000",
     city: "Munich",
     country: "Germany",
+    category: "Classic",
   },
   {
     slug: "mercedes-230sl",
@@ -120,7 +126,15 @@ const RECENT_VEHICLES: VehicleCardData[] = [
     price: "USD 180,000",
     city: "Dubai",
     country: "United Arab Emirates",
+    category: "Vintage",
   },
+];
+
+const CATEGORIES = [
+  { key: "Modern", label: "Modern", icon: Car, desc: "Late-model performance and luxury vehicles", color: "bg-blue-50 text-blue-700 border-blue-200" },
+  { key: "Classic", label: "Classic", icon: Car, desc: "Timeless automobiles from 1970s–1990s", color: "bg-amber-50 text-amber-700 border-amber-200" },
+  { key: "Vintage", label: "Vintage", icon: CableCar, desc: "Pre-1970s collector cars with history", color: "bg-purple-50 text-purple-700 border-purple-200" },
+  { key: "EV", label: "Electric", icon: Zap, desc: "Modern electric and hybrid vehicles", color: "bg-green-50 text-green-700 border-green-200" },
 ];
 
 export default function HomePage() {
@@ -145,6 +159,43 @@ export default function HomePage() {
               Explore Vehicles
               <ArrowRight size={18} />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Category Section */}
+      <section className="py-16 md:py-20 bg-[var(--color-surface)] border-b border-[var(--color-border)]">
+        <div className="container-page">
+          <div className="text-center mb-10">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3">
+              Browse by Category
+            </h2>
+            <p className="text-[var(--color-text-secondary)] max-w-xl mx-auto">
+              From vintage classics to modern marvels — find your perfect match.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <Link
+                  key={cat.key}
+                  href={`/vehicles?category=${cat.key}`}
+                  className={`group flex flex-col items-center text-center p-6 md:p-8 rounded-xl border ${cat.color} hover:shadow-md hover:-translate-y-1 transition-all duration-200`}
+                >
+                  <div className="p-3 rounded-full bg-white/80 mb-4">
+                    <Icon size={28} />
+                  </div>
+                  <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold mb-1">
+                    {cat.label}
+                  </h3>
+                  <p className="text-xs opacity-80 leading-relaxed">{cat.desc}</p>
+                  <span className="mt-3 text-xs font-medium inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Browse <ArrowRight size={12} />
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

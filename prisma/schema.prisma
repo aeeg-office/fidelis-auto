@@ -34,6 +34,8 @@ model Vehicle {
   storyEn       String?  @db.Text
   storyAr       String?  @db.Text
   isFeatured    Boolean  @default(false)
+  featuredUntil DateTime?
+  category      String   @default("Other") // Modern, Classic, Vintage, EV, Other
   isPublished   Boolean  @default(false)
   order         Int      @default(0)
   createdAt     DateTime @default(now())
@@ -135,6 +137,10 @@ model User {
 
   listingRequests ListingRequest[]
   favorites       Favorite[]
+  sentMessages       Message[]   @relation(name: "messageSender")
+  receivedMessages   Message[]   @relation(name: "messageReceiver")
+  conversationsAs1   Conversation[] @relation(name: "conversationParticipant1")
+  conversationsAs2   Conversation[] @relation(name: "conversationParticipant2")
 }
 
 // ── Vehicle Listing Requests (public submissions) ──
@@ -185,4 +191,34 @@ model Favorite {
   createdAt DateTime @default(now())
 
   @@unique([userId, vehicleId])
+}
+
+// ── Messaging ───────────────────────────────────
+model Conversation {
+  id              String    @id @default(cuid())
+  participant1Id  String
+  participant2Id  String
+  lastMessageAt   DateTime?
+  createdAt       DateTime  @default(now())
+
+  participant1 User      @relation(name: "conversationParticipant1", fields: [participant1Id], references: [id])
+  participant2 User      @relation(name: "conversationParticipant2", fields: [participant2Id], references: [id])
+  messages      Message[]
+
+  @@unique([participant1Id, participant2Id])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  senderId       String
+  receiverId     String
+  conversationId String
+  subject        String
+  content        String   @db.Text
+  read           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  sender       User         @relation(name: "messageSender", fields: [senderId], references: [id])
+  receiver     User         @relation(name: "messageReceiver", fields: [receiverId], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }

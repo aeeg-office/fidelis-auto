@@ -8,9 +8,18 @@ import { MAKES, TRANSMISSIONS, COUNTRIES } from "@/lib/car-data";
 // ─── Props ──────────────────────────────────────
 interface FilterBarProps {
   bodyTypes: string[];
+  categories?: string[];
 }
 
-export default function FilterBar({ bodyTypes }: FilterBarProps) {
+const CATEGORY_LABELS: Record<string, string> = {
+  Modern: "Modern",
+  Classic: "Classic",
+  Vintage: "Vintage",
+  EV: "Electric",
+  Other: "Other",
+};
+
+export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -25,6 +34,7 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
   const [country, setCountry] = useState(searchParams.get("country") || "");
   const [priceMin, setPriceMin] = useState(searchParams.get("priceMin") || "");
   const [priceMax, setPriceMax] = useState(searchParams.get("priceMax") || "");
+  const [category, setCategory] = useState(searchParams.get("category") || "");
   const [sort, setSort] = useState(searchParams.get("sort") || "newest");
 
   // Get models for the selected make
@@ -43,9 +53,10 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
     if (country) params.set("country", country);
     if (priceMin) params.set("priceMin", priceMin);
     if (priceMax) params.set("priceMax", priceMax);
+    if (category) params.set("category", category);
     if (sort !== "newest") params.set("sort", sort);
     return params.toString();
-  }, [q, make, model, yearMin, yearMax, bodyType, transmission, country, priceMin, priceMax, sort]);
+  }, [q, make, model, yearMin, yearMax, bodyType, transmission, country, priceMin, priceMax, category, sort]);
 
   const applyFilters = useCallback(() => {
     const qs = buildQuery();
@@ -69,11 +80,12 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
     setCountry("");
     setPriceMin("");
     setPriceMax("");
+    setCategory("");
     setSort("newest");
     router.push("/vehicles");
   }, [router]);
 
-  const hasAnyFilter = q || make || model || yearMin || yearMax || bodyType || transmission || country || priceMin || priceMax || sort !== "newest";
+  const hasAnyFilter = q || make || model || yearMin || yearMax || bodyType || transmission || country || priceMin || priceMax || category || sort !== "newest";
 
   // Build year options
   const currentYear = new Date().getFullYear();
@@ -95,7 +107,7 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
       </div>
 
       {/* Filter Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* Make */}
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">Make</label>
@@ -152,6 +164,29 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
+          >
+            <option value="">All Categories</option>
+            {categories.length > 0 ? categories.map((c) => (
+              <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
+            )) : (
+              <>
+                <option value="Modern">Modern</option>
+                <option value="Classic">Classic</option>
+                <option value="Vintage">Vintage</option>
+                <option value="EV">Electric</option>
+                <option value="Other">Other</option>
+              </>
+            )}
+          </select>
         </div>
 
         {/* Body Type */}

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import JsonLd from "@/components/JsonLd";
 import FavoriteButton from "@/components/FavoriteButton";
 import SocialShare from "@/components/SocialShare";
+import ContactSellerButton from "@/components/ContactSellerButton";
 import VehicleImage from "@/components/VehicleImage";
 import RelatedVehicles from "@/components/RelatedVehicles";
 
@@ -173,6 +174,10 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
             </div>
 
             <div className="mt-4 space-y-3">
+              <ContactSellerButton
+                vehicleSlug={slug}
+                vehicleTitle={vehicle.title}
+              />
               <FavoriteButton slug={slug} />
               <SocialShare
                 url={`https://fidelisauto.com/vehicles/${slug}`}
@@ -217,7 +222,12 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
       <section className="py-16">
         <div className="container-page text-center">
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-semibold text-[var(--color-text-primary)] mb-4">Interested in This Vehicle?</h2>
-          <Link href="/contact" className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors">Make an Inquiry</Link>
+          <div className="max-w-xs mx-auto">
+            <ContactSellerButton
+              vehicleSlug={slug}
+              vehicleTitle={vehicle.title}
+            />
+          </div>
         </div>
       </section>
     </>

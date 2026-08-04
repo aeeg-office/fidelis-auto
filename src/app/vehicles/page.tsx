@@ -4,7 +4,7 @@ import { MapPin, Gauge, Wrench, Cog } from "lucide-react";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import VehicleCard from "@/components/VehicleCard";
-import VehicleImage from "@/components/VehicleImage";
+import CompareVehicleCard from "@/components/CompareVehicleCard";
 import type { VehicleCardData } from "@/components/VehicleCard";
 import RecentlySold from "@/components/RecentlySold";
 import FilterBar from "./FilterBar";
@@ -31,6 +31,8 @@ const PLACEHOLDER_VEHICLES: VehicleCardData[] = [
     country: "Germany",
     image: "/images/placeholder-porsche-911e.svg",
     createdAt: new Date("2026-07-15").getTime(),
+    category: "Classic",
+    isFeatured: true,
   },
   {
     slug: "mercedes-230sl",
@@ -49,6 +51,8 @@ const PLACEHOLDER_VEHICLES: VehicleCardData[] = [
     country: "United Arab Emirates",
     image: "/images/placeholder-mercedes-230sl.svg",
     createdAt: new Date("2026-07-20").getTime(),
+    category: "Vintage",
+    isFeatured: true,
   },
   {
     slug: "porsche-911-carrera-rs",
@@ -67,6 +71,7 @@ const PLACEHOLDER_VEHICLES: VehicleCardData[] = [
     country: "Germany",
     image: "/images/placeholder-porsche-911-carrera-rs.svg",
     createdAt: new Date("2026-07-25").getTime(),
+    category: "Vintage",
   },
   {
     slug: "mercedes-280sl",
@@ -85,6 +90,7 @@ const PLACEHOLDER_VEHICLES: VehicleCardData[] = [
     country: "Egypt",
     image: "/images/placeholder-mercedes-280sl.svg",
     createdAt: new Date("2026-07-30").getTime(),
+    category: "Classic",
   },
 ];
 
@@ -123,7 +129,7 @@ async function getVehicles(): Promise<VehicleCardData[]> {
   try {
     dbVehicles = await prisma.vehicle.findMany({
       where: { isPublished: true },
-      orderBy: { order: "asc" },
+      orderBy: [{ isFeatured: "desc" }, { order: "asc" }],
     });
   } catch {
     dbVehicles = null;
@@ -147,6 +153,8 @@ async function getVehicles(): Promise<VehicleCardData[]> {
       country: null,
       image: `/images/placeholder-${v.slug}.svg`,
       createdAt: v.createdAt.getTime(),
+      category: v.category || undefined,
+      isFeatured: v.isFeatured || undefined,
     }));
   }
 
@@ -164,6 +172,7 @@ function filterVehicles(vehicles: VehicleCardData[], params: Record<string, stri
   const country = (params.country || "").toString().trim();
   const priceMin = (params.priceMin || "").toString();
   const priceMax = (params.priceMax || "").toString();
+  const category = (params.category || "").toString().trim();
 
   return vehicles.filter((v) => {
     if (q) {
@@ -177,6 +186,7 @@ function filterVehicles(vehicles: VehicleCardData[], params: Record<string, stri
     if (bodyType && (v.trim || "") !== bodyType) return false;
     if (transmission && normalizeTransmission(v.transmission) !== transmission) return false;
     if (country && v.country !== country) return false;
+    if (category && (v.category || "") !== category) return false;
 
     const price = extractPrice(v.price);
     if (priceMin && price !== null && price < parseInt(priceMin, 10)) return false;
@@ -198,7 +208,12 @@ function sortVehicles(vehicles: VehicleCardData[], sort: string): VehicleCardDat
     case "year-asc":
       return arr.sort((a, b) => a.year - b.year);
     default:
-      return arr.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+      // Featured first, then by newest
+      return arr.sort((a, b) => {
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        return (b.createdAt ?? 0) - (a.createdAt ?? 0);
+      });
   }
 }
 
@@ -222,6 +237,9 @@ export default async function VehiclesPage({
 
   // Distinct body types from current data
   const bodyTypes = Array.from(new Set(allVehicles.map((v) => v.trim).filter(Boolean) as string[])).sort();
+
+  // Distinct categories from current data
+  const categories = Array.from(new Set(allVehicles.map((v) => v.category).filter(Boolean) as string[])).sort();
 
   // Build pagination links, preserving query params
   const baseParams = new URLSearchParams();
@@ -255,7 +273,7 @@ export default async function VehiclesPage({
       {/* Filters + Grid */}
       <section className="container-page py-10 md:py-14">
         <Suspense>
-          <FilterBar bodyTypes={bodyTypes} />
+          <FilterBar bodyTypes={bodyTypes} categories={categories} />
         </Suspense>
 
         {/* Results count */}
@@ -270,7 +288,7 @@ export default async function VehiclesPage({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {pageVehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.slug} vehicle={vehicle} />
+              <CompareVehicleCard key={vehicle.slug} vehicle={vehicle} />
             ))}
           </div>
         )}

@@ -2,22 +2,30 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
-import { Car, FileText, MessageSquare, Plus, Eye, Check, X } from "lucide-react";
-import { cookies } from "next/headers";
+import { Car, FileText, MessageSquare, Plus, Eye, Star, Check, X } from "lucide-react";
 
 export default async function AdminDashboard() {
   const isAuth = await verifySession();
   if (!isAuth) redirect("/admin/login");
 
-  const [pendingSubmissions, totalVehicles, totalInquiries] = await Promise.all([
+  const [pendingSubmissions, totalVehicles, totalInquiries, totalApproved, totalRejected] = await Promise.all([
     prisma.listingRequest.count({ where: { status: "pending" } }),
     prisma.vehicle.count(),
     prisma.inquiry.count(),
+    prisma.listingRequest.count({ where: { status: "approved" } }),
+    prisma.listingRequest.count({ where: { status: "rejected" } }),
   ]);
 
   const submissions = await prisma.listingRequest.findMany({
     orderBy: { createdAt: "desc" },
     take: 10,
+  });
+
+  const featuredVehicles = await prisma.vehicle.findMany({
+    where: { isFeatured: true },
+    select: { id: true, year: true, make: true, model: true, slug: true, isFeatured: true },
+    orderBy: { updatedAt: "desc" },
+    take: 5,
   });
 
   return (
@@ -42,6 +50,7 @@ export default async function AdminDashboard() {
           </a>
         </nav>
         <div className="absolute bottom-6 left-6 right-6">
+          <a href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</a>
           <a href="/admin/logout" className="text-xs text-white/40 hover:text-white">Logout</a>
         </div>
       </div>
@@ -56,10 +65,18 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <div className="grid md:grid-cols-5 gap-6 mb-10">
           <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
             <p className="text-sm text-[var(--color-text-secondary)] mb-1">Pending Submissions</p>
-            <p className="text-3xl font-semibold text-[var(--color-text-primary)]">{pendingSubmissions}</p>
+            <p className="text-3xl font-semibold text-yellow-600">{pendingSubmissions}</p>
+          </div>
+          <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
+            <p className="text-sm text-[var(--color-text-secondary)] mb-1">Approved</p>
+            <p className="text-3xl font-semibold text-green-600">{totalApproved}</p>
+          </div>
+          <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
+            <p className="text-sm text-[var(--color-text-secondary)] mb-1">Rejected</p>
+            <p className="text-3xl font-semibold text-red-600">{totalRejected}</p>
           </div>
           <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
             <p className="text-sm text-[var(--color-text-secondary)] mb-1">Live Vehicles</p>
@@ -71,8 +88,8 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Submissions */}
-        <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)]">
+        {/* Recent Submissions with Actions */}
+        <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] mb-8">
           <div className="flex items-center justify-between p-6 border-b border-[var(--color-border)]">
             <h2 className="font-semibold text-[var(--color-text-primary)]">Recent Submissions</h2>
             <Link href="/admin/submissions" className="text-sm text-[var(--color-accent)] hover:underline">View All</Link>
@@ -82,22 +99,94 @@ export default async function AdminDashboard() {
               <p className="p-6 text-sm text-[var(--color-text-secondary)]">No submissions yet.</p>
             ) : (
               submissions.map((s) => (
-                <div key={s.id} className="flex items-center justify-between p-4 px-6">
-                  <div>
-                    <p className="text-sm font-medium text-[var(--color-text-primary)]">{s.year} {s.make} {s.model}</p>
-                    <p className="text-xs text-[var(--color-text-secondary)]">{s.name} &middot; {new Date(s.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    s.status === "pending" ? "bg-yellow-100 text-yellow-800" :
-                    s.status === "approved" ? "bg-green-100 text-green-800" :
-                    "bg-red-100 text-red-800"
-                  }`}>{s.status}</span>
+                <AdminSubmissionRow key={s.id} submission={s} />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Featured Vehicles */}
+        <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)]">
+          <div className="flex items-center justify-between p-6 border-b border-[var(--color-border)]">
+            <h2 className="font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
+              <Star size={16} className="text-[var(--color-accent)]" /> Featured Vehicles
+            </h2>
+            <Link href="/admin/vehicles" className="text-sm text-[var(--color-accent)] hover:underline">Manage Vehicles</Link>
+          </div>
+          <div className="divide-y divide-[var(--color-border)]">
+            {featuredVehicles.length === 0 ? (
+              <p className="p-6 text-sm text-[var(--color-text-secondary)]">No featured vehicles. Toggle featured status from the Vehicles page.</p>
+            ) : (
+              featuredVehicles.map((v) => (
+                <div key={v.id} className="flex items-center justify-between p-4 px-6">
+                  <p className="text-sm font-medium text-[var(--color-text-primary)]">{v.year} {v.make} {v.model}</p>
+                  <span className="text-xs px-2 py-1 rounded-full font-medium bg-[var(--color-accent)]/20 text-[var(--color-accent)] border border-[var(--color-accent)]/30">
+                    <Star size={12} className="inline mr-1" />Featured
+                  </span>
                 </div>
               ))
             )}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Client Action Buttons ──────────────────────
+
+function AdminSubmissionRow({ submission: s }: { submission: { id: string; year: number; make: string; model: string; trim: string | null; name: string; email: string; phone: string | null; description: string | null; mileage: number | null; exteriorColor: string | null; interiorColor: string | null; engine: string | null; transmission: string | null; status: string; createdAt: Date } }) {
+  return (
+    <div className="p-4 px-6 flex items-start justify-between">
+      <div>
+        <p className="text-sm font-medium text-[var(--color-text-primary)]">{s.year} {s.make} {s.model}{s.trim ? ` ${s.trim}` : ""}</p>
+        <p className="text-xs text-[var(--color-text-secondary)] mt-1">{s.name} &lt;{s.email}&gt;{s.phone ? ` | ${s.phone}` : ""}</p>
+        {s.mileage && <p className="text-xs text-[var(--color-text-secondary)] mt-1">{s.mileage.toLocaleString()} mi | {s.exteriorColor || "?"} ext</p>}
+        <p className="text-xs text-[var(--color-text-secondary)] mt-1">Submitted {new Date(s.createdAt).toLocaleString()}</p>
+      </div>
+      <div className="flex items-center gap-2 shrink-0 ml-4">
+        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+          s.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+          s.status === "approved" ? "bg-green-100 text-green-800" :
+          "bg-red-100 text-red-800"
+        }`}>{s.status}</span>
+        {s.status === "pending" && (
+          <SubmissionActions id={s.id} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SubmissionActions({ id }: { id: string }) {
+  return (
+    <div className="flex gap-1">
+      <form
+        action={async () => {
+          "use server";
+          const { verifySession } = await import("@/lib/auth");
+          const { prisma } = await import("@/lib/prisma");
+          if (!(await verifySession())) return;
+          await prisma.listingRequest.update({ where: { id }, data: { status: "approved" } });
+        }}
+      >
+        <button type="submit" className="p-1.5 rounded bg-green-50 text-green-700 hover:bg-green-100 transition-colors" title="Approve">
+          <Check size={14} />
+        </button>
+      </form>
+      <form
+        action={async () => {
+          "use server";
+          const { verifySession } = await import("@/lib/auth");
+          const { prisma } = await import("@/lib/prisma");
+          if (!(await verifySession())) return;
+          await prisma.listingRequest.update({ where: { id }, data: { status: "rejected" } });
+        }}
+      >
+        <button type="submit" className="p-1.5 rounded bg-red-50 text-red-700 hover:bg-red-100 transition-colors" title="Reject">
+          <X size={14} />
+        </button>
+      </form>
     </div>
   );
 }
