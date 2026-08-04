@@ -2,23 +2,19 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, User, BarChart3, MessageSquare } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Menu, X, User, BarChart3, MessageSquare, Globe } from "lucide-react";
 import { useCompareStore } from "@/lib/compare-store";
-
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/vehicles", label: "Vehicles" },
-  { href: "/journal", label: "Journal" },
-  { href: "/submit", label: "Sell Your Car" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<{ name: string } | null>(null);
   const compareCount = useCompareStore((s) => s.slugs.length);
   const compareSlugs = useCompareStore((s) => s.slugs);
+  const t = useTranslations("nav");
+  const tc = useTranslations("common");
+  const pathname = usePathname();
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -26,6 +22,30 @@ export default function Header() {
       .then((d) => setUser(d))
       .catch(() => {});
   }, []);
+
+  // Determine current locale from pathname
+  const currentLocale = pathname.startsWith("/ar") ? "ar" : "en";
+  const targetLocale = currentLocale === "en" ? "ar" : "en";
+  const switchLabel = currentLocale === "en" ? tc("languageSwitch") : tc("languageSwitchEnglish");
+
+  // Build the switch URL by replacing /ar prefix or adding it
+  const switchHref = (() => {
+    if (currentLocale === "en") {
+      return `/ar${pathname === "/" ? "" : pathname}`;
+    } else {
+      const withoutAr = pathname.replace(/^\/ar/, "") || "/";
+      return withoutAr;
+    }
+  })();
+
+  const NAV_LINKS = [
+    { href: "/", label: t("home") },
+    { href: "/vehicles", label: t("vehicles") },
+    { href: "/journal", label: t("journal") },
+    { href: "/submit", label: t("sellYourCar") },
+    { href: "/about", label: t("about") },
+    { href: "/contact", label: t("contact") },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-sm">
@@ -54,7 +74,7 @@ export default function Header() {
               className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-accent)] hover:underline"
             >
               <BarChart3 size={16} />
-              <span>Compare ({compareCount})</span>
+              <span>{t("compare")} ({compareCount})</span>
             </Link>
           )}
 
@@ -65,28 +85,51 @@ export default function Header() {
               className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
             >
               <MessageSquare size={16} />
-              <span>Messages</span>
+              <span>{t("messages")}</span>
             </Link>
           )}
+
+          {/* Language Switcher */}
+          <Link
+            href={switchHref}
+            className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors border border-[var(--color-border)] rounded-md px-2.5 py-1.5"
+            aria-label={switchLabel}
+          >
+            <Globe size={14} />
+            {switchLabel}
+          </Link>
 
           {user ? (
             <button onClick={() => fetch("/api/auth/logout", { method: "POST" }).then(() => location.reload())}
               className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-error)] transition-colors">
-              <User size={16} /> {user.name} (Logout)
+              <User size={16} /> {user.name} ({t("signOut")})
             </button>
           ) : (
             <Link href="/login"
               className="text-sm font-medium text-[var(--color-accent)] hover:underline">
-              Sign In
+              {t("signIn")}
             </Link>
           )}
         </nav>
 
-        <button onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-2 text-[var(--color-text-primary)]"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}>
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile menu button */}
+        <div className="flex items-center gap-3 md:hidden">
+          {/* Mobile Language Switcher */}
+          <Link
+            href={switchHref}
+            className="flex items-center gap-1 text-xs font-medium text-[var(--color-text-secondary)] px-2 py-1 border border-[var(--color-border)] rounded"
+            aria-label={switchLabel}
+          >
+            <Globe size={14} />
+            {switchLabel}
+          </Link>
+
+          <button onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 text-[var(--color-text-primary)]"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}>
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {mobileOpen && (
@@ -106,7 +149,7 @@ export default function Header() {
                 className="flex items-center gap-1.5 text-base font-medium text-[var(--color-accent)]"
               >
                 <BarChart3 size={16} />
-                <span>Compare ({compareCount})</span>
+                <span>{t("compare")} ({compareCount})</span>
               </Link>
             )}
 
@@ -114,14 +157,14 @@ export default function Header() {
               <Link href="/messages" onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
                 <MessageSquare size={16} />
-                Messages
+                {t("messages")}
               </Link>
             )}
 
             {!user && (
               <Link href="/login" onClick={() => setMobileOpen(false)}
                 className="text-base font-medium text-[var(--color-accent)]">
-                Sign In
+                {t("signIn")}
               </Link>
             )}
           </div>

@@ -1,23 +1,33 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
-const FOOTER_LINKS = {
-  Explore: [
-    { href: "/", label: "Home" },
-    { href: "/vehicles", label: "Vehicles" },
-    { href: "/journal", label: "Journal" },
-    { href: "/about", label: "About" },
-  ],
-  Connect: [
-    { href: "/contact", label: "Contact" },
-    { href: "mailto:aeeg.education@gmail.com", label: "Email" },
-  ],
-  Legal: [
-    { href: "/privacy", label: "Privacy" },
-    { href: "/terms", label: "Terms" },
-  ],
-};
+export default async function Footer() {
+  const t = await getTranslations("footer");
 
-export default function Footer() {
+  const FOOTER_LINKS = {
+    [t("explore")]: [
+      { href: "/", label: t("explore") },
+      { href: "/vehicles", label: t("explore") },
+    ],
+  };
+
+  const footerLinks: Record<string, { href: string; label: string }[]> = {
+    [t("explore")]: [
+      { href: "/", label: "Home" },
+      { href: "/vehicles", label: "Vehicles" },
+      { href: "/journal", label: "Journal" },
+      { href: "/about", label: "About" },
+    ],
+    [t("connect")]: [
+      { href: "/contact", label: t("email") },
+      { href: "mailto:aeeg.education@gmail.com", label: t("email") },
+    ],
+    [t("legal")]: [
+      { href: "/privacy", label: t("privacy") },
+      { href: "/terms", label: t("terms") },
+    ],
+  };
+
   return (
     <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)]">
       <div className="container-page py-12 md:py-16">
@@ -33,19 +43,19 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm text-[var(--color-text-secondary)] max-w-xs">
-              For the love of cars. Every car has a story — we help you find yours.
+              {t("tagline")}
             </p>
           </div>
 
           {/* Link Columns */}
-          {Object.entries(FOOTER_LINKS).map(([title, links]) => (
+          {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
               <h3 className="text-xs font-semibold uppercase tracking-widest mb-4 text-[var(--color-accent)]">
                 {title}
               </h3>
               <ul className="space-y-2">
-                {links.map((link) => (
-                  <li key={link.href}>
+                {links.map((link, idx) => (
+                  <li key={`${link.href}-${idx}`}>
                     <Link
                       href={link.href}
                       className="text-sm text-[var(--color-text-inverse)]/70 hover:text-[var(--color-accent)] transition-colors"
@@ -61,10 +71,10 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-[var(--color-text-secondary)]">
-            &copy; {new Date().getFullYear()} Fidelis Auto. All rights reserved.
+            &copy; {new Date().getFullYear()} Fidelis Auto. {t("copyright")}
           </p>
           <p className="text-xs text-[var(--color-text-secondary)]">
-            For the love of cars.
+            {t("forTheLoveOfCars")}
           </p>
         </div>
       </div>

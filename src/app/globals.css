@@ -54,6 +54,65 @@ body {
 }
 
 /* ============================================================
+   RTL Support
+   ============================================================ */
+
+/* Arabic font family override */
+[dir="rtl"] body,
+[dir="rtl"] {
+  font-family: var(--font-arabic, "Noto Kufi Arabic", system-ui, sans-serif);
+}
+
+/* Flip arrows and directional icons in RTL */
+[dir="rtl"] .lucide-arrow-right,
+[dir="rtl"] svg.lucide-arrow-right,
+[dir="rtl"] [class*="ArrowRight"] {
+  transform: scaleX(-1);
+}
+
+/* RTL-aware margin/padding for container-page */
+[dir="rtl"] .container-page {
+  text-align: right;
+}
+
+/* Prose spacing adjustments for RTL */
+[dir="rtl"] .prose ul,
+[dir="rtl"] .prose ol {
+  padding-right: 1.5em;
+  padding-left: 0;
+}
+
+/* RTL search icon positioning */
+[dir="rtl"] .relative .absolute.left-3 {
+  right: 0.75rem;
+  left: auto;
+}
+
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="search"] {
+  padding-right: 2.25rem;
+  padding-left: 0.75rem;
+}
+
+/* RTL input groups - flip gap direction */
+[dir="rtl"] .flex.gap-1 > *:first-child {
+  order: 2;
+}
+[dir="rtl"] .flex.gap-1 > *:last-child {
+  order: 1;
+}
+
+/* RTL timeline dot positioning */
+[dir="rtl"] .flex.gap-4 > .flex.flex-col.items-center {
+  order: 2;
+}
+
+/* RTL group hover arrow */
+[dir="rtl"] .group-hover\\:gap-2 {
+  gap: 0.5rem;
+}
+
+/* ============================================================
    Utility Classes
    ============================================================ */
 .container-page {
