@@ -290,7 +290,7 @@ function CompareContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [vehicles, setVehicles] = useState<CompareVehicle[]>([]);
-  const [options, setOptions] = useState<VehicleOption[]>([]);
+    const [options, setOptions] = useState<VehicleOption[]>([]);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 

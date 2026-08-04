@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
           </a>
         </nav>
         <div className="absolute bottom-6 left-6 right-6">
-          <a href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</a>
+          <Link href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</Link>
           <a href="/admin/logout" className="text-xs text-white/40 hover:text-white">Logout</a>
         </div>
       </div>
