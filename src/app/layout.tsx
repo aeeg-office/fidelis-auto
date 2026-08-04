@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fidelisauto.com"),
@@ -29,7 +29,6 @@ export const metadata: Metadata = {
     locale: "en_US",
     siteName: "Fidelis Auto",
   },
-  themeColor: "#c9a84c",
   manifest: "/manifest.json",
   icons: {
     apple: [{ url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" }],
@@ -37,6 +36,10 @@ export const metadata: Metadata = {
   other: {
     "apple-mobile-web-app-capable": "yes",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c9a84c",
 };
 
 export default function RootLayout({
