@@ -16,13 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "A dealer application already exists for this account." }, { status: 409 });
     }
 
-    await prisma.$transaction([
-      prisma.dealerProfile.create({ data: { ownerId: user.id, ...validation.value } }),
-      prisma.user.update({
-        where: { id: user.id },
-        data: { role: user.role === "BUYER" ? "SELLER" : user.role },
-      }),
-    ]);
+    await prisma.dealerProfile.create({ data: { ownerId: user.id, ...validation.value } });
 
     return NextResponse.json({
       ok: true,
