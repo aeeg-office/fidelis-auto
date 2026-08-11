@@ -1,32 +1,29 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { can, type AccountRole } from "@/lib/authorization";
+import { normalizeListingSubmission } from "@/lib/listing-submission";
+import { getCurrentUser } from "@/lib/user-auth";
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { name, email, year, make, model, userId } = body;
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Sign in to submit a vehicle." }, { status: 401 });
+  }
+  if (!can(user.role as AccountRole, "listing:create")) {
+    return NextResponse.json({ error: "Your account is not permitted to submit listings." }, { status: 403 });
+  }
 
-    if (!name || !email || !year || !make || !model) {
-      return NextResponse.json({ error: "Name, email, year, make, and model are required." }, { status: 400 });
+  try {
+    const body: unknown = await request.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "A valid submission is required." }, { status: 400 });
     }
 
-    const listing = await prisma.listingRequest.create({
-      data: {
-        userId: userId || null,
-        name, email, phone: body.phone || null,
-        year: parseInt(year), make, model,
-        trim: body.trim || null, mileage: body.mileage ? parseInt(body.mileage) : null,
-        exteriorColor: body.exteriorColor || null, interiorColor: body.interiorColor || null,
-        engine: body.engine || null, transmission: body.transmission || null,
-        description: body.description || null,
-        photoUrls: body.photoUrls?.length ? JSON.stringify(body.photoUrls) : null,
-        videoUrls: body.videoUrls?.length ? JSON.stringify(body.videoUrls) : null,
-        city: body.city || null, state: body.state || null,
-        country: body.country || null, zipCode: body.zipCode || null,
-      },
-    });
+    const submission = normalizeListingSubmission(body as Record<string, unknown>, user.id);
+    if (!submission.ok) return NextResponse.json({ error: submission.error }, { status: 400 });
 
-    return NextResponse.json({ ok: true, id: listing.id });
+    const listing = await prisma.listingRequest.create({ data: submission.value });
+    return NextResponse.json({ ok: true, id: listing.id }, { status: 201 });
   } catch (error) {
     console.error("Submit error:", error);
     return NextResponse.json({ error: "Something went wrong." }, { status: 500 });

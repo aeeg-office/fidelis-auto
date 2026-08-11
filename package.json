@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
+    "db:bootstrap-super-admin": "tsx scripts/bootstrap-super-admin.ts",
     "test": "vitest run",
     "prebuild": "prisma generate"
   },

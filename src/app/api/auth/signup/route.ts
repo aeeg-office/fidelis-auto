@@ -30,6 +30,7 @@ export async function POST(request: Request) {
         phone: registration.phone,
         country: registration.country,
         city: registration.city,
+        role: registration.role,
         passwordHash,
         verificationCode: emailCode,
         verificationCodeExpiry: expiry,

@@ -1,20 +1,20 @@
 import { redirect } from "next/navigation";
+import { can, type AccountRole } from "@/lib/authorization";
 import { getCurrentUser } from "@/lib/user-auth";
 import SubmitForm from "./SubmitForm";
 
 export default async function SubmitPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?redirect=/submit");
+  if (!can(user.role as AccountRole, "listing:create")) redirect("/dashboard");
 
   return (
-    <div className="container-page py-16 md:py-24">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="font-[family-name:var(--font-cormorant)] text-4xl md:text-5xl font-semibold text-[var(--color-text-primary)] mb-2">Sell Your Vehicle</h1>
-        <p className="text-[var(--color-text-secondary)] mb-10">
-          Welcome, {user.name}. Fill in the details below and our team will review your submission.
-        </p>
-        <SubmitForm userId={user.id} />
+    <main className="min-h-screen bg-[var(--color-bg)] py-12">
+      <div className="mx-auto max-w-4xl px-4">
+        <h1 className="font-[family-name:var(--font-cormorant)] text-4xl font-semibold text-[var(--color-text-primary)]">Sell Your Car</h1>
+        <p className="mt-3 text-[var(--color-text-secondary)]">Tell us about your vehicle and our team will review it.</p>
+        <SubmitForm />
       </div>
-    </div>
+    </main>
   );
 }

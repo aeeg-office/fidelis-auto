@@ -25,6 +25,16 @@ enum DealerApprovalStatus {
   REJECTED
 }
 
+enum AuditAction {
+  SUPER_ADMIN_BOOTSTRAPPED
+  ROLE_CHANGED
+  ACCOUNT_SUSPENDED
+  ACCOUNT_RESTORED
+  DEALER_APPROVED
+  DEALER_REJECTED
+  SESSION_REVOKED
+}
+
 // ── Vehicles ──────────────────────────────────
 model Vehicle {
   id            String   @id @default(cuid())
@@ -177,6 +187,19 @@ model AuthSession {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  action    AuditAction
+  actorId   String?
+  targetId  String?
+  metadata  String?     @db.Text
+  createdAt DateTime    @default(now())
+
+  @@index([action, createdAt])
+  @@index([actorId, createdAt])
+  @@index([targetId, createdAt])
 }
 
 model DealerProfile {

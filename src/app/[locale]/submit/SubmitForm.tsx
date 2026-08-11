@@ -7,7 +7,7 @@ import { YEARS, EXTERIOR_COLORS, INTERIOR_COLORS, TRANSMISSIONS, COUNTRIES } fro
 import PhoneInput from "@/components/PhoneInput";
 import type { MakeEntry } from "@/lib/car-data";
 
-export default function SubmitForm({ userId }: { userId: string }) {
+export default function SubmitForm() {
   const [step, setStep] = useState<"form" | "success">("form");
   const [loading, setLoading] = useState(false);
   const [photos, setPhotos] = useState<File[]>([]);
@@ -72,7 +72,7 @@ export default function SubmitForm({ userId }: { userId: string }) {
     const finalCountry = selectedCountry === "Other" ? customCountry : selectedCountry;
 
     const data = {
-      userId, name: form.get("name"), email: form.get("email"), phone,
+      name: form.get("name"), email: form.get("email"), phone,
       year: parseInt(selectedYear), make: finalMake, model: finalModel,
       trim: form.get("trim"), mileage: form.get("mileage") ? parseInt(form.get("mileage") as string) : null,
       exteriorColor: form.get("exteriorColor"), interiorColor: form.get("interiorColor"),

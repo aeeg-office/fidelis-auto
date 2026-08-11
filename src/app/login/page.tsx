@@ -31,7 +31,7 @@ export default function LoginPage() {
     setLoading(false);
     const data = await res.json();
     if (res.ok) {
-      router.push("/submit");
+      router.push(typeof data.redirectPath === "string" ? data.redirectPath : "/dashboard");
     } else if (data.needsVerification) {
       setNeedsVerification(true);
       setVerifyEmail(data.email);

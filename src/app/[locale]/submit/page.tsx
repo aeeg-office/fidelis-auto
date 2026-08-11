@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
+import { can, type AccountRole } from "@/lib/authorization";
 import { getCurrentUser } from "@/lib/user-auth";
 import SubmitForm from "./SubmitForm";
 
 export default async function SubmitPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?redirect=/submit");
+  if (!can(user.role as AccountRole, "listing:create")) redirect("/dashboard");
 
   return (
     <div className="container-page py-16 md:py-24">
@@ -13,7 +15,7 @@ export default async function SubmitPage() {
         <p className="text-[var(--color-text-secondary)] mb-10">
           Welcome, {user.name}. Fill in the details below and our team will review your submission.
         </p>
-        <SubmitForm userId={user.id} />
+        <SubmitForm />
       </div>
     </div>
   );

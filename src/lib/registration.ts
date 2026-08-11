@@ -16,6 +16,7 @@ export type NormalizedRegistration = {
   country: string;
   city: string;
   password: string;
+  role: "SELLER";
 };
 
 const asTrimmedString = (value: unknown): string =>
@@ -30,6 +31,7 @@ export function normalizeRegistration(input: RegistrationInput): NormalizedRegis
     country: asTrimmedString(input.country),
     city: asTrimmedString(input.city),
     password: typeof input.password === "string" ? input.password : "",
+    role: "SELLER",
   };
 }
 

@@ -17,9 +17,9 @@ describe("registration validation", () => {
       firstName: "Amina",
       lastName: "Hassan",
       email: "amina@example.com",
-      phone: "+201001234567",
       country: "Egypt",
       city: "Cairo",
+      role: "SELLER",
     });
     expect(validateRegistration(valid)).toEqual({ ok: true });
   });
