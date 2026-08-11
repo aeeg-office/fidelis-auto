@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
-import { Car, FileText, MessageSquare, Plus, Eye, Star, Check, X } from "lucide-react";
+import { Car, FileText, MessageSquare, Plus, Eye, Star } from "lucide-react";
+import AdminSubmissionActions from "@/components/AdminSubmissionActions";
 
 export default async function AdminDashboard() {
   const isAuth = await verifySession();
@@ -151,42 +152,9 @@ function AdminSubmissionRow({ submission: s }: { submission: { id: string; year:
           "bg-red-100 text-red-800"
         }`}>{s.status}</span>
         {s.status === "pending" && (
-          <SubmissionActions id={s.id} />
+          <AdminSubmissionActions id={s.id} />
         )}
       </div>
-    </div>
-  );
-}
-
-function SubmissionActions({ id }: { id: string }) {
-  return (
-    <div className="flex gap-1">
-      <form
-        action={async () => {
-          "use server";
-          const { verifySession } = await import("@/lib/auth");
-          const { prisma } = await import("@/lib/prisma");
-          if (!(await verifySession())) return;
-          await prisma.listingRequest.update({ where: { id }, data: { status: "approved" } });
-        }}
-      >
-        <button type="submit" className="p-1.5 rounded bg-green-50 text-green-700 hover:bg-green-100 transition-colors" title="Approve">
-          <Check size={14} />
-        </button>
-      </form>
-      <form
-        action={async () => {
-          "use server";
-          const { verifySession } = await import("@/lib/auth");
-          const { prisma } = await import("@/lib/prisma");
-          if (!(await verifySession())) return;
-          await prisma.listingRequest.update({ where: { id }, data: { status: "rejected" } });
-        }}
-      >
-        <button type="submit" className="p-1.5 rounded bg-red-50 text-red-700 hover:bg-red-100 transition-colors" title="Reject">
-          <X size={14} />
-        </button>
-      </form>
     </div>
   );
 }
