@@ -37,6 +37,7 @@ const ROLE_PERMISSIONS: Record<AccountRole, ReadonlySet<Permission>> = {
     "listing:manage-own",
     "dealer:manage",
     "dealer:inventory",
+    "service:manage",
   ]),
   ADMINISTRATOR: new Set([
     "vehicle:favorite",

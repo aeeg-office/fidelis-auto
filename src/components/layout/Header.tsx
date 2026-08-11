@@ -42,6 +42,7 @@ export default function Header() {
     { href: "/", label: t("home") },
     { href: "/vehicles", label: t("vehicles") },
     { href: "/journal", label: t("journal") },
+    { href: "/services", label: t("services") },
     { href: "/submit", label: t("sellYourCar") },
     { href: "/about", label: t("about") },
     { href: "/contact", label: t("contact") },

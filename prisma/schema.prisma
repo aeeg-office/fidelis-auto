@@ -171,6 +171,7 @@ model User {
   favorites       Favorite[]
   sessions        AuthSession[]
   dealerProfile   DealerProfile?
+  serviceListings ServiceListing[]
   sentMessages       Message[]   @relation(name: "messageSender")
   receivedMessages   Message[]   @relation(name: "messageReceiver")
   conversationsAs1   Conversation[] @relation(name: "conversationParticipant1")
@@ -228,6 +229,26 @@ model DealerProfile {
 
   @@index([approvalStatus])
   @@index([country, city])
+}
+
+// ── Services Marketplace ─────────────────────────
+model ServiceListing {
+  id          String   @id @default(cuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  businessName String
+  category    String
+  description String   @db.Text
+  phone       String?
+  website     String?
+  city        String?
+  country     String?
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, category])
+  @@index([ownerId])
 }
 
 // ── Vehicle Listing Requests (public submissions) ──

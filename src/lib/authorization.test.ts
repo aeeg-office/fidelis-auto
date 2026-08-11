@@ -12,6 +12,7 @@ describe("Fidelis Auto role authorization", () => {
     expect(can("BUYER", "vehicle:favorite")).toBe(true);
     expect(can("SELLER", "listing:create")).toBe(true);
     expect(can("DEALER", "dealer:manage")).toBe(true);
+    expect(can("DEALER", "service:manage")).toBe(true);
     expect(can("ADMINISTRATOR", "listing:moderate")).toBe(true);
     expect(can("SUPER_ADMIN", "system:manage")).toBe(true);
 

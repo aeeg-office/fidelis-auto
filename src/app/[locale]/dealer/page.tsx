@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/user-auth";
 import { prisma } from "@/lib/prisma";
+import ServiceListingForm from "@/components/ServiceListingForm";
 
 export default async function DealerPortalPage() {
   const user = await getCurrentUser();
@@ -24,7 +25,14 @@ export default async function DealerPortalPage() {
       <h1 className="font-[family-name:var(--font-cormorant)] text-4xl font-semibold">{profile.businessName}</h1>
       <p className="mt-3 text-[var(--color-text-secondary)]">Dealer application status: <strong className="text-[var(--color-text-primary)]">{status}</strong></p>
       {profile.moderationNotes && <p className="mt-4 rounded-lg border border-[var(--color-border)] p-4 text-sm">{profile.moderationNotes}</p>}
-      <p className="mt-8 text-sm text-[var(--color-text-secondary)]">Inventory and staff management will appear here after approval and marketplace onboarding.</p>
+      {profile.approvalStatus === "APPROVED" ? (
+        <>
+          <p className="mt-8 text-sm text-[var(--color-text-secondary)]">Your dealer account is approved. Submit inventory through the vehicle form and add specialist services for marketplace review.</p>
+          <ServiceListingForm />
+        </>
+      ) : (
+        <p className="mt-8 text-sm text-[var(--color-text-secondary)]">Inventory and service directory access will appear here after approval.</p>
+      )}
     </div>
   );
 }
