@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { roleLandingPath, type AccountRole } from "@/lib/authorization";
 import { verifyPassword, createUserSession } from "@/lib/user-auth";
 
 export async function POST(request: Request) {
@@ -24,7 +25,12 @@ export async function POST(request: Request) {
     }
 
     await createUserSession(user.id);
-    return NextResponse.json({ ok: true, name: user.name });
+    return NextResponse.json({
+      ok: true,
+      name: user.name,
+      role: user.role,
+      redirectPath: roleLandingPath(user.role as AccountRole),
+    });
   } catch {
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }

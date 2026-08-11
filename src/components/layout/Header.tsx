@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Menu, X, User, BarChart3, MessageSquare, Globe } from "lucide-react";
+import { Menu, X, User, BarChart3, Globe, ShieldCheck, Building2, LayoutDashboard } from "lucide-react";
+import { roleLandingPath, type AccountRole } from "@/lib/authorization";
 import { useCompareStore } from "@/lib/compare-store";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; role: AccountRole } | null>(null);
   const compareCount = useCompareStore((s) => s.slugs.length);
   const compareSlugs = useCompareStore((s) => s.slugs);
   const t = useTranslations("nav");
@@ -25,7 +26,6 @@ export default function Header() {
 
   // Determine current locale from pathname
   const currentLocale = pathname.startsWith("/ar") ? "ar" : "en";
-  const targetLocale = currentLocale === "en" ? "ar" : "en";
   const switchLabel = currentLocale === "en" ? tc("languageSwitch") : tc("languageSwitchEnglish");
 
   // Build the switch URL by replacing /ar prefix or adding it
@@ -78,14 +78,13 @@ export default function Header() {
             </Link>
           )}
 
-          {/* Messages link (logged in only) */}
           {user && (
             <Link
-              href="/messages"
+              href={roleLandingPath(user.role)}
               className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
             >
-              <MessageSquare size={16} />
-              <span>{t("messages")}</span>
+              {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
+              <span>{user.role === "DEALER" ? "Dealer Portal" : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? "Administration" : "Dashboard"}</span>
             </Link>
           )}
 
@@ -154,10 +153,13 @@ export default function Header() {
             )}
 
             {user && (
-              <Link href="/messages" onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
-                <MessageSquare size={16} />
-                {t("messages")}
+              <Link
+                href={roleLandingPath(user.role)}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+              >
+                {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
+                {user.role === "DEALER" ? "Dealer Portal" : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? "Administration" : "Dashboard"}
               </Link>
             )}
 

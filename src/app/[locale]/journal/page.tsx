@@ -189,7 +189,7 @@ export default async function JournalPage() {
                       <p className="text-sm text-[var(--color-text-secondary)] line-clamp-3">
                         {entry.excerpt}
                       </p>
-                      <span className="inline-flex items-center gap-1 text-sm text-[var(--color-accent)] mt-3 group-hover:gap-2 transition-all">
+                      <span className="inline-flex items-center gap-1 text-sm text-[var(--color-accent)] mt-3 transition-colors">
                         {t("readMore")} <ArrowRight size={14} />
                       </span>
                     </article>

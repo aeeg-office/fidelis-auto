@@ -10,6 +10,21 @@ datasource db {
   provider = "postgresql"
 }
 
+enum AccountRole {
+  BUYER
+  SELLER
+  DEALER
+  ADMINISTRATOR
+  SUPER_ADMIN
+}
+
+enum DealerApprovalStatus {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+  REJECTED
+}
+
 // ── Vehicles ──────────────────────────────────
 model Vehicle {
   id            String   @id @default(cuid())
@@ -120,12 +135,17 @@ model Inquiry {
 
 // ── Users & Auth ──────────────────────────────
 model User {
-  id           String    @id @default(cuid())
+  id           String      @id @default(cuid())
   name         String
-  email        String    @unique
+  firstName    String?
+  lastName     String?
+  email        String      @unique
   passwordHash String
   phone        String?
-  verified     Boolean   @default(false)
+  country      String?
+  city         String?
+  role         AccountRole @default(BUYER)
+  verified     Boolean     @default(false)
   verificationCode       String?
   verificationCodeExpiry DateTime?
   phoneVerified Boolean  @default(false)
@@ -137,10 +157,52 @@ model User {
 
   listingRequests ListingRequest[]
   favorites       Favorite[]
+  sessions        AuthSession[]
+  dealerProfile   DealerProfile?
   sentMessages       Message[]   @relation(name: "messageSender")
   receivedMessages   Message[]   @relation(name: "messageReceiver")
   conversationsAs1   Conversation[] @relation(name: "conversationParticipant1")
   conversationsAs2   Conversation[] @relation(name: "conversationParticipant2")
+}
+
+model AuthSession {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model DealerProfile {
+  id              String               @id @default(cuid())
+  ownerId         String               @unique
+  businessName    String
+  contactPerson   String
+  email           String
+  phone           String
+  address         String
+  city            String
+  country         String
+  description     String               @db.Text
+  website         String?
+  logoUrl         String?
+  approvalStatus  DealerApprovalStatus @default(PENDING)
+  approvedAt      DateTime?
+  approvedById    String?
+  moderationNotes String?              @db.Text
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([approvalStatus])
+  @@index([country, city])
 }
 
 // ── Vehicle Listing Requests (public submissions) ──

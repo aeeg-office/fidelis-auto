@@ -46,16 +46,18 @@ export default function SignupPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: form.get("name"),
+        firstName: form.get("firstName"),
+        lastName: form.get("lastName"),
         email: form.get("email"),
-        phone,
+        mobileNumber: phone,
+        country: form.get("country"),
+        city: form.get("city"),
         password,
       }),
     });
 
     setLoading(false);
     if (res.ok) {
-      const data = await res.json();
       router.push(`/verify?email=${encodeURIComponent(form.get("email") as string)}`);
     } else {
       const data = await res.json();
@@ -72,20 +74,37 @@ export default function SignupPage() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">Full Name</label>
-            <input id="name" name="name" required className="w-full px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium mb-1">First Name</label>
+              <input id="firstName" name="firstName" autoComplete="given-name" required className="w-full px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium mb-1">Last Name</label>
+              <input id="lastName" name="lastName" autoComplete="family-name" required className="w-full px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
+            </div>
           </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-            <input id="email" name="email" type="email" required className="w-full px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
+            <input id="email" name="email" type="email" autoComplete="email" required className="w-full px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number (optional)</label>
+            <label htmlFor="phone" className="block text-sm font-medium mb-1">Mobile Number</label>
             <PhoneInput value={phone} onChange={setPhone} />
-            <p className="text-xs text-[var(--color-text-secondary)] mt-1">For future SMS notifications</p>
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1">Required for seller and enquiry follow-up. Verification is not required yet.</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="country" className="block text-sm font-medium mb-1">Country</label>
+              <input id="country" name="country" autoComplete="country-name" required className="w-full px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
+            </div>
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium mb-1">City</label>
+              <input id="city" name="city" autoComplete="address-level2" required className="w-full px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
+            </div>
           </div>
 
           <div>
