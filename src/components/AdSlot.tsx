@@ -13,6 +13,10 @@ const AD_SIZES: Record<string, { width: number; height: number }> = {
   "in-feed": { width: 336, height: 280 },
 };
 
+type AdSenseWindow = Window & typeof globalThis & {
+  adsbygoogle?: { push: (value: Record<string, never>) => void };
+};
+
 export default function AdSlot({ format = "leaderboard", className = "" }: AdSlotProps) {
   const ref = useRef<HTMLDivElement>(null);
   const size = AD_SIZES[format];
@@ -20,9 +24,10 @@ export default function AdSlot({ format = "leaderboard", className = "" }: AdSlo
   useEffect(() => {
     // When AdSense is configured, this will push the ad
     // Replace with: (window.adsbygoogle = window.adsbygoogle || []).push({});
-    if (ref.current && typeof window !== "undefined" && (window as any).adsbygoogle) {
+    const adSenseWindow = window as AdSenseWindow;
+    if (ref.current && adSenseWindow.adsbygoogle) {
       try {
-        (window as any).adsbygoogle.push({});
+        adSenseWindow.adsbygoogle.push({});
       } catch {}
     }
   }, []);

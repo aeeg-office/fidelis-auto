@@ -2,7 +2,27 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // Placeholder data for when DB is unavailable
-const PLACEHOLDER_VEHICLES: Record<string, any> = {
+type PlaceholderVehicle = {
+  slug: string;
+  title: string;
+  year: number;
+  make: string;
+  model: string;
+  trim: string | null;
+  mileage: number;
+  mileageUnit: string;
+  exteriorColor: string;
+  interiorColor: string;
+  engine: string;
+  transmission: string;
+  drivetrain: string;
+  price: string | null;
+  city: string;
+  country: string;
+  image: string;
+};
+
+const PLACEHOLDER_VEHICLES: Record<string, PlaceholderVehicle> = {
   "porsche-911e": {
     slug: "porsche-911e", title: "1971 Porsche 911E", year: 1971, make: "Porsche", model: "911E",
     trim: "Coupe", mileage: 3742, mileageUnit: "mi", exteriorColor: "Albert Blue",

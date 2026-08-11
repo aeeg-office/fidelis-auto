@@ -37,22 +37,22 @@ export default async function AdminDashboard() {
           Fidelis Auto
         </Link>
         <nav className="space-y-2">
-          <a href="/admin" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/10 text-sm font-medium">
+          <Link href="/admin" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/10 text-sm font-medium">
             <Eye size={16} /> Dashboard
-          </a>
-          <a href="/admin/submissions" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white/70 hover:text-white transition-colors">
+          </Link>
+          <Link href="/admin/submissions" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white/70 hover:text-white transition-colors">
             <FileText size={16} /> Submissions
-          </a>
-          <a href="/admin/vehicles" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white/70 hover:text-white transition-colors">
+          </Link>
+          <Link href="/admin/vehicles" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white/70 hover:text-white transition-colors">
             <Car size={16} /> Vehicles
-          </a>
-          <a href="/admin/inquiries" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white/70 hover:text-white transition-colors">
+          </Link>
+          <Link href="/admin/inquiries" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white/70 hover:text-white transition-colors">
             <MessageSquare size={16} /> Inquiries
-          </a>
+          </Link>
         </nav>
         <div className="absolute bottom-6 left-6 right-6">
           <Link href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</Link>
-          <a href="/admin/logout" className="text-xs text-white/40 hover:text-white">Logout</a>
+          <Link href="/admin/logout" className="text-xs text-white/40 hover:text-white">Logout</Link>
         </div>
       </div>
 

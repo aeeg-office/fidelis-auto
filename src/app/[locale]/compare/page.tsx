@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -291,8 +291,11 @@ function CompareContent() {
   const router = useRouter();
   const [vehicles, setVehicles] = useState<CompareVehicle[]>([]);
     const [options, setOptions] = useState<VehicleOption[]>([]);
-  const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const selectedSlugs = useMemo(() => {
+    const slugsParam = searchParams.get("slugs");
+    return slugsParam ? slugsParam.split(",").filter(Boolean) : [];
+  }, [searchParams]);
 
   // Load all available vehicles for the dropdown
   useEffect(() => {
@@ -375,25 +378,20 @@ function CompareContent() {
 
   // Read slugs from URL
   useEffect(() => {
-    const slugsParam = searchParams.get("slugs");
-    if (slugsParam) {
-      const slugs = slugsParam.split(",").filter(Boolean);
-      setSelectedSlugs(slugs);
-      loadVehicles(slugs);
+    if (selectedSlugs.length > 0) {
+      void Promise.resolve().then(() => loadVehicles(selectedSlugs));
     } else {
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
     }
-  }, [searchParams, loadVehicles]);
+  }, [selectedSlugs, loadVehicles]);
 
   const handleSelect = (slug: string) => {
     const newSlugs = [...selectedSlugs, slug];
-    setSelectedSlugs(newSlugs);
     router.push(`/compare?slugs=${newSlugs.join(",")}`, { scroll: false });
   };
 
   const handleRemove = (index: number) => {
     const newSlugs = selectedSlugs.filter((_, i) => i !== index);
-    setSelectedSlugs(newSlugs);
     if (newSlugs.length === 0) {
       router.push("/compare", { scroll: false });
     } else {
@@ -427,7 +425,6 @@ function CompareContent() {
         {vehicles.length > 0 && (
           <button
             onClick={() => {
-              setSelectedSlugs([]);
               setVehicles([]);
               router.push("/compare", { scroll: false });
             }}
