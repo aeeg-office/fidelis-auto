@@ -11,8 +11,8 @@ describe("listing submission normalization", () => {
     make: "Porsche",
     model: "911",
     mileage: "1200",
-    photoUrls: ["/uploads/one.jpg"],
-    videoUrls: ["/uploads/one.mp4"],
+    photoUrls: ["/uploads/00000000-0000-4000-8000-000000000001.jpg"],
+    videoUrls: ["/uploads/00000000-0000-4000-8000-000000000002.mp4"],
     city: "Dubai",
     country: "United Arab Emirates",
   };
@@ -31,14 +31,18 @@ describe("listing submission normalization", () => {
     expect(result.ok && result.value).not.toHaveProperty("clientUserId");
   });
 
-  it("rejects malformed numeric values and non-array media input", () => {
+  it("rejects malformed numeric values and unapproved media URLs", () => {
     expect(normalizeListingSubmission({ ...validPayload, year: "invalid" }, "owner")).toEqual({
       ok: false,
       error: "A valid vehicle year is required.",
     });
     expect(normalizeListingSubmission({ ...validPayload, photoUrls: "not-an-array" }, "owner")).toEqual({
       ok: false,
-      error: "Photo URLs must be an array.",
+      error: "Photo URLs must reference approved uploaded media.",
+    });
+    expect(normalizeListingSubmission({ ...validPayload, photoUrls: ["https://example.invalid/untrusted.jpg"] }, "owner")).toEqual({
+      ok: false,
+      error: "Photo URLs must reference approved uploaded media.",
     });
   });
 });

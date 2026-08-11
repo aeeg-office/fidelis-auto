@@ -19,7 +19,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "A valid submission is required." }, { status: 400 });
     }
 
-    const submission = normalizeListingSubmission(body as Record<string, unknown>, user.id);
+    const submitted = body as Record<string, unknown>;
+    const submission = normalizeListingSubmission({ ...submitted, name: user.name, email: user.email }, user.id);
     if (!submission.ok) return NextResponse.json({ error: submission.error }, { status: 400 });
 
     const listing = await prisma.listingRequest.create({ data: submission.value });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useMemo, useEffect } from "react";
+import { useState, FormEvent, useMemo, useEffect, useRef } from "react";
 import { Upload, Check, Video } from "lucide-react";
 import Link from "next/link";
 import { YEARS, EXTERIOR_COLORS, INTERIOR_COLORS, TRANSMISSIONS, COUNTRIES } from "@/lib/car-data";
@@ -21,6 +21,10 @@ export default function SubmitForm() {
   const [customModel, setCustomModel] = useState("");
   const [makes, setMakes] = useState<MakeEntry[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const [description, setDescription] = useState("");
+  const [assistanceLoading, setAssistanceLoading] = useState(false);
+  const [assistanceError, setAssistanceError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     fetch("/api/makes").then(r => r.json()).then(d => setMakes(d)).catch(() => {});
@@ -86,6 +90,38 @@ export default function SubmitForm() {
     if (res.ok) setStep("success");
   }
 
+  async function improveDescription() {
+    const form = formRef.current;
+    if (!form) return;
+    const fields = new FormData(form);
+    setAssistanceError("");
+    setAssistanceLoading(true);
+    try {
+      const response = await fetch("/api/listing-assistant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          year: selectedYear,
+          make: selectedMake === "Other" ? customMake : selectedMake,
+          model: selectedMake === "Other" ? customModel : fields.get("model"),
+          trim: fields.get("trim"), mileage: fields.get("mileage"),
+          exteriorColor: fields.get("exteriorColor"), interiorColor: fields.get("interiorColor"),
+          engine: fields.get("engine"), transmission: fields.get("transmission"), notes: description,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || typeof data.description !== "string") {
+        setAssistanceError(data.error || "Writing assistance is unavailable. You can continue manually.");
+        return;
+      }
+      setDescription(data.description);
+    } catch {
+      setAssistanceError("Writing assistance is unavailable. You can continue manually.");
+    } finally {
+      setAssistanceLoading(false);
+    }
+  }
+
   if (step === "success") {
     return (
       <div className="text-center py-16">
@@ -100,7 +136,7 @@ export default function SubmitForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
       {/* Contact */}
       <fieldset>
         <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">Your Contact</legend>
@@ -175,9 +211,17 @@ export default function SubmitForm() {
 
       {/* Description */}
       <fieldset>
-        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">Description</legend>
-        <textarea name="description" rows={5} placeholder="Tell us about your vehicle's history, condition, and anything special..."
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <legend className="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Description</legend>
+          <button type="button" onClick={improveDescription} disabled={assistanceLoading}
+            className="text-xs font-medium text-[var(--color-accent)] hover:underline disabled:opacity-50">
+            {assistanceLoading ? "Drafting…" : "Draft with AI"}
+          </button>
+        </div>
+        <textarea name="description" rows={5} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Tell us about your vehicle's history, condition, and anything special..."
           className="w-full px-4 py-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] resize-none" />
+        <p className="mt-2 text-xs text-[var(--color-text-secondary)]">AI drafts use only the details you provide. Review every statement before submitting.</p>
+        {assistanceError && <p role="alert" className="mt-2 text-sm text-red-700">{assistanceError}</p>}
       </fieldset>
 
       {/* Photos */}

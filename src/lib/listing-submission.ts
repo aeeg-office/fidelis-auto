@@ -31,10 +31,13 @@ const asOptionalText = (value: unknown): string | null => asText(value) || null;
 
 function serializeUrlList(value: unknown, field: "Photo" | "Video"): UrlListResult {
   if (value == null) return { ok: true, value: null };
-  if (!Array.isArray(value) || !value.every((item) => typeof item === "string" && item.trim())) {
-    return { ok: false, error: `${field} URLs must be an array.` };
+  const maximum = field === "Photo" ? 30 : 3;
+  const allowedExtensions = field === "Photo" ? "(?:jpg|png|webp|avif)" : "(?:mp4|webm)";
+  const uploadUrl = new RegExp(`^/uploads/[0-9a-f-]{36}\\.${allowedExtensions}$`, "i");
+  if (!Array.isArray(value) || value.length > maximum || !value.every((item) => typeof item === "string" && uploadUrl.test(item))) {
+    return { ok: false, error: `${field} URLs must reference approved uploaded media.` };
   }
-  return { ok: true, value: value.length ? JSON.stringify(value.map((item) => item.trim())) : null };
+  return { ok: true, value: value.length ? JSON.stringify(value) : null };
 }
 
 export function normalizeListingSubmission(payload: ListingPayload, authenticatedUserId: string): SubmissionResult {
