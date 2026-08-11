@@ -57,3 +57,56 @@ export function validateRegistration(input: RegistrationInput): { ok: true } | {
   if (passwordError) return { ok: false, error: passwordError };
   return { ok: true };
 }
+
+type DealerRegistrationInput = {
+  businessName?: unknown;
+  contactPerson?: unknown;
+  email?: unknown;
+  phone?: unknown;
+  address?: unknown;
+  city?: unknown;
+  country?: unknown;
+  description?: unknown;
+  website?: unknown;
+  logoUrl?: unknown;
+};
+
+type NormalizedDealerRegistration = {
+  businessName: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  description: string;
+  website: string | null;
+  logoUrl: string | null;
+};
+
+export function validateDealerRegistration(input: DealerRegistrationInput):
+  | { ok: true; value: NormalizedDealerRegistration }
+  | { ok: false; error: string } {
+  const value: NormalizedDealerRegistration = {
+    businessName: asTrimmedString(input.businessName),
+    contactPerson: asTrimmedString(input.contactPerson),
+    email: asTrimmedString(input.email).toLowerCase(),
+    phone: asTrimmedString(input.phone),
+    address: asTrimmedString(input.address),
+    city: asTrimmedString(input.city),
+    country: asTrimmedString(input.country),
+    description: asTrimmedString(input.description),
+    website: asTrimmedString(input.website) || null,
+    logoUrl: asTrimmedString(input.logoUrl) || null,
+  };
+
+  if (!value.businessName) return { ok: false, error: "Business name is required." };
+  if (!value.contactPerson) return { ok: false, error: "Contact person is required." };
+  if (!value.email || !/^\S+@\S+\.\S+$/.test(value.email)) return { ok: false, error: "A valid business email is required." };
+  if (!value.phone) return { ok: false, error: "Business phone is required." };
+  if (!value.address) return { ok: false, error: "Business address is required." };
+  if (!value.city) return { ok: false, error: "City is required." };
+  if (!value.country) return { ok: false, error: "Country is required." };
+  if (value.description.length < 30) return { ok: false, error: "Business description must be at least 30 characters." };
+  return { ok: true, value };
+}
