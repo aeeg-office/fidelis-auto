@@ -2,97 +2,15 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { MapPin, Gauge, Wrench, Cog } from "lucide-react";
 import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
 import VehicleCard from "@/components/VehicleCard";
 import CompareVehicleCard from "@/components/CompareVehicleCard";
 import type { VehicleCardData } from "@/components/VehicleCard";
 import RecentlySold from "@/components/RecentlySold";
+import { getVehicles } from "@/lib/vehicle-data";
 import FilterBar from "./FilterBar";
 
 // ─── Types ──────────────────────────────────────
 // VehicleCardData imported from @/components/VehicleCard
-
-// ─── Placeholder listing data (used when the DB has no vehicles yet) ──
-const PLACEHOLDER_VEHICLES: VehicleCardData[] = [
-  {
-    slug: "porsche-911e",
-    title: "1971 Porsche 911E",
-    year: 1971,
-    make: "Porsche",
-    model: "911E",
-    trim: "Coupe",
-    mileage: 3742,
-    mileageUnit: "mi",
-    exteriorColor: "Albert Blue",
-    engine: "2.2L Flat-6",
-    transmission: "5-Speed Manual",
-    price: "USD 425,000",
-    city: "Munich",
-    country: "Germany",
-    image: "/images/placeholder-porsche-911e.svg",
-    createdAt: new Date("2026-07-15").getTime(),
-    category: "Classic",
-    isFeatured: true,
-  },
-  {
-    slug: "mercedes-230sl",
-    title: "1967 Mercedes-Benz 230SL Pagoda",
-    year: 1967,
-    make: "Mercedes-Benz",
-    model: "230SL",
-    trim: "Roadster",
-    mileage: null,
-    mileageUnit: "mi",
-    exteriorColor: "Silver",
-    engine: "2.3L Inline-6",
-    transmission: "4-Speed Manual",
-    price: "USD 180,000",
-    city: "Dubai",
-    country: "United Arab Emirates",
-    image: "/images/placeholder-mercedes-230sl.svg",
-    createdAt: new Date("2026-07-20").getTime(),
-    category: "Vintage",
-    isFeatured: true,
-  },
-  {
-    slug: "porsche-911-carrera-rs",
-    title: "1973 Porsche 911 Carrera RS 2.7",
-    year: 1973,
-    make: "Porsche",
-    model: "911 Carrera RS",
-    trim: "Coupe",
-    mileage: null,
-    mileageUnit: "mi",
-    exteriorColor: "Red",
-    engine: "2.7L Flat-6",
-    transmission: "5-Speed Manual",
-    price: "POA",
-    city: "Stuttgart",
-    country: "Germany",
-    image: "/images/placeholder-porsche-911-carrera-rs.svg",
-    createdAt: new Date("2026-07-25").getTime(),
-    category: "Vintage",
-  },
-  {
-    slug: "mercedes-280sl",
-    title: "1969 Mercedes-Benz 280SL",
-    year: 1969,
-    make: "Mercedes-Benz",
-    model: "280SL",
-    trim: "Roadster",
-    mileage: null,
-    mileageUnit: "mi",
-    exteriorColor: "White",
-    engine: "2.8L Inline-6",
-    transmission: "Automatic",
-    price: "USD 145,000",
-    city: "Cairo",
-    country: "Egypt",
-    image: "/images/placeholder-mercedes-280sl.svg",
-    createdAt: new Date("2026-07-30").getTime(),
-    category: "Classic",
-  },
-];
 
 export const metadata: Metadata = {
   title: "Vehicles",
@@ -122,43 +40,6 @@ function formatPrice(value?: string | null): string {
   const n = extractPrice(value);
   if (n === null) return value === "POA" ? "Price on Application" : value;
   return `$${n.toLocaleString()}`;
-}
-
-async function getVehicles(): Promise<VehicleCardData[]> {
-  let dbVehicles = null;
-  try {
-    dbVehicles = await prisma.vehicle.findMany({
-      where: { isPublished: true },
-      orderBy: [{ isFeatured: "desc" }, { order: "asc" }],
-    });
-  } catch {
-    dbVehicles = null;
-  }
-
-  if (Array.isArray(dbVehicles) && dbVehicles.length > 0) {
-    return dbVehicles.map((v) => ({
-      slug: v.slug,
-      title: v.title,
-      year: v.year,
-      make: v.make,
-      model: v.model,
-      trim: v.trim,
-      mileage: v.mileage,
-      mileageUnit: v.mileageUnit,
-      exteriorColor: v.exteriorColor,
-      engine: v.engine,
-      transmission: v.transmission,
-      price: v.price,
-      city: null,
-      country: null,
-      image: `/images/placeholder-${v.slug}.svg`,
-      createdAt: v.createdAt.getTime(),
-      category: v.category || undefined,
-      isFeatured: v.isFeatured || undefined,
-    }));
-  }
-
-  return PLACEHOLDER_VEHICLES;
 }
 
 function filterVehicles(vehicles: VehicleCardData[], params: Record<string, string | string[] | undefined>): VehicleCardData[] {
@@ -227,7 +108,7 @@ export default async function VehiclesPage({
   const sort = (params.sort || "newest").toString();
   const page = Math.max(1, parseInt((params.page || "1").toString(), 10) || 1);
 
-  const allVehicles = await getVehicles();
+  const allVehicles = await getVehicles({ status: "all", orderBy: "featured" });
   const filtered = sortVehicles(filterVehicles(allVehicles, params), sort);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));

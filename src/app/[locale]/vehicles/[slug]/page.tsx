@@ -24,45 +24,40 @@ type VehicleData = {
 
 async function getVehicle(slug: string): Promise<VehicleData | null> {
   try {
-    const vehicle = await prisma.vehicle.findUnique({ where: { slug } });
-    if (vehicle) return vehicle as unknown as VehicleData;
-  } catch {}
-  // Fallback data for when DB is unavailable
-  const FALLBACKS: Record<string, VehicleData> = {
-    "porsche-911e": {
-      slug: "porsche-911e", title: "1971 Porsche 911E", year: 1971, make: "Porsche", model: "911E",
-      trim: "Coupe", vin: "9111300987", mileage: 3742, exteriorColor: "Albert Blue",
-      interiorColor: "Beige Leatherette", engine: "2.2L Flat-6 (1991cc)", transmission: "5-Speed Manual",
-      drivetrain: "Rear-Wheel Drive", price: null, description: null,
-      descriptionEn: `Delivered new in 1971 through a German military exchange program, this 911E has covered just 3,742 miles from new. Finished in its original Albert Blue over Beige Leatherette, it remains in remarkably preserved condition.`,
-      isPublished: true, image: "/images/placeholder-porsche-911e.svg",
-    },
-    "mercedes-230sl": {
-      slug: "mercedes-230sl", title: "1967 Mercedes-Benz 230SL Pagoda", year: 1967, make: "Mercedes-Benz", model: "230SL",
-      trim: "Pagoda", vin: "11304212000345", mileage: 12450, exteriorColor: "Silver",
-      interiorColor: "Red Leather", engine: "2.3L Inline-6", transmission: "4-Speed Manual",
-      drivetrain: "Rear-Wheel Drive", price: null, description: null,
-      descriptionEn: `A beautifully restored 1967 Mercedes-Benz 230SL Pagoda. This example received a full rotisserie restoration and is finished in its original Silver over Red leather.`,
-      isPublished: true, image: "/images/placeholder-mercedes-230sl.svg",
-    },
-    "porsche-911-carrera-rs": {
-      slug: "porsche-911-carrera-rs", title: "1973 Porsche 911 Carrera RS 2.7", year: 1973, make: "Porsche", model: "911 Carrera RS",
-      trim: "2.7", vin: "9113601512", mileage: 28500, exteriorColor: "Grand Prix Red",
-      interiorColor: "Black Leatherette", engine: "2.7L Flat-6 (210 hp)", transmission: "5-Speed Manual",
-      drivetrain: "Rear-Wheel Drive", price: null, description: null,
-      descriptionEn: `One of the most iconic sports cars ever built. This 1973 Carrera RS 2.7 is a matching-numbers example with full documentation.`,
-      isPublished: true, image: "/images/placeholder-porsche-911-carrera-rs.svg",
-    },
-    "mercedes-280sl": {
-      slug: "mercedes-280sl", title: "1969 Mercedes-Benz 280SL", year: 1969, make: "Mercedes-Benz", model: "280SL",
-      trim: null, vin: "11304412000456", mileage: 82300, exteriorColor: "White",
-      interiorColor: "Blue MB-Tex", engine: "2.8L Inline-6", transmission: "Automatic",
-      drivetrain: "Rear-Wheel Drive", price: null, description: null,
-      descriptionEn: `A charming 1969 Mercedes-Benz 280SL in White over Blue. Recently serviced with comprehensive records dating back to the 1970s.`,
-      isPublished: true, image: "/images/placeholder-mercedes-280sl.svg",
-    },
-  };
-  return FALLBACKS[slug] || null;
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { slug },
+      include: {
+        images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
+      },
+    });
+    if (vehicle) {
+      const primary = (vehicle as { images?: { src: string }[] }).images?.[0];
+      return {
+        slug: vehicle.slug,
+        title: vehicle.title,
+        year: vehicle.year,
+        make: vehicle.make,
+        model: vehicle.model,
+        trim: vehicle.trim,
+        vin: vehicle.vin,
+        mileage: vehicle.mileage,
+        exteriorColor: vehicle.exteriorColor,
+        interiorColor: vehicle.interiorColor,
+        engine: vehicle.engine,
+        transmission: vehicle.transmission,
+        drivetrain: vehicle.drivetrain,
+        price: vehicle.price,
+        descriptionEn: vehicle.descriptionEn,
+        description: vehicle.descriptionEn,
+        isPublished: vehicle.isPublished,
+        image: primary?.src ?? null,
+      };
+    }
+  } catch {
+    // ignore, fall through to not-found
+  }
+  // DB unreachable or not found — never fabricate (FID-010).
+  return null;
 }
 
 // ─── Metadata ───────────────────────────────────

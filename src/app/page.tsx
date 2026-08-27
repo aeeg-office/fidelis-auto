@@ -1,134 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, Car, CableCar, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Car, CableCar, Zap } from "lucide-react";
 import NewsletterSignup from "@/components/NewsletterSignup";
-import VehicleImage from "@/components/VehicleImage";
 import VehicleCard from "@/components/VehicleCard";
-import type { VehicleCardData } from "@/components/VehicleCard";
 import RecentlySold from "@/components/RecentlySold";
-
-// ─── Placeholder data — will be replaced with DB content ──
-
-const FEATURED_VEHICLES: VehicleCardData[] = [
-  {
-    slug: "porsche-911e",
-    title: "1971 Porsche 911E",
-    subtitle: "Albert Blue · 3,742 Original Miles",
-    image: "/images/placeholder-porsche-911e.svg",
-    year: 1971,
-    make: "Porsche",
-    model: "911E",
-    trim: "Coupe",
-    mileage: 3742,
-    mileageUnit: "mi",
-    exteriorColor: "Albert Blue",
-    engine: "2.2L Flat-6",
-    transmission: "5-Speed Manual",
-    price: "USD 425,000",
-    city: "Munich",
-    country: "Germany",
-    category: "Classic",
-    isFeatured: true,
-  },
-  {
-    slug: "mercedes-230sl",
-    title: "1967 Mercedes-Benz 230SL Pagoda",
-    subtitle: "Silver · Fully Restored",
-    image: "/images/placeholder-mercedes-230sl.svg",
-    year: 1967,
-    make: "Mercedes-Benz",
-    model: "230SL",
-    trim: "Roadster",
-    mileage: null,
-    mileageUnit: "mi",
-    exteriorColor: "Silver",
-    engine: "2.3L Inline-6",
-    transmission: "4-Speed Manual",
-    price: "USD 180,000",
-    city: "Dubai",
-    country: "United Arab Emirates",
-    category: "Vintage",
-    isFeatured: true,
-  },
-];
-
-const RECENT_VEHICLES: VehicleCardData[] = [
-  {
-    slug: "porsche-911-carrera-rs",
-    title: "1973 Porsche 911 Carrera RS 2.7",
-    subtitle: "Grand Prix Red · Matching Numbers",
-    image: "/images/placeholder-porsche-911-carrera-rs.svg",
-    year: 1973,
-    make: "Porsche",
-    model: "911 Carrera RS",
-    trim: "2.7",
-    mileage: null,
-    mileageUnit: "mi",
-    exteriorColor: "Grand Prix Red",
-    engine: "2.7L Flat-6 (210 hp)",
-    transmission: "5-Speed Manual",
-    price: "POA",
-    city: "Stuttgart",
-    country: "Germany",
-    category: "Vintage",
-  },
-  {
-    slug: "mercedes-280sl",
-    title: "1969 Mercedes-Benz 280SL",
-    subtitle: "White over Blue · Documented History",
-    image: "/images/placeholder-mercedes-280sl.svg",
-    year: 1969,
-    make: "Mercedes-Benz",
-    model: "280SL",
-    trim: null,
-    mileage: 82300,
-    mileageUnit: "mi",
-    exteriorColor: "White",
-    engine: "2.8L Inline-6",
-    transmission: "Automatic",
-    price: "USD 145,000",
-    city: "Cairo",
-    country: "Egypt",
-    category: "Classic",
-  },
-  {
-    slug: "porsche-911e",
-    title: "1971 Porsche 911E",
-    subtitle: "Albert Blue · 3,742 Original Miles",
-    image: "/images/placeholder-porsche-911e.svg",
-    year: 1971,
-    make: "Porsche",
-    model: "911E",
-    trim: "Coupe",
-    mileage: 3742,
-    mileageUnit: "mi",
-    exteriorColor: "Albert Blue",
-    engine: "2.2L Flat-6",
-    transmission: "5-Speed Manual",
-    price: "USD 425,000",
-    city: "Munich",
-    country: "Germany",
-    category: "Classic",
-  },
-  {
-    slug: "mercedes-230sl",
-    title: "1967 Mercedes-Benz 230SL Pagoda",
-    subtitle: "Silver · Fully Restored",
-    image: "/images/placeholder-mercedes-230sl.svg",
-    year: 1967,
-    make: "Mercedes-Benz",
-    model: "230SL",
-    trim: "Roadster",
-    mileage: null,
-    mileageUnit: "mi",
-    exteriorColor: "Silver",
-    engine: "2.3L Inline-6",
-    transmission: "4-Speed Manual",
-    price: "USD 180,000",
-    city: "Dubai",
-    country: "United Arab Emirates",
-    category: "Vintage",
-  },
-];
+import { getFeaturedVehicles, getRecentVehicles } from "@/lib/vehicle-data";
 
 const CATEGORIES = [
   { key: "Modern", label: "Modern", icon: Car, desc: "Late-model performance and luxury vehicles", color: "bg-blue-50 text-blue-700 border-blue-200" },
@@ -137,7 +12,11 @@ const CATEGORIES = [
   { key: "EV", label: "Electric", icon: Zap, desc: "Modern electric and hybrid vehicles", color: "bg-green-50 text-green-700 border-green-200" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [featuredVehicles, recentVehicles] = await Promise.all([
+    getFeaturedVehicles(2),
+    getRecentVehicles(4),
+  ]);
   return (
     <>
       {/* Hero Section */}
@@ -214,14 +93,20 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {FEATURED_VEHICLES.map((vehicle) => (
-              <VehicleCard
-                key={vehicle.slug}
-                vehicle={vehicle}
-                variant="simple"
-                priority
-              />
-            ))}
+            {featuredVehicles.length === 0 ? (
+              <p className="text-[var(--color-text-secondary)] col-span-full text-center">
+                No featured vehicles yet. New additions will appear here as they&apos;re published.
+              </p>
+            ) : (
+              featuredVehicles.map((vehicle) => (
+                <VehicleCard
+                  key={vehicle.slug}
+                  vehicle={vehicle}
+                  variant="simple"
+                  priority
+                />
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -239,13 +124,19 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {RECENT_VEHICLES.map((vehicle) => (
-              <VehicleCard
-                key={vehicle.slug}
-                vehicle={vehicle}
-                variant="simple"
-              />
-            ))}
+            {recentVehicles.length === 0 ? (
+              <p className="text-[var(--color-text-secondary)] col-span-full text-center">
+                No vehicles have been added yet. Check back soon.
+              </p>
+            ) : (
+              recentVehicles.map((vehicle) => (
+                <VehicleCard
+                  key={vehicle.slug}
+                  vehicle={vehicle}
+                  variant="simple"
+                />
+              ))
+            )}
           </div>
 
           <div className="text-center mt-10">
