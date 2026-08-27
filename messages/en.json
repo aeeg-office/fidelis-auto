@@ -2,6 +2,7 @@
   "nav": {
     "home": "Home",
     "vehicles": "Vehicles",
+    "search": "Search",
     "journal": "Journal",
     "sellYourCar": "Sell Your Car",
     "about": "About",
@@ -161,6 +162,15 @@
     "sending": "Sending...",
     "sent": "Your message has been sent! We'll get back to you soon.",
     "error": "Something went wrong. Please try again."
+  },
+  "searchPage": {
+    "title": "Search the Collection",
+    "description": "Search by make, model, year, or category. Every vehicle is documented and verified.",
+    "resultsFor": "Results for",
+    "browseAll": "Browse all vehicles →",
+    "noResults": "No vehicles match your search",
+    "noResultsDesc": "Try a different make, model, or year, or browse the full collection.",
+    "browseCta": "Browse All Vehicles"
   },
   "privacy": {
     "title": "Privacy Policy",

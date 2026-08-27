@@ -41,6 +41,7 @@ export default function Header() {
   const NAV_LINKS = [
     { href: "/", label: t("home") },
     { href: "/vehicles", label: t("vehicles") },
+    { href: "/search", label: t("search") },
     { href: "/journal", label: t("journal") },
     { href: "/services", label: t("services") },
     { href: "/submit", label: t("sellYourCar") },
