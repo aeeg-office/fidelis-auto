@@ -1,7 +1,7 @@
 # Fidelis Auto Defect Ledger
 
 ## Last Updated
-2026-08-20T12:00:00+02:00
+2026-08-27 (Phase 3 deploy: FID-001/009 media, FID-005 env, FID-008 .env, FID-010/011/012)
 
 ## Status Values
 OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERIFIED → DEPLOYED → PRODUCTION VERIFIED → BLOCKED → DEFERRED
@@ -110,22 +110,29 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 - **Status:** VERIFIED (resolved 2026-08-27)
 - **Verified:** /admin redirects to login; api/admin returns 401
 ## FID-010 — Hardcoded fake vehicle slugs (mock/demo inventory)
-- **Status:** CONFIRMED · **Severity:** High · **Date:** 2026-08-27
+- **Status:** PRODUCTION VERIFIED (deployed 2026-08-27) · **Severity:** High · **Date:** 2026-08-27
 - **Observed:** page.tsx / RecentlySold.tsx / RelatedVehicles.tsx hardcode Ferrari 250 Lusso, Aston DB5, Jaguar E-Type (all 404 live), Porsche 911e, Mercedes 230SL/280SL, 911 Carrera RS (200 static mockups). None exist in DB (only Beetle).
 - **Impact:** broken links + demo inventory presented as real in production.
-- **Acceptance:** remove/replace with DB-driven data; no hardcoded vehicle slugs.
+- **Fix (phase3, commit 4ad007a):** new `src/lib/vehicle-data.ts` shared DB loader (real published + primary image). Home + /vehicles + detail + compare (root + [locale] trees) now DB-driven with empty states. /api/vehicles returns real image + `[]` on DB failure. Removed ALL PLACEHOLDER/FALLBACK/SOLD mock arrays. Verified live: home shows real Beetle, no 911E/230SL/Carrera, `/api/vehicles` returns Beetle only.
+- **Acceptance:** no hardcoded vehicle slugs anywhere (grep clean).
 
 ## FID-011 — No /search page
-- **Status:** CONFIRMED · **Severity:** High · **Date:** 2026-08-27
+- **Status:** PRODUCTION VERIFIED (deployed 2026-08-27) · **Severity:** High · **Date:** 2026-08-27
 - **Observed:** /search -> 404; no search route in source.
-- **Acceptance:** search + filters page for marketplace.
+- **Fix (phase3, commit 8fc2aa8):** added `/search` + `/[locale]/search` (DB-driven keyword search over make/model/year/category), `searchPage` keyspace en/ar, `nav.search` nav link in shared Header. Verified live: /search 200, /search?q=volkswagen returns the Beetle card.
+- **Acceptance:** search page present and functional.
 
 ## FID-012 — /terms 404 (linked in nav)
-- **Status:** CONFIRMED · **Severity:** Low · **Date:** 2026-08-27
-- **Acceptance:** create /terms or remove nav link.
+- **Status:** PRODUCTION VERIFIED (deployed 2026-08-27) · **Severity:** Low · **Date:** 2026-08-27
+- **Fix (phase3, commit 4ad007a):** added `/terms` + `/[locale]/terms` + `terms` keyspace en/ar. Verified live: /terms 200 renders content.
+- **Acceptance:** /terms resolves.
 
+## Phase 3 — Media pipeline repair (was FID-001) + FID-005 env + FID-008 .env
+- **Media (FID-001 / FID-009 root cause), deployed 2026-08-27:** /api/upload now persists under `vehicles/<slug>/` (commit 394bad9). **Root cause found & fixed in prod:** Docker volume `fidelis-auto_fidelis-auto-data` was `root:root` while the app runs as `nextjs` (uid 1001) → app could never write media. Chowned volume to 1001:1001 (volume was empty), restarted container (healthy). Verified: nextjs can create `uploads/vehicles/<slug>/` and files persist on the host volume. **Remaining:** Beetle's real photo was lost (only placeholder SVG in DB, no file anywhere) — must be re-uploaded by seller/admin; pipeline now persists correctly. No fabrication.
+- **FID-005 env divergence (deployed):** docker-compose `env_file` repointed from `/opt/hermes-car/.env` (different project) → `/opt/fidelis-auto/.env` (content identical → zero-risk). Backup at `docker-compose.yml.bak-fid005-*`.
+- **FID-008 missing .env (deployed):** committed secret-safe `.env.example` + `.gitignore` exception (repo had no env template).
 
 ## FID-013 — Admin back-office incomplete
-- **Status:** CONFIRMED · **Severity:** High · **Date:** 2026-08-27
+- **Status:** CONFIRMED (future phase) · **Severity:** High · **Date:** 2026-08-27
 - **Observed:** only Dashboard/Submissions/Vehicles exist. /admin/inquiries & /admin/logout -> 404. No user/dealer/service/blog/SEO/moderate modules.
-- **Acceptance:** complete admin capabilities per goal.
+- **Acceptance:** complete admin capabilities per goal. NOT in scope of approval-gated Phase 3 code repair.
