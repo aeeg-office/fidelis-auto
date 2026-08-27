@@ -109,3 +109,17 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 ## FID-007 — Unauthenticated admin access
 - **Status:** VERIFIED (resolved 2026-08-27)
 - **Verified:** /admin redirects to login; api/admin returns 401
+## FID-010 — Hardcoded fake vehicle slugs (mock/demo inventory)
+- **Status:** CONFIRMED · **Severity:** High · **Date:** 2026-08-27
+- **Observed:** page.tsx / RecentlySold.tsx / RelatedVehicles.tsx hardcode Ferrari 250 Lusso, Aston DB5, Jaguar E-Type (all 404 live), Porsche 911e, Mercedes 230SL/280SL, 911 Carrera RS (200 static mockups). None exist in DB (only Beetle).
+- **Impact:** broken links + demo inventory presented as real in production.
+- **Acceptance:** remove/replace with DB-driven data; no hardcoded vehicle slugs.
+
+## FID-011 — No /search page
+- **Status:** CONFIRMED · **Severity:** High · **Date:** 2026-08-27
+- **Observed:** /search -> 404; no search route in source.
+- **Acceptance:** search + filters page for marketplace.
+
+## FID-012 — /terms 404 (linked in nav)
+- **Status:** CONFIRMED · **Severity:** Low · **Date:** 2026-08-27
+- **Acceptance:** create /terms or remove nav link.
