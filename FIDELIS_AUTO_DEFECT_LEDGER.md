@@ -132,7 +132,8 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 - **FID-005 env divergence (deployed):** docker-compose `env_file` repointed from `/opt/hermes-car/.env` (different project) → `/opt/fidelis-auto/.env` (content identical → zero-risk). Backup at `docker-compose.yml.bak-fid005-*`.
 - **FID-008 missing .env (deployed):** committed secret-safe `.env.example` + `.gitignore` exception (repo had no env template).
 
-## FID-013 — Admin back-office incomplete
-- **Status:** CONFIRMED (future phase) · **Severity:** High · **Date:** 2026-08-27
-- **Observed:** only Dashboard/Submissions/Vehicles exist. /admin/inquiries & /admin/logout -> 404. No user/dealer/service/blog/SEO/moderate modules.
-- **Acceptance:** complete admin capabilities per goal. NOT in scope of approval-gated Phase 3 code repair.
+## FID-013 — Admin back-office incomplete → COMPLETED (Phase 4)
+- **Status:** PRODUCTION VERIFIED (deployed 2026-08-27) · **Severity:** High · **Date:** 2026-08-27
+- **Observed:** only Dashboard/Submissions/Vehicles existed; /admin/inquiries & /admin/logout -> 404; no user/dealer/service modules.
+- **Fix (Phase4, merge 4cca107):** added 4 modules — **Inquiries** (list/mark-read/delete; `/api/admin/inquiries` PATCH/DELETE), **Dealers** (list + approve/reject via `/api/admin/dealers/[id]`), **Users** (list + role change via `PATCH /api/admin/users/[id]`, guarded `user:manage` + `canManageRole`), **Services** (list + publish/unpublish via `PATCH /api/admin/services/[id]`, guarded `service:manage`). All 4 list endpoints return 401 unauth; all 4 pages 307 → /admin/login when anon. Container healthy. Blog + SEO deferred to Phase 7 (goal-scope, no schema).
+- **Acceptance:** complete admin capabilities per goal. /admin/inquiries & /admin/logout now resolve.

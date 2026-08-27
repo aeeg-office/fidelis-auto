@@ -1,23 +1,22 @@
 # Fidelis Auto Deployment State
 
 ## Last Updated
-2026-08-20T12:00:00+02:00
+2026-08-28 (Phase 4)
 
 ## Current Deployment
 | Field | Value |
 |-------|-------|
 | Host | VPS 191.218.165.228 |
 | Domain | fidelisauto.com |
-| Project Path | /opt/hermes-car |
-| Git Remote | github.com/aeeg-office/hermes-car.git |
+| Project Path | /opt/fidelis-auto |
+| Git Remote | github.com/aeeg-office/fidelis-auto.git |
 | Branch | main |
-| HEAD Commit | c3d0f6b — "Fix: move themeColor from metadata to viewport export" |
-| Services | PM2 (4 instances) |
-| DB | PostgreSQL hermes_car @ localhost:5432 |
-| Deployed | Unknown timestamp (pre-2026-08-05 based on DB records) |
-| SSL | Active (TLS) |
-| Health | All PM2 processes running |
-
+| HEAD Commit | 4cca107 - "Merge phase4-backoffice into main: FID-013 back-office" |
+| Services | Docker container fidelis-auto (fidelis-auto-fidelis-auto) @ port 3006 |
+| DB | PostgreSQL hermes_car @ localhost:5432 (host service, PG16) |
+| Media volume | fidelis-auto-fidelis-auto-data -> /app/public/uploads (uid 1001) |
+| Deployed | 2026-08-27T22:41:57Z (Phase 4: Inquiries/Dealers/Users/Services) |
+| Health | Healthy |
 ## PM2 Services
 | Name | Status | Notes |
 |------|--------|-------|
