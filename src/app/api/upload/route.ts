@@ -20,13 +20,25 @@ export async function POST(request: Request) {
     const validation = validateUpload(candidate);
     if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
 
+    // Optional slug → store under vehicles/<slug>/ (FID-009). Falls back to root
+    // /uploads/<uuid>.<ext> for callers that don't pass a slug (backward compatible).
+    const slug = (formData.get("slug") as string | null)
+      ?.toString()
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
     const buffer = Buffer.from(await candidate.arrayBuffer());
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    const uploadDir = slug
+      ? path.join(process.cwd(), "public", "uploads", "vehicles", slug)
+      : path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadDir, { recursive: true });
 
     const filename = `${crypto.randomUUID()}.${validation.extension}`;
     await writeFile(path.join(uploadDir, filename), buffer, { flag: "wx" });
-    return NextResponse.json({ ok: true, url: `/uploads/${filename}` }, { status: 201 });
+    const url = slug ? `/uploads/vehicles/${slug}/${filename}` : `/uploads/${filename}`;
+    return NextResponse.json({ ok: true, url }, { status: 201 });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Upload failed." }, { status: 500 });
