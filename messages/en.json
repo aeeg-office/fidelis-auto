@@ -181,6 +181,27 @@
     "section7": "7. Contact",
     "section7Desc": "If you have questions about this privacy policy, contact us at aeeg.education@gmail.com."
   },
+  "terms": {
+    "title": "Terms of Service",
+    "description": "Fidelis Auto terms of service — the rules that govern your use of the platform.",
+    "lastUpdated": "Last updated",
+    "section1": "1. Acceptance of Terms",
+    "section1Desc": "By accessing or using Fidelis Auto, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use the platform.",
+    "section2": "2. Accounts",
+    "section2Desc": "You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You must provide accurate and complete information when registering.",
+    "section3": "3. Listings & Content",
+    "section3Desc": "When you submit a vehicle listing, you warrant that you own the vehicle or are authorised to list it, and that all information and media you provide are accurate. Fidelis Auto may remove any listing that violates these terms.",
+    "section4": "4. Prohibited Conduct",
+    "section4Desc": "You agree not to: misuse the platform, attempt to gain unauthorised access, interfere with other users, upload malicious content, or use the service for any unlawful purpose.",
+    "section5": "5. Intellectual Property",
+    "section5Desc": "All content on the platform, including logos, text, graphics, and software, is the property of Fidelis Auto or its licensors and is protected by applicable intellectual property laws.",
+    "section6": "6. Limitation of Liability",
+    "section6Desc": "Fidelis Auto provides the platform on an \"as is\" and \"as available\" basis. To the maximum extent permitted by law, we are not liable for indirect, incidental, or consequential damages arising from your use of the platform.",
+    "section7": "7. Changes to These Terms",
+    "section7Desc": "We may update these Terms of Service from time to time. We will post any changes on this page, and your continued use of the platform constitutes acceptance of the revised terms.",
+    "section8": "8. Contact",
+    "section8Desc": "If you have questions about these Terms of Service, contact us at aeeg.education@gmail.com."
+  },
   "journal": {
     "title": "Journal",
     "description": "Stories, insights, and guides from the world of cars.",

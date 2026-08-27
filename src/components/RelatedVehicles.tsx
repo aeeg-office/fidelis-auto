@@ -1,77 +1,6 @@
 import VehicleCard from "./VehicleCard";
 import type { VehicleCardData } from "./VehicleCard";
-
-// ─── Placeholder data used when DB is unavailable ──
-const ALL_FALLBACK_VEHICLES: VehicleCardData[] = [
-  {
-    slug: "porsche-911e",
-    title: "1971 Porsche 911E",
-    year: 1971,
-    make: "Porsche",
-    model: "911E",
-    trim: "Coupe",
-    mileage: 3742,
-    mileageUnit: "mi",
-    exteriorColor: "Albert Blue",
-    engine: "2.2L Flat-6",
-    transmission: "5-Speed Manual",
-    price: "USD 425,000",
-    city: "Munich",
-    country: "Germany",
-    image: "/images/placeholder-porsche-911e.svg",
-  },
-  {
-    slug: "mercedes-230sl",
-    title: "1967 Mercedes-Benz 230SL Pagoda",
-    year: 1967,
-    make: "Mercedes-Benz",
-    model: "230SL",
-    trim: "Roadster",
-    mileage: null,
-    mileageUnit: "mi",
-    exteriorColor: "Silver",
-    engine: "2.3L Inline-6",
-    transmission: "4-Speed Manual",
-    price: "USD 180,000",
-    city: "Dubai",
-    country: "United Arab Emirates",
-    image: "/images/placeholder-mercedes-230sl.svg",
-  },
-  {
-    slug: "porsche-911-carrera-rs",
-    title: "1973 Porsche 911 Carrera RS 2.7",
-    year: 1973,
-    make: "Porsche",
-    model: "911 Carrera RS",
-    trim: "2.7",
-    mileage: null,
-    mileageUnit: "mi",
-    exteriorColor: "Grand Prix Red",
-    engine: "2.7L Flat-6 (210 hp)",
-    transmission: "5-Speed Manual",
-    price: "POA",
-    city: "Stuttgart",
-    country: "Germany",
-    image: "/images/placeholder-porsche-911-carrera-rs.svg",
-  },
-  {
-    slug: "mercedes-280sl",
-    title: "1969 Mercedes-Benz 280SL",
-    year: 1969,
-    make: "Mercedes-Benz",
-    model: "280SL",
-    trim: null,
-    mileage: 82300,
-    mileageUnit: "mi",
-    exteriorColor: "White",
-    engine: "2.8L Inline-6",
-    transmission: "Automatic",
-    price: "USD 145,000",
-    city: "Cairo",
-    country: "Egypt",
-    image: "/images/placeholder-mercedes-280sl.svg",
-  },
-];
+import { getVehicles } from "@/lib/vehicle-data";
 
 interface RelatedVehiclesProps {
   /** Slug of the current vehicle to exclude from results. */
@@ -80,22 +9,23 @@ interface RelatedVehiclesProps {
   make: string;
   /** Vehicle model year. */
   year: number;
-  /** Optional explicit list of all vehicles (e.g. from DB). Falls back to placeholder data. */
+  /** Optional explicit list of all vehicles (e.g. from DB). Defaults to real published vehicles. */
   allVehicles?: VehicleCardData[];
 }
 
 /**
  * Shows 3-4 related vehicles on the vehicle detail page.
  * Related logic: same make, then same era (+/- 5 years).
- * Excludes the current vehicle.
+ * Excludes the current vehicle. DB-driven — never fabricates inventory (FID-010).
  */
-export default function RelatedVehicles({
+export default async function RelatedVehicles({
   currentSlug,
   make,
   year,
   allVehicles,
 }: RelatedVehiclesProps) {
-  const pool = allVehicles ?? ALL_FALLBACK_VEHICLES;
+  const pool =
+    allVehicles ?? (await getVehicles({ status: "available", orderBy: "recent", limit: 100 }));
 
   // Score candidates: same make = 2 pts, same era (+/- 5 years) = 1 pt
   const scored = pool

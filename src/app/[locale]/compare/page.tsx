@@ -313,14 +313,8 @@ function CompareContent() {
         setOptions(opts);
       })
       .catch(() => {
-        // Fallback: use placeholder data
-        const fallback: VehicleOption[] = [
-          { slug: "porsche-911e", title: "1971 Porsche 911E", year: 1971, make: "Porsche", model: "911E", image: "/images/placeholder-porsche-911e.svg" },
-          { slug: "mercedes-230sl", title: "1967 Mercedes-Benz 230SL Pagoda", year: 1967, make: "Mercedes-Benz", model: "230SL", image: "/images/placeholder-mercedes-230sl.svg" },
-          { slug: "porsche-911-carrera-rs", title: "1973 Porsche 911 Carrera RS 2.7", year: 1973, make: "Porsche", model: "911 Carrera RS", image: "/images/placeholder-porsche-911-carrera-rs.svg" },
-          { slug: "mercedes-280sl", title: "1969 Mercedes-Benz 280SL", year: 1969, make: "Mercedes-Benz", model: "280SL", image: "/images/placeholder-mercedes-280sl.svg" },
-        ];
-        setOptions(fallback);
+        // API unreachable — show no options rather than fabricated inventory (FID-010).
+        setOptions([]);
       });
   }, []);
 
@@ -338,39 +332,8 @@ function CompareContent() {
       const matched = allVehicles.filter((v) => slugs.includes(v.slug));
       setVehicles(matched);
     } catch {
-      // Fallback
-      const fallback: Record<string, CompareVehicle> = {
-        "porsche-911e": {
-          slug: "porsche-911e", title: "1971 Porsche 911E", year: 1971, make: "Porsche", model: "911E",
-          trim: "Coupe", mileage: 3742, mileageUnit: "mi", exteriorColor: "Albert Blue",
-          interiorColor: "Beige Leatherette", engine: "2.2L Flat-6 (1991cc)", transmission: "5-Speed Manual",
-          drivetrain: "Rear-Wheel Drive", price: "USD 425,000", city: "Munich", country: "Germany",
-          image: "/images/placeholder-porsche-911e.svg",
-        },
-        "mercedes-230sl": {
-          slug: "mercedes-230sl", title: "1967 Mercedes-Benz 230SL Pagoda", year: 1967, make: "Mercedes-Benz", model: "230SL",
-          trim: "Pagoda", mileage: 12450, mileageUnit: "mi", exteriorColor: "Silver",
-          interiorColor: "Red Leather", engine: "2.3L Inline-6", transmission: "4-Speed Manual",
-          drivetrain: "Rear-Wheel Drive", price: "USD 180,000", city: "Dubai", country: "United Arab Emirates",
-          image: "/images/placeholder-mercedes-230sl.svg",
-        },
-        "porsche-911-carrera-rs": {
-          slug: "porsche-911-carrera-rs", title: "1973 Porsche 911 Carrera RS 2.7", year: 1973, make: "Porsche", model: "911 Carrera RS",
-          trim: "2.7", mileage: 28500, mileageUnit: "mi", exteriorColor: "Grand Prix Red",
-          interiorColor: "Black Leatherette", engine: "2.7L Flat-6 (210 hp)", transmission: "5-Speed Manual",
-          drivetrain: "Rear-Wheel Drive", price: "POA", city: "Stuttgart", country: "Germany",
-          image: "/images/placeholder-porsche-911-carrera-rs.svg",
-        },
-        "mercedes-280sl": {
-          slug: "mercedes-280sl", title: "1969 Mercedes-Benz 280SL", year: 1969, make: "Mercedes-Benz", model: "280SL",
-          trim: null, mileage: 82300, mileageUnit: "mi", exteriorColor: "White",
-          interiorColor: "Blue MB-Tex", engine: "2.8L Inline-6", transmission: "Automatic",
-          drivetrain: "Rear-Wheel Drive", price: "USD 145,000", city: "Cairo", country: "Egypt",
-          image: "/images/placeholder-mercedes-280sl.svg",
-        },
-      };
-      const matched = slugs.map((s) => fallback[s]).filter(Boolean);
-      setVehicles(matched);
+      // API unreachable — show nothing rather than fabricated inventory (FID-010).
+      setVehicles([]);
     } finally {
       setLoading(false);
     }
