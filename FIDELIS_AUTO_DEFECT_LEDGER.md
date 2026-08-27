@@ -106,3 +106,6 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 - **Observed:** No .env file in ~/projects/fidelis-auto.
 - **Expected:** Local dev environment should have database and API credentials configured.
 - **Acceptance Criteria:** Local dev environment runs with correct .env configuration.
+## FID-007 — Unauthenticated admin access
+- **Status:** VERIFIED (resolved 2026-08-27)
+- **Verified:** /admin redirects to login; api/admin returns 401
