@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
-import { Car, FileText, Plus } from "lucide-react";
+import { Car, FileText, Plus, Store, Users, Wrench } from "lucide-react";
 import AdminSubmissionActions from "@/components/AdminSubmissionActions";
 import type { ListingRequest } from "@prisma/client";
 
@@ -64,6 +64,9 @@ function Sidebar() {
         <SidebarLink href="/admin" icon={<Car size={16} />} label="Dashboard" />
         <SidebarLink href="/admin/submissions" icon={<FileText size={16} />} label="Submissions" active />
         <SidebarLink href="/admin/vehicles" icon={<Car size={16} />} label="Vehicles" />
+        <SidebarLink href="/admin/dealers" icon={<Store size={16} />} label="Dealers" />
+        <SidebarLink href="/admin/users" icon={<Users size={16} />} label="Users" />
+        <SidebarLink href="/admin/services" icon={<Wrench size={16} />} label="Services" />
       </nav>
       <div className="absolute bottom-6 left-6 right-6">
         <Link href="/" className="text-xs text-white/40 hover:text-white block mb-2">View Site</Link>
