@@ -123,3 +123,9 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 ## FID-012 — /terms 404 (linked in nav)
 - **Status:** CONFIRMED · **Severity:** Low · **Date:** 2026-08-27
 - **Acceptance:** create /terms or remove nav link.
+
+
+## FID-013 — Admin back-office incomplete
+- **Status:** CONFIRMED · **Severity:** High · **Date:** 2026-08-27
+- **Observed:** only Dashboard/Submissions/Vehicles exist. /admin/inquiries & /admin/logout -> 404. No user/dealer/service/blog/SEO/moderate modules.
+- **Acceptance:** complete admin capabilities per goal.
