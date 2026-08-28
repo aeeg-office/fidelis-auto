@@ -40,4 +40,20 @@
 - c3d0f6b — Fix: move themeColor from metadata to viewport export (Next.js deprecation fix)
 - Database migrations for category and featured-until columns
 - PM2 deployment with 4 phases
-- User/seller/dealer/vehicle seed data
+- User/seller/dealer/vehicle seed data## 2026-08-28 — Automated Listing Approval (auto-approve feature)
+
+### Added
+- `src/lib/ad-scanner.ts` — ad-text violation scanner (email, phone in prose, wa.me/whatsapp/telegram handles, "@"/"dot com", external URLs, spam phrases, profanity, excessive all-caps)
+- `src/lib/auto-publish.ts` — converts a clean ListingRequest into a live published Vehicle owned by the submitting user, with unique slug and linked photo rows
+- Automated approval in `src/app/api/submit/route.ts`:
+  - Clean ad text → submission auto-`approved` + Vehicle auto-created (`isPublished=true`) + photos attached → goes live immediately
+  - Violations found / auto-publish error → routes to manual moderation (`status=pending`) with reason, nothing lost
+
+### Notes
+- The seller's own `phone`/`email` contact fields are legitimate and excluded from the scan (they are format-validated upstream) — the phone/email rules catch off-platform harvesting in the free-text ad body only
+- Frontend message stays intentionally generic ("our team will review") for clean/VIP submits; DB state is authoritative
+
+### Verified (real browser, 2026-08-28)
+- Clean submission → `approved` + published Vehicle `volkswagen-beetle-1998`, 6 photos, 1 primary, renders on public site, owned by submitting user
+- Violation submission (phone in description) → `pending`, no Vehicle created
+- Merged to `main` (`87dfdb1`); container `fidelis-auto` healthy on :3006
