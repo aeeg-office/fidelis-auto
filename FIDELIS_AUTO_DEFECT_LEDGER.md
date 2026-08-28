@@ -137,3 +137,10 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 - **Observed:** only Dashboard/Submissions/Vehicles existed; /admin/inquiries & /admin/logout -> 404; no user/dealer/service modules.
 - **Fix (Phase4, merge 4cca107):** added 4 modules — **Inquiries** (list/mark-read/delete; `/api/admin/inquiries` PATCH/DELETE), **Dealers** (list + approve/reject via `/api/admin/dealers/[id]`), **Users** (list + role change via `PATCH /api/admin/users/[id]`, guarded `user:manage` + `canManageRole`), **Services** (list + publish/unpublish via `PATCH /api/admin/services/[id]`, guarded `service:manage`). All 4 list endpoints return 401 unauth; all 4 pages 307 → /admin/login when anon. Container healthy. Blog + SEO deferred to Phase 7 (goal-scope, no schema).
 - **Acceptance:** complete admin capabilities per goal. /admin/inquiries & /admin/logout now resolve.
+
+
+## Owner-edit — RESOLVED 2026-08-28
+Registered users can now edit their own listing submissions AND their own published vehicle listings (incl. photo re-upload).
+- Branch owner-edit merged to main (2b21886), deployed, image healthy.
+- New: PATCH/DELETE /api/my-listing/[id] (ownership-guarded, resets to pending on edit), PATCH/DELETE /api/my-vehicle/[id] (ownership-guarded), OwnerPhotoManager uploads to persistent named volume fidelis-auto_fidelis-auto-data:/app/public/uploads.
+- FID-009 (Beetle photos): owner re-upload now possible via dashboard -> Edit; Beetle ownerId assigned to aeeg.education@gmail.com. Real photos still need owner-supplied files (p3f).
