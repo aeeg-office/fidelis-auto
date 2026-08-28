@@ -28,12 +28,14 @@ export async function POST(request: Request) {
     const listing = await prisma.listingRequest.create({ data: submission.value });
 
     // Automated moderation: if the ad text is clean, approve AND publish immediately.
+    // Note: the seller's own `phone`/`email` contact fields are legitimate and already
+    // validated upstream — we scan only the free-text ad body so the phone/email rules
+    // catch off-platform harvesting in prose, not the seller's own contact info.
     const scan = scanAdText({
       make: submission.value.make,
       model: submission.value.model,
       trim: submission.value.trim,
       description: submission.value.description,
-      phone: submission.value.phone,
       city: submission.value.city,
       state: submission.value.state,
       country: submission.value.country,
