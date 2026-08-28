@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user-auth";
 import { Car, Plus, ArrowRight, Calendar, CheckCircle, Clock, XCircle } from "lucide-react";
+import VehicleStatusControl from "@/components/VehicleStatusControl";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -186,9 +187,14 @@ export default async function DashboardPage() {
                 <div key={v.id} className="p-4 px-6 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-[var(--color-text-primary)]">{v.title}</p>
-                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Published</p>
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                      {v.status === "sold" ? "Sold" : "Published"}
+                    </p>
                   </div>
-                  <Link href={`/my-vehicle/${v.id}`} className="text-xs text-[var(--color-accent)] hover:underline">Edit</Link>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <VehicleStatusControl vehicleId={v.id} currentStatus={v.status} />
+                    <Link href={`/my-vehicle/${v.id}`} className="text-xs text-[var(--color-accent)] hover:underline">Edit</Link>
+                  </div>
                 </div>
               ))}
             </div>
