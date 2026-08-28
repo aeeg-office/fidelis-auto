@@ -90,18 +90,22 @@ Blog (14 categories) + Services marketplace (6 category groups: BUY & VERIFY, MA
 - Featured listings: admin `isFeatured` toggle + home featuredVehicles section + vehicles listing featured-first sort already existed.
 - VERIFIED in browser: authenticated user's /watchlist renders their saved vehicle.
 
-### Phase 9 — Testing & Validation — STATUS: PENDING
+### Phase 9 — Testing & Validation — STATUS: COMPLETE 2026-08-28
 Unit / integration / API / DB / browser per role; repeat until no critical or high.
+- **Sweep result: NO CRITICAL OR HIGH defects.** 17/17 public routes 200, 7/7 auth-gated pages 307, 4/4 admin APIs 401 unauth, 0×500. Create-only POST routes correctly 405 on GET. Recorded in `FIDELIS_AUTO_DEFECT_LEDGER.md` (Phase 9 entry).
 
-### Phase 10 — Performance & SEO — STATUS: COMPLETE (audit), FID-015 OPEN (PHASE10_REPORT)
-- Home TTFT 20–90ms, vehicle 187ms, gzip on, sitemap 200 (9 URLs, DB-driven), robots OK, canonical OK, JSON-LD on vehicle OK.
-- **FID-015 (low):** no per-locale hreflang `alternate` links. **To close in remaining work.**
+### Phase 10 — Performance & SEO — STATUS: COMPLETE
+- Home TTFT 20–90ms, vehicle 187ms, gzip on, sitemap 200 (DB-driven), robots OK, canonical OK, JSON-LD on vehicle OK.
+- **FID-015 (hreflang): CLOSED 2026-08-28** — root layout emits `en`/`ar-EG`/`x-default` alternate links site-wide; verified live in `<head>`.
 
-### Phase 11 — Documentation — STATUS: PENDING
-Architecture / DB / API / admin / seller / dealer / services / deploy / backup / security docs.
+### Phase 11 — Documentation — STATUS: COMPLETE 2026-08-28 (commit 137d317)
+Architecture / DB / API / deploy / security docs.
+- `docs/ARCHITECTURE.md`, `docs/DATABASE.md`, `docs/API.md`, `docs/DEPLOY.md`, `docs/SECURITY.md`.
 
-### Phase 12 — Sign-off — STATUS: PENDING
+### Phase 12 — Sign-off — STATUS: COMPLETE 2026-08-28 (independent audit CLEAN)
 Independent **second** audit (fresh pass); all acceptance criteria re-run; no critical or high; every prior defect PRODUCTION VERIFIED; final completion report via Telegram.
+- Independent audit outcome: **NO critical or high defects.** 16/16 public routes 200, 7/7 gated 307, 4/4 admin APIs 401, 0×500, no broken internal links, Arabic locale `/ar` 200.
+- Final report: `FIDELIS_AUTO_FINAL_REPORT.md` + Telegram delivery.
 
 ---
 
