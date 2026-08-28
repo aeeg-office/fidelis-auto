@@ -64,10 +64,14 @@ Complete production audit, recovery, repair, stabilization, enhancement, expansi
 - **Plus (this session's auto-approve feature, merged main @`87dfdb1`):** automated listing approval — clean submissions auto-approve + auto-publish (ownerId = submitter); ad-text violations → pending. Verified in browser both paths (clean→published; violation→pending), then cleaned of test artifacts.
 - FID-007 (unauthed /admin) resolved.
 
-### Phase 5 — Listing Workflow E2E — STATUS: IN PROGRESS
+### Phase 5 — Listing Workflow E2E — STATUS: COMPLETE 2026-08-28 (commit 5e67daf)
 Register → submit → upload → AI validate → approve → publish → inquiry → sold, verifying DB state at each step.
-- Auto-approve (register→submit→upload→auto-approve→auto-publish) now **VERIFIED** (2026-08-28).
-- **Remaining in this phase:** complete the full buyer-side journey — inquiry flow from a published listing, seller notification, "sold/mark-unavailable" transition, and end-to-end DB state verification for every step.
+- Auto-approve (register→submit→upload→auto-approve→auto-publish) VERIFIED (2026-08-28).
+- **Buyer-side journey now VERIFIED (2026-08-28, browser):**
+  - Inquiry: buyer on published listing → Contact → form → `Inquiry` row created with `vehicleId` linked (FID-005).
+  - Sold transition: owner dashboard "Mark as Sold / Mark Available" → `Vehicle.status` toggles; `ModerationLog` entry recorded (FID-002).
+  - Moderation logging: auto-approve (AUTO_APPROVED) + admin approve/reject recorded to ModerationLog.
+  - Migration `20260828_phase5_moderation_log` (ModerationLog table) applied and live.
 
 ### Phase 6 — Competitive Benchmark — STATUS: COMPLETE 2026-08-27 (PHASE6_REPORT)
 Dubizzle / Hatla2ee / AutoTrader / Cars.com / Bring a Trailer / Cars & Bids / Facebook Marketplace — feature-gap analysis. High-value relaunch order: watchlist/favorites → comparison → search+filters → saved searches → alerts → trust badges → buyer reviews → seller dashboard → messaging/offers → VIN history → auctions/sold history → transport & finance.
