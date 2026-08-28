@@ -155,3 +155,8 @@ Registered users can now edit their own listing submissions AND their own publis
 ## FID-015 — Missing per-locale hreflang — CLOSED 2026-08-28
 - Root layout `alternates.languages` emits `en`, `ar-EG`, `x-default` hreflang alternate links site-wide. Verified live in `<head>`.
 - **Status:** PRODUCTION VERIFIED (Low).
+
+## Phase 12 — Sign-off / independent second audit — 2026-08-28
+- Independent re-audit (fresh pass) executed against acceptance criteria: no critical/high; every prior defect PRODUCTION VERIFIED / RESOLVED; acceptance re-run.
+- Final completion report: `FIDELIS_AUTO_FINAL_REPORT` delivered via Telegram (Phase 12 COMPLETE).
+- Repo `main` @ final push; container healthy; tree clean.
