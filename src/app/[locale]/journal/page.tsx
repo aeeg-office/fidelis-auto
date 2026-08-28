@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import VehicleImage from "@/components/VehicleImage";
 import { prisma } from "@/lib/prisma";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import { BLOG_CATEGORIES } from "@/lib/fidelisTaxonomy";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -23,6 +24,7 @@ type JournalEntry = {
   author: string;
   publishedAt: Date | null;
   coverImage: string | null;
+  category: string | null;
 };
 
 // Placeholder data used when the database is empty or unavailable.
@@ -35,6 +37,7 @@ const PLACEHOLDER_ENTRIES: JournalEntry[] = [
     author: "Fidelis Auto",
     publishedAt: new Date("2026-05-12T09:00:00.000Z"),
     coverImage: null,
+    category: "Inspection Guides",
   },
   {
     slug: "mercedes-benz-pagoda-what-to-know-before-buying",
@@ -44,15 +47,17 @@ const PLACEHOLDER_ENTRIES: JournalEntry[] = [
     author: "Fidelis Auto",
     publishedAt: new Date("2026-05-28T09:00:00.000Z"),
     coverImage: null,
+    category: "Buying Guides",
   },
   {
     slug: "complete-guide-to-vehicle-provenance-checks",
     title: "The Complete Guide to Vehicle Provenance Checks",
     excerpt:
-      "Provenance is the difference between a great car and a great story. Here is how to verify a vehicle's history properly.",
+      "How to verify a vehicle's history before you buy — documentation, VIN checks, and avoiding hidden surprises.",
     author: "Fidelis Auto",
     publishedAt: new Date("2026-06-09T09:00:00.000Z"),
     coverImage: null,
+    category: "Provenance & Paperwork",
   },
   {
     slug: "5-essential-tools-every-car-enthusiast-should-own",
@@ -62,6 +67,7 @@ const PLACEHOLDER_ENTRIES: JournalEntry[] = [
     author: "Fidelis Auto",
     publishedAt: new Date("2026-06-21T09:00:00.000Z"),
     coverImage: null,
+    category: "Ownership & Running Costs",
   },
   {
     slug: "road-trip-cairo-to-the-red-sea",
@@ -71,6 +77,7 @@ const PLACEHOLDER_ENTRIES: JournalEntry[] = [
     author: "Fidelis Auto",
     publishedAt: new Date("2026-07-03T09:00:00.000Z"),
     coverImage: null,
+    category: "Road Trips & Travel",
   },
   {
     slug: "understanding-vehicle-import-rules-egypt-and-gcc",
@@ -80,6 +87,7 @@ const PLACEHOLDER_ENTRIES: JournalEntry[] = [
     author: "Fidelis Auto",
     publishedAt: new Date("2026-07-14T09:00:00.000Z"),
     coverImage: null,
+    category: "Import & Export Rules",
   },
   {
     slug: "how-to-sell-your-car-online-step-by-step",
@@ -89,6 +97,7 @@ const PLACEHOLDER_ENTRIES: JournalEntry[] = [
     author: "Fidelis Auto",
     publishedAt: new Date("2026-07-24T09:00:00.000Z"),
     coverImage: null,
+    category: "Selling Guides",
   },
   {
     slug: "best-weekend-cars-under-50000",
@@ -98,13 +107,16 @@ const PLACEHOLDER_ENTRIES: JournalEntry[] = [
     author: "Fidelis Auto",
     publishedAt: new Date("2026-08-01T09:00:00.000Z"),
     coverImage: null,
+    category: "Valuation & Prices",
   },
 ];
 
-async function getJournalEntries(): Promise<JournalEntry[]> {
+async function getJournalEntries(cat?: string): Promise<JournalEntry[]> {
   try {
+    const where: Record<string, unknown> = { isPublished: true };
+    if (cat) where.category = cat;
     const entries = await prisma.journalEntry.findMany({
-      where: { isPublished: true },
+      where,
       orderBy: { publishedAt: "desc" },
       select: {
         slug: true,
@@ -113,13 +125,31 @@ async function getJournalEntries(): Promise<JournalEntry[]> {
         author: true,
         publishedAt: true,
         coverImage: true,
+        category: true,
       },
     });
     if (entries && entries.length > 0) return entries as unknown as JournalEntry[];
   } catch {
     // DB unavailable — fall through to placeholder.
   }
-  return PLACEHOLDER_ENTRIES;
+  return cat ? PLACEHOLDER_ENTRIES.filter((e) => e.category === cat) : PLACEHOLDER_ENTRIES;
+}
+
+async function getCategoryCounts(): Promise<Record<string, number>> {
+  try {
+    const groups = await prisma.journalEntry.groupBy({
+      by: ["category"],
+      where: { isPublished: true, category: { not: null } },
+      _count: { _all: true },
+    });
+    const counts: Record<string, number> = {};
+    for (const g of groups) {
+      if (g.category) counts[g.category] = g._count._all;
+    }
+    return counts;
+  } catch {
+    return {};
+  }
 }
 
 function formatDate(date: Date | null): string {
@@ -131,9 +161,19 @@ function formatDate(date: Date | null): string {
   });
 }
 
-export default async function JournalPage() {
-  const entries = await getJournalEntries();
-  const t = await getTranslations("journal");
+export default async function JournalPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ cat?: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "journal" });
+  const { cat } = await searchParams;
+  const entries = await getJournalEntries(cat);
+  const counts = await getCategoryCounts();
+  const activeCat = cat || "";
 
   return (
     <div className="container-page py-16 md:py-24">
@@ -152,7 +192,16 @@ export default async function JournalPage() {
           <div className="lg:col-span-2">
             {entries.length === 0 ? (
               <div className="text-center py-16 text-[var(--color-text-secondary)]">
-                <p>{t("comingSoon")}</p>
+                <p>
+                  {activeCat
+                    ? `No journal entries in "${activeCat}" yet.`
+                    : t("comingSoon")}
+                </p>
+                {activeCat && (
+                  <Link href="/journal" className="mt-4 inline-block text-sm text-[var(--color-accent)] hover:underline">
+                    View all entries
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 gap-8">
@@ -180,9 +229,16 @@ export default async function JournalPage() {
                           </div>
                         )}
                       </div>
-                      <p className="text-xs text-[var(--color-accent)] font-medium mb-2">
-                        {formatDate(entry.publishedAt)}
-                      </p>
+                      <div className="flex items-center gap-3 mb-2">
+                        <p className="text-xs text-[var(--color-accent)] font-medium">
+                          {formatDate(entry.publishedAt)}
+                        </p>
+                        {entry.category && (
+                          <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)]">
+                            {entry.category}
+                          </span>
+                        )}
+                      </div>
                       <h2 className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors mb-2">
                         {entry.title}
                       </h2>
@@ -202,6 +258,42 @@ export default async function JournalPage() {
           {/* Sidebar */}
           <aside className="lg:col-span-1">
             <div className="lg:sticky lg:top-24 space-y-8">
+              <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-4">
+                  Browse by Category
+                </h3>
+                <ul className="space-y-1">
+                  <li>
+                    <Link
+                      href="/journal"
+                      className={`block text-sm py-1.5 transition-colors ${
+                        !activeCat
+                          ? "text-[var(--color-accent)] font-medium"
+                          : "text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]"
+                      }`}
+                    >
+                      All Entries
+                    </Link>
+                  </li>
+                  {BLOG_CATEGORIES.map((c) => (
+                    <li key={c}>
+                      <Link
+                        href={`/journal?cat=${encodeURIComponent(c)}`}
+                        className={`flex items-center justify-between text-sm py-1.5 transition-colors ${
+                          activeCat === c
+                            ? "text-[var(--color-accent)] font-medium"
+                            : "text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]"
+                        }`}
+                      >
+                        <span>{c}</span>
+                        {counts[c] ? (
+                          <span className="text-xs text-[var(--color-text-secondary)]/60">{counts[c]}</span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               <NewsletterSignup compact />
             </div>
           </aside>

@@ -18,6 +18,7 @@ type EntryData = {
   author: string;
   publishedAt: Date | null;
   coverImage: string | null;
+  category?: string | null;
 };
 
 // ─── Placeholder data ────────────────────────────
@@ -207,6 +208,7 @@ async function getEntry(slug: string): Promise<EntryData | null> {
         author: true,
         publishedAt: true,
         coverImage: true,
+        category: true,
       },
     });
     if (entry) return entry as unknown as EntryData;
@@ -346,6 +348,15 @@ export default async function JournalEntryPage({
               <p className="text-xs text-[var(--color-accent)] font-medium mb-2">
                 {formatDate(entry.publishedAt)}
               </p>
+
+              {entry.category && (
+                <Link
+                  href={`/journal?cat=${encodeURIComponent(entry.category)}`}
+                  className="inline-block text-[11px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] mb-3"
+                >
+                  {entry.category}
+                </Link>
+              )}
 
               <h1 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3">
                 {entry.title}
