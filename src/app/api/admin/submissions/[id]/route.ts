@@ -34,6 +34,17 @@ export async function PATCH(
         metadata: JSON.stringify({ listingRequestId: submission.id, result: decision.status }),
       },
     });
+    await tx.moderationLog.create({
+      data: {
+        listingRequestId: submission.id,
+        moderatorId: actor.id,
+        targetUserId: submission.userId,
+        action: decision.auditAction,
+        previousStatus: submission.status,
+        newStatus: decision.status,
+        notes: decision.notes ?? null,
+      },
+    });
     return updated;
   });
 

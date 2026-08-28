@@ -1,17 +1,21 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { Send } from "lucide-react";
 
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const vehicleSlug = searchParams.get("vehicleSlug") ?? searchParams.get("vehicle") ?? undefined;
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     const form = new FormData(e.currentTarget);
-    const data = Object.fromEntries(form.entries());
+    const data: Record<string, unknown> = Object.fromEntries(form.entries());
+    if (vehicleSlug) data.vehicleSlug = vehicleSlug;
 
     try {
       const res = await fetch("/api/contact", {

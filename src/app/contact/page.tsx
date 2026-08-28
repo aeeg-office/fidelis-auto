@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export default function ContactPage() {
           Whether you have a question about a car, want to share your own collection,
           or are interested in listing with us — we&apos;d love to hear from you.
         </p>
-        <ContactForm />
+        <Suspense>
+          <ContactForm />
+        </Suspense>
       </div>
     </div>
   );

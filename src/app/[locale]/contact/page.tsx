@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ContactForm from "@/components/ContactForm";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -23,7 +24,9 @@ export default async function ContactPage() {
         <p className="text-center text-[var(--color-text-secondary)] mb-12 max-w-lg mx-auto">
           {t("description")}
         </p>
-        <ContactForm />
+        <Suspense>
+          <ContactForm />
+        </Suspense>
       </div>
     </div>
   );
