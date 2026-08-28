@@ -1,26 +1,39 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { can, type AccountRole } from "@/lib/authorization";
 import { getCurrentUser } from "@/lib/user-auth";
-import { normalizeServiceListing } from "@/lib/service-listing";
+import { SERVICE_CATEGORIES } from "@/lib/fidelisTaxonomy";
 
-export async function GET() {
-  const services = await prisma.serviceListing.findMany({
-    where: { isPublished: true },
-    select: { id: true, businessName: true, category: true, description: true, phone: true, website: true, city: true, country: true },
-    orderBy: [{ category: "asc" }, { businessName: "asc" }],
-  });
-  return NextResponse.json(services);
-}
-
+// POST /api/services — submit a specialist service listing (guard: any authenticated user)
+// New listings start unpublished and are approved by an admin in /admin/services.
 export async function POST(request: Request) {
   const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!can(user.role as AccountRole, "service:manage")) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  const payload = await request.json().catch(() => null);
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return NextResponse.json({ error: "A valid service listing is required." }, { status: 400 });
-  const listing = normalizeServiceListing(payload as Record<string, unknown>);
-  if (!listing.ok) return NextResponse.json({ error: listing.error }, { status: 400 });
-  const service = await prisma.serviceListing.create({ data: { ...listing.value, ownerId: user.id } });
-  return NextResponse.json({ ok: true, id: service.id, status: "pending" }, { status: 201 });
+  if (!user) {
+    return NextResponse.json({ error: "Sign in to submit a service." }, { status: 401 });
+  }
+
+  const body = await request.json().catch(() => null);
+  const { businessName, category, description, phone, website, city, country } = body || {};
+  if (!businessName || !category || !description) {
+    return NextResponse.json({ error: "Business name, category, and description are required." }, { status: 400 });
+  }
+  const validCategory = SERVICE_CATEGORIES.some((c) => c.label === category);
+  if (!validCategory) {
+    const labels = SERVICE_CATEGORIES.map((c) => c.label).join(", ");
+    return NextResponse.json({ error: `Invalid category. Choose one of: ${labels}` }, { status: 400 });
+  }
+
+  const listing = await prisma.serviceListing.create({
+    data: {
+      ownerId: user.id,
+      businessName,
+      category,
+      description,
+      phone: phone || null,
+      website: website || null,
+      city: city || null,
+      country: country || null,
+      isPublished: false,
+    },
+  });
+  return NextResponse.json({ ok: true, id: listing.id, isPublished: false }, { status: 201 });
 }
