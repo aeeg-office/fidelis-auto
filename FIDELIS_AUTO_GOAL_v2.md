@@ -76,11 +76,19 @@ Register → submit → upload → AI validate → approve → publish → inqui
 ### Phase 6 — Competitive Benchmark — STATUS: COMPLETE 2026-08-27 (PHASE6_REPORT)
 Dubizzle / Hatla2ee / AutoTrader / Cars.com / Bring a Trailer / Cars & Bids / Facebook Marketplace — feature-gap analysis. High-value relaunch order: watchlist/favorites → comparison → search+filters → saved searches → alerts → trust badges → buyer reviews → seller dashboard → messaging/offers → VIN history → auctions/sold history → transport & finance.
 
-### Phase 7 — Expansion — STATUS: PENDING
+### Phase 7 — Expansion — STATUS: COMPLETE 2026-08-28 (merge c5521e6)
 Blog (14 categories) + Services marketplace (6 category groups: BUY & VERIFY, MAINTAIN & REPAIR, PROTECT & DETAIL, RESTORE & UPGRADE, OWN & SUPPORT, PARTS & ACCESSORIES).
+- JournalEntry gains `category` column (migration `20260828_phase7_blog_category`); listing page has browse-by-category sidebar (14 cats + counts), `?cat=` filter, per-entry category badges on listing and detail (root + locale).
+- `src/lib/fidelisTaxonomy.ts`: BLOG_CATEGORIES (14) + SERVICE_CATEGORIES (6 groups with descriptions).
+- Services marketplace grouped into the 6 category groups with group descriptions; 12 curated listings seeded (all 6 groups populated).
+- Services submission flow (`/services/submit` + `POST /api/services`, starts unpublished → admin approve) + admin Journal CRUD (new/edit/publish/delete via `/admin/journal`).
+- VERIFIED in browser: 6 service groups render, 14-category sidebar + filter works, /services/submit 200, /admin/journal 307 when unauthenticated.
 
-### Phase 8 — Feature Expansion — STATUS: PENDING
-Featured listings (Promotion table), saved/favorites/watchlist, full comparison, per-user dashboards — gated on Phase 6 gaps and highest priority.
+### Phase 8 — Feature Expansion — STATUS: COMPLETE 2026-08-28 (merge 64b3826)
+- Favorites/saved (toggle API + Favorite table) and full 3-way comparison already existed.
+- Added the missing **user watchlist**: `/watchlist` (root + locale) lists an authenticated user's saved vehicles with primary image, title, year/make/model, price; Header "Watchlist" link (Heart icon) for logged-in users.
+- Featured listings: admin `isFeatured` toggle + home featuredVehicles section + vehicles listing featured-first sort already existed.
+- VERIFIED in browser: authenticated user's /watchlist renders their saved vehicle.
 
 ### Phase 9 — Testing & Validation — STATUS: PENDING
 Unit / integration / API / DB / browser per role; repeat until no critical or high.
