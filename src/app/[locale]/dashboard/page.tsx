@@ -8,7 +8,7 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?redirect=/dashboard");
 
-  const [submissions, totalSubmissions, approvedCount, pendingCount, rejectedCount] = await Promise.all([
+  const [submissions, totalSubmissions, approvedCount, pendingCount, rejectedCount, myVehicles] = await Promise.all([
     prisma.listingRequest.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -17,6 +17,10 @@ export default async function DashboardPage() {
     prisma.listingRequest.count({ where: { userId: user.id, status: "approved" } }),
     prisma.listingRequest.count({ where: { userId: user.id, status: "pending" } }),
     prisma.listingRequest.count({ where: { userId: user.id, status: "rejected" } }),
+    prisma.vehicle.findMany({
+      where: { ownerId: user.id, isPublished: true },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   function statusBadge(status: string) {
@@ -162,6 +166,7 @@ export default async function DashboardPage() {
                     {/* Status */}
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       {statusBadge(s.status)}
+                      <Link href={`/my-listing/${s.id}`} className="text-xs text-[var(--color-accent)] hover:underline">Edit</Link>
                     </div>
                   </div>
                 );
@@ -169,6 +174,26 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
+
+        {/* My Published Listings */}
+        {myVehicles.length > 0 && (
+          <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] mt-8">
+            <div className="p-6 border-b border-[var(--color-border)]">
+              <h2 className="font-semibold text-[var(--color-text-primary)] text-lg">My Published Listings</h2>
+            </div>
+            <div className="divide-y divide-[var(--color-border)]">
+              {myVehicles.map((v) => (
+                <div key={v.id} className="p-4 px-6 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-[var(--color-text-primary)]">{v.title}</p>
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Published</p>
+                  </div>
+                  <Link href={`/my-vehicle/${v.id}`} className="text-xs text-[var(--color-accent)] hover:underline">Edit</Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Link to browse vehicles */}
         <div className="mt-8 text-center">

@@ -40,6 +40,7 @@ enum AuditAction {
 // ── Vehicles ──────────────────────────────────
 model Vehicle {
   id            String   @id @default(cuid())
+  ownerId      String?
   slug          String   @unique
   title         String
   year          Int
@@ -73,6 +74,10 @@ model Vehicle {
   milestones     ProvenanceMilestone[]
   journalEntries JournalEntry[]
   favorites      Favorite[]
+
+  owner User? @relation("VehicleOwner", fields: [ownerId], references: [id])
+
+  @@index([ownerId])
 }
 
 model VehicleImage {
@@ -168,6 +173,7 @@ model User {
   updatedAt    DateTime  @updatedAt
 
   listingRequests ListingRequest[]
+  vehicles       Vehicle[] @relation("VehicleOwner")
   favorites       Favorite[]
   sessions        AuthSession[]
   dealerProfile   DealerProfile?
