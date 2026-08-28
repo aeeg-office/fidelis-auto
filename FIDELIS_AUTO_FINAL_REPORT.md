@@ -38,7 +38,8 @@
 ## Verified live (this run)
 - 17/17 public routes 200; 7/7 auth-gated pages 307; 4/4 admin APIs 401; 0×500.
 - Browser E2E: clean-approve→publish, violation→pending, inquiry→Inquiry row, sold+ModerationLog, watchlist render, 6 service groups, 14 journal categories + filter.
-- Container healthy; main @ `137d317` pushed; tree clean.
+- **Independent Phase 12 audit: CLEAN — no critical or high, no 500s, no broken internal links; Arabic locale `/ar` 200.**
+- Container healthy; main @ `58af548` pushed; tree clean.
 
 ## Notes awaiting owner
 - Create the `qadirbaqi@gmail.com` account and re-list the Beetle — auto-approve will publish it immediately (no ad-text violations). The Beetle photo must be re-uploaded by the owner (not fabricated).
