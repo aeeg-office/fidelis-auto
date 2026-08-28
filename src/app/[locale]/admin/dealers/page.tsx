@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
-import { Car, FileText, Inbox, Users, Store, Wrench, LogOut } from "lucide-react";
+import { Car, FileText, Inbox, Users, Store, Wrench, History, LogOut } from "lucide-react";
 import AdminDealerActions from "@/components/AdminDealerActions";
 
 export default async function AdminDealersPage() {
@@ -71,6 +71,7 @@ function Sidebar({ active }: { active: string }) {
     { href: "/admin/dealers", label: "Dealers", icon: <Store size={16} />, key: "dealers" },
     { href: "/admin/users", label: "Users", icon: <Users size={16} />, key: "users" },
     { href: "/admin/services", label: "Services", icon: <Wrench size={16} />, key: "services" },
+    { href: "/admin/activity", label: "Activity", icon: <History size={16} />, key: "activity" },
   ];
   return (
     <div className="fixed left-0 top-0 bottom-0 w-56 bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] p-6">

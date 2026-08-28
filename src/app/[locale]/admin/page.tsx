@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
-import { Car, FileText, MessageSquare, Plus, Eye, Star, Store, Users, Wrench } from "lucide-react";
+import { Car, FileText, MessageSquare, Plus, Eye, Star, Store, Users, Wrench, History } from "lucide-react";
 import AdminSubmissionActions from "@/components/AdminSubmissionActions";
 
 export default async function AdminDashboard() {
@@ -57,6 +57,9 @@ export default async function AdminDashboard() {
           </Link>
           <Link href="/admin/services" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white/70 hover:text-white transition-colors">
             <Wrench size={16} /> Services
+          </Link>
+          <Link href="/admin/activity" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-white/70 hover:text-white transition-colors">
+            <History size={16} /> Activity
           </Link>
         </nav>
         <div className="absolute bottom-6 left-6 right-6">
