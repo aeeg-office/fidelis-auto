@@ -144,3 +144,14 @@ Registered users can now edit their own listing submissions AND their own publis
 - Branch owner-edit merged to main (2b21886), deployed, image healthy.
 - New: PATCH/DELETE /api/my-listing/[id] (ownership-guarded, resets to pending on edit), PATCH/DELETE /api/my-vehicle/[id] (ownership-guarded), OwnerPhotoManager uploads to persistent named volume fidelis-auto_fidelis-auto-data:/app/public/uploads.
 - FID-009 (Beetle photos): owner re-upload now possible via dashboard -> Edit; Beetle ownerId assigned to aeeg.education@gmail.com. Real photos still need owner-supplied files (p3f).
+
+## Phase 9 — Testing & Validation sweep — 2026-08-28
+- **Result: NO CRITICAL OR HIGH defects open.** Full HTTP/auth/API sweep, zero 500s.
+- Public pages (17) — all 200: /, /about, /contact, /vehicles, /search, /journal, /journal/[slug], /services, /compare, /dealer/register, /privacy, /terms, /login, /signup, /verify, /offline, /services/submit.
+- Auth-gated pages — all 307 → login when unauth: /dashboard, /admin, /admin/journal, /admin/services, /submit, /watchlist, /dealer. (/dealers unused route 404 — not a defect.)
+- Admin APIs — 401 unauth: /api/admin/users, /api/admin/inquiries, /api/admin/services, /api/admin/journal. Create-only POST routes correctly 405 on GET: /api/services, /api/submit, /api/newsletter, /api/admin/vehicles. Public 200: /api/vehicles, /api/makes. (/api/me intentionally doesn't exist.)
+- Browser E2E re-verified across Phases 5/7/8 (auto-approve clean→published & violation→pending, inquiry→vehicleId link, mark-sold + ModerationLog, 6 service groups, 14 journal categories + filter, /watchlist), plus sold session injection.
+
+## FID-015 — Missing per-locale hreflang — CLOSED 2026-08-28
+- Root layout `alternates.languages` emits `en`, `ar-EG`, `x-default` hreflang alternate links site-wide. Verified live in `<head>`.
+- **Status:** PRODUCTION VERIFIED (Low).
