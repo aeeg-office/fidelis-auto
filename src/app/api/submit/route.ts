@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { can, type AccountRole } from "@/lib/authorization";
 import { normalizeListingSubmission } from "@/lib/listing-submission";
 import { getCurrentUser } from "@/lib/user-auth";
+import { scanAdText } from "@/lib/ad-scanner";
+import { autoPublish } from "@/lib/auto-publish";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -24,7 +26,59 @@ export async function POST(request: Request) {
     if (!submission.ok) return NextResponse.json({ error: submission.error }, { status: 400 });
 
     const listing = await prisma.listingRequest.create({ data: submission.value });
-    return NextResponse.json({ ok: true, id: listing.id }, { status: 201 });
+
+    // Automated moderation: if the ad text is clean, approve AND publish immediately.
+    const scan = scanAdText({
+      make: submission.value.make,
+      model: submission.value.model,
+      trim: submission.value.trim,
+      description: submission.value.description,
+      phone: submission.value.phone,
+      city: submission.value.city,
+      state: submission.value.state,
+      country: submission.value.country,
+      zipCode: submission.value.zipCode,
+    });
+
+    if (scan.clean) {
+      try {
+        const published = await autoPublish(submission.value, listing.id);
+        return NextResponse.json(
+          {
+            ok: true,
+            id: listing.id,
+            autoApproved: true,
+            vehicleId: published.vehicleId,
+            violations: [],
+          },
+          { status: 201 },
+        );
+      } catch (publishError) {
+        console.error("Auto-publish failed for listing", listing.id, publishError);
+        // Fall back to pending so nothing is lost; admin can publish manually.
+        return NextResponse.json(
+          {
+            ok: true,
+            id: listing.id,
+            autoApproved: false,
+            violation: "Auto-publish error; sent to moderation.",
+            violations: [],
+          },
+          { status: 201 },
+        );
+      }
+    }
+
+    // Ad text violations found — route to manual moderation.
+    return NextResponse.json(
+      {
+        ok: true,
+        id: listing.id,
+        autoApproved: false,
+        violations: scan.violations,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error("Submit error:", error);
     return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
