@@ -27,26 +27,21 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 
 ## FID-002 — No moderation log entries exist
 
-- **Status:** CONFIRMED
-- **Severity:** Medium
-- **Reported:** 2026-08-20
-- **Observed:** ModerationLog table has 0 rows despite having 1 ListingRequest and 6 vehicles with isPublished flags.
-- **Expected:** Moderation actions (approve/reject/publish) should create ModerationLog records.
-- **Root Cause:** Moderation logging either not implemented or not active.
-- **Reproduction:** Check ModerationLog table — empty.
-- **Acceptance Criteria:** Moderating a listing creates a ModerationLog entry.
+- **Status:** PRODUCTION VERIFIED (deployed 2026-08-27) · **Severity:** Medium · **Date:** 2026-08-27
+- **Observed (original):** ModerationLog table has 0 rows despite 1 ListingRequest and 6 vehicles with isPublished flags.
+- **Ground truth (phase-4 audit):** `AuditLog` (not `ModerationLog`) already receives writes from the admin moderation routes — live prod DB holds 6 rows (`LISTING_APPROVED`×3, `DEALER_APPROVED`, `DEALER_REJECTED`, `ROLE_CHANGED`). **Writer side exists.** The real gap was the **read side: no admin UI surfaced the trail** (`grep` found zero readers of `auditLog.findMany`).
+- **Fix (Phase4, commit 7707589):** added admin **Activity Log** page (`/[locale]/admin/activity`) + `GET /api/admin/activity` returning the persisted `AuditLog` trail (action/actor/target/metadata, newest first), wired into the nav of every admin page (dashboard, vehicles, submissions, dealers, users, inquiries, services). Auth-guarded same as other admin modules (401 unauth / 307 anon). tsc-clean + production build OK.
+- **Acceptance:** Moderating a listing creates an AuditLog entry, and an admin can view the log in the UI.
 
 ---
 
 ## FID-003 — No images on 5 unpublished vehicles
 
-- **Status:** CONFIRMED
-- **Severity:** Medium
-- **Reported:** 2026-08-20
-- **Observed:** Only 1 VehicleImage record across all 6 vehicles. 5 vehicles have 0 images.
-- **Expected:** Each vehicle listing should have at least images uploaded before or during creation.
-- **Root Cause:** Untested — possibly images were never uploaded, or image upload pipeline has issues.
-- **Acceptance Criteria:** Vehicles with image data in DB render correctly on admin/vehicle forms.
+- **Status:** PRODUCTION VERIFIED (deployed 2026-08-27) · **Severity:** Medium · **Date:** 2026-08-27
+- **Observed (original):** Only 1 VehicleImage record across all 6 vehicles; 5 vehicles had 0 images.
+- **Ground truth (phase-4 audit + Phase 3):** uploads volume on prod is **empty (12K, no files)** while the DB holds image rows referencing `/uploads/...` paths. The physical photo files are **genuinely lost** (pre-Phase-3 volume wipe) — they cannot be fabricated; a real re-upload by seller/admin is required (pipeline persists correctly since the FID-001/009 volume chown). This applies to the Beetle AND the unpublished set.
+- **Fix (Phase4, commit 7707589):** `VehicleImage` component now renders a **graceful car-silhouette fallback on image `onError`** instead of a broken `<img>` when the referenced file is missing or never uploaded. This makes every admin/vehicle form render cleanly even when a record's photo file is absent (the dangling-DB-row / empty-volume case).
+- **Acceptance:** Vehicles with image data render correctly in admin/vehicle forms; missing files show a clean placeholder, never a broken image.
 
 ---
 
