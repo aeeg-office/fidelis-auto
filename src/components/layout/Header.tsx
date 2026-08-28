@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Menu, X, User, BarChart3, Globe, ShieldCheck, Building2, LayoutDashboard } from "lucide-react";
+import { Menu, X, User, BarChart3, Globe, ShieldCheck, Building2, LayoutDashboard, Heart } from "lucide-react";
 import { roleLandingPath, type AccountRole } from "@/lib/authorization";
 import { useCompareStore } from "@/lib/compare-store";
 
@@ -77,6 +77,16 @@ export default function Header() {
             >
               <BarChart3 size={16} />
               <span>{t("compare")} ({compareCount})</span>
+            </Link>
+          )}
+
+          {user && (
+            <Link
+              href="/watchlist"
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+            >
+              <Heart size={16} />
+              <span>Watchlist</span>
             </Link>
           )}
 
