@@ -86,3 +86,13 @@
 
 ## Superseded Decisions
 None yet.
+## 2026-08-28 — Automated Listing Approval: Approved Rule Set (owner-confirmed)
+
+**Decision:** When a registered SELLER submits a listing, approval is automated and fast. A submission is **auto-approved and auto-published** (Vehicle created live, owned by the submitter, in one pass) **unless there are ad-text violations**, in which case it routes to manual moderation (`pending`).
+
+**Approved violation rule set** (case-insensitive; any hit → `pending` + flagged reason):
+- Contact harvesting: emails, phone numbers in free-text prose, `wa.me`/whatsapp/telegram handles, "@"/"dot com" in body (the seller's own validated phone/email contact fields are legit and excluded from this)
+- Spam / ad filler: profanity, "contact me", "call now", "best price", "limited time", repeated all-caps
+- Malformed essentials: empty model, suspicious year, external URL in description
+
+**Source of truth:** live deployed code `src/lib/ad-scanner.ts` + `src/lib/auto-publish.ts`, verified in browser on both the clean and violation paths (2026-08-28). Merged to `main` (`87dfdb1`).
