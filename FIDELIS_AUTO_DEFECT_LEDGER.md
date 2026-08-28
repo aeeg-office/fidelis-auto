@@ -27,7 +27,7 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 
 ## FID-002 — No moderation log entries exist
 
-- **Status:** CONFIRMED
+- **Status:** PRODUCTION VERIFIED (fixed 2026-08-28 Phase 5 — ModerationLog model + logging wired in auto-publish & admin approve/reject; runtime round-trip verified)
 - **Severity:** Medium
 - **Reported:** 2026-08-20
 - **Observed:** ModerationLog table has 0 rows despite having 1 ListingRequest and 6 vehicles with isPublished flags.
@@ -64,7 +64,7 @@ OPEN → CONFIRMED → IN PROGRESS → READY FOR TEST → FAILED RETEST → VERI
 
 ## FID-005 — 0 inquiries recorded
 
-- **Status:** CONFIRMED
+- **Status:** PRODUCTION VERIFIED (fixed 2026-08-28 Phase 5 — /api/contact writes an Inquiry row, source contact-form, vehicleId from vehicleSlug; live-verified)
 - **Severity:** Low
 - **Reported:** 2026-08-20
 - **Observed:** Inquiry table has 0 rows. Published Beetle exists since at least 2026-08-05.

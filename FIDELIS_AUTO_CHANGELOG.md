@@ -1,4 +1,12 @@
 # Fidelis Auto Changelog
+# Fidelis Auto Changelog
+
+## 2026-08-28 — Phase 5: Listing Workflow (FID-002 + FID-005)
+- **FID-002 (medium) resolved:** added `model ModerationLog` to `prisma/schema.prisma` (maps existing live table) + idempotent migration `20260828_phase5_moderation_log`; wired `prisma.moderationLog.create` into auto-approve (`src/lib/auto-publish.ts`, action `AUTO_APPROVED`) and admin approve/reject (`src/app/api/admin/submissions/[id]/route.ts`, `LISTING_APPROVED`/`LISTING_REJECTED`). Runtime write+read+delete round-trip verified.
+- **FID-005 (low) resolved:** `/api/contact` now persists an `Inquiry` row (`source: contact-form`, `vehicleId` resolved from `vehicleSlug`) before the Resend email; `ContactSellerButton` + `ContactForm` thread `vehicleSlug` through the contact page (`/contact` + `/[locale]/contact`, wrapped in Suspense for `useSearchParams`). Live-verified via POST /api/contact → Inquiry row created; test rows cleaned.
+- Merged to `main` (`968f97a`), deployed, container `fidelis-auto` healthy on :3006.
+- **Note:** `Vehicle` table empty in prod (was 1 Beetle at 06:00, 0 at 10:02) — pre-dates Phase 5 code changes; flagged for owner.
+
 
 ## 2026-08-20 — Initial Canonical Governance Setup
 
