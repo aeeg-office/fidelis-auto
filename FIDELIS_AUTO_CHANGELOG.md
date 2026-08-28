@@ -1,5 +1,4 @@
 # Fidelis Auto Changelog
-# Fidelis Auto Changelog
 
 ## 2026-08-28 — Phase 5: Listing Workflow (FID-002 + FID-005)
 - **FID-002 (medium) resolved:** added `model ModerationLog` to `prisma/schema.prisma` (maps existing live table) + idempotent migration `20260828_phase5_moderation_log`; wired `prisma.moderationLog.create` into auto-approve (`src/lib/auto-publish.ts`, action `AUTO_APPROVED`) and admin approve/reject (`src/app/api/admin/submissions/[id]/route.ts`, `LISTING_APPROVED`/`LISTING_REJECTED`). Runtime write+read+delete round-trip verified.
