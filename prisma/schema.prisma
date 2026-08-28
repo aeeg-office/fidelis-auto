@@ -150,6 +150,26 @@ model Inquiry {
   createdAt DateTime @default(now())
 }
 
+// ── Moderation Log ─────────────────────────────
+model ModerationLog {
+  id               String   @id @default(dbgenerated("gen_random_uuid()::text"))
+  vehicleId        String?
+  listingRequestId String?
+  moderatorId      String?
+  targetUserId     String?
+  action           String
+  notes            String?
+  previousStatus   String?
+  newStatus        String?
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([moderatorId, createdAt])
+  @@index([listingRequestId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([vehicleId, createdAt])
+  @@map("ModerationLog")
+}
+
 // ── Users & Auth ──────────────────────────────
 model User {
   id           String      @id @default(cuid())

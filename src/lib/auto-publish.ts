@@ -119,5 +119,18 @@ export async function autoPublish(
     data: { status: "approved", notes: "Auto-approved at submission (no ad text violations)." },
   });
 
+  // Record the moderation decision (auto-approve) in the moderation log.
+  await prisma.moderationLog.create({
+    data: {
+      vehicleId: vehicle.id,
+      listingRequestId: listingId,
+      targetUserId: ownerId ?? null,
+      action: "AUTO_APPROVED",
+      previousStatus: "pending",
+      newStatus: "approved",
+      notes: "Auto-approved at submission (ad-text scanner clean).",
+    },
+  });
+
   return { ok: true, vehicleId: vehicle.id, listingId, published: true };
 }
