@@ -2,11 +2,12 @@ import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 import { readFile } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 
 // File-based OK, but we read cover images from disk — force Node runtime.
 export const runtime = "nodejs";
 
-/** Read an uploaded image from public/ and return a data URL for next/og. */
+/** Read + downscale an uploaded image and return a small data URL for next/og. */
 async function localDataUrl(src: string): Promise<string | null> {
   if (!src || src.includes("..")) return null;
   const clean = src.startsWith("/") ? src : `/${src}`;
@@ -15,9 +16,10 @@ async function localDataUrl(src: string): Promise<string | null> {
   try {
     const buf = await readFile(abs);
     if (buf.length === 0) return null;
-    const ext = path.extname(abs).slice(1) || "jpeg";
-    const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
-    return `data:${mime};base64,${buf.toString("base64")}`;
+    // Downscale to fit OG (1200w) so next/og's rasterizer never sees an
+    // enormous buffer. 7–8MB phone JPEGs otherwise blow its glib limit.
+    const resized = await sharp(buf).resize(1200, 630, { fit: "cover" }).jpeg({ quality: 82 }).toBuffer();
+    return `data:image/jpeg;base64,${resized.toString("base64")}`;
   } catch {
     return null;
   }
