@@ -76,10 +76,20 @@ rows, deletes removed rows (+ files), creates new rows, guarantees exactly one p
 - Search results / `/vehicles` → cover ✅ (via `getVehicles` primary)
 - Category filter → cover ✅ (same `getVehicles`)
 - Featured listings → cover ✅ (same loader)
-- Open Graph / social preview → cover photo ✅ (OG route now embeds it; absolute URL)
+- Open Graph / social preview → cover photo ✅ (OG route embeds a downscaled copy
+  via `sharp` as a data URL; absolute-URL fetch would 502 on large uploads)
 - Fallback: if no cover flagged → first image; if no images → slug placeholder ✅
+
+## Notes on the OG image
+
+`next/og` throws on network-fetched large images and rejects relative URLs. Final
+approach: the OG route runs under the Node runtime, reads the cover from disk and
+downscales with `sharp` (1200×630, jpeg q82) to a data URL — avoids both the
+"absolute URL" error and the glib buffer-limit crash. Verified live: OG returns
+200 `image/png` (~688 KB) with the car photo visible.
 
 ## Screenshots
 
 - `docs/screenshots/after-gallery-beetle.png` — gallery (main + thumbnails) on live page.
 - Pre-deploy "before": page referenced only the single hero upload (verified via curl).
+- OG social preview verified visually (real Beetle photo + brand/title card).
