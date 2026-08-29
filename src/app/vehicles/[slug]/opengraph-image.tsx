@@ -1,5 +1,27 @@
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
+import { readFile } from "fs/promises";
+import path from "path";
+
+// File-based OK, but we read cover images from disk — force Node runtime.
+export const runtime = "nodejs";
+
+/** Read an uploaded image from public/ and return a data URL for next/og. */
+async function localDataUrl(src: string): Promise<string | null> {
+  if (!src || src.includes("..")) return null;
+  const clean = src.startsWith("/") ? src : `/${src}`;
+  if (clean.startsWith("/uploads/") === false) return null;
+  const abs = path.join(process.cwd(), "public", clean);
+  try {
+    const buf = await readFile(abs);
+    if (buf.length === 0) return null;
+    const ext = path.extname(abs).slice(1) || "jpeg";
+    const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+    return `data:${mime};base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
 
 // Image metadata
 export const alt = "Fidelis Auto — Premium Collector Vehicle";
@@ -24,6 +46,7 @@ export default async function Image({
   let make = "";
   let model = "";
   let coverImage: string | null = null;
+  let coverDataUrl: string | null = null;
 
   try {
     const vehicle = await prisma.vehicle.findUnique({
@@ -39,6 +62,7 @@ export default async function Image({
       make = vehicle.make;
       model = vehicle.model;
       coverImage = vehicle.images[0]?.src ?? null;
+      if (coverImage) coverDataUrl = await localDataUrl(coverImage);
     }
   } catch {
     // DB unavailable — fall back to slug-derived title
@@ -81,7 +105,7 @@ export default async function Image({
         />
 
         {/* Cover photo (left panel) when an uploaded image exists */}
-        {coverImage && (
+        {coverDataUrl && (
           <div
             style={{
               position: "absolute",
@@ -96,9 +120,8 @@ export default async function Image({
               overflow: "hidden",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={coverImage.startsWith("http") ? coverImage : `https://fidelisauto.com${coverImage}`}
+              src={coverDataUrl}
               alt=""
               width={400}
               height={624}
