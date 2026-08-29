@@ -54,17 +54,34 @@ export default function SubmitForm() {
     const form = new FormData(e.currentTarget);
 
     const photoUrls: string[] = [];
+    const uploadErrors: string[] = [];
     for (const file of photos) {
       const fd = new FormData(); fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
-      if (res.ok) { const { url } = await res.json(); photoUrls.push(url); }
+      if (res.ok) {
+        const { url } = await res.json();
+        if (url) photoUrls.push(url);
+        else uploadErrors.push(`${file.name}: upload succeeded but returned no URL.`);
+      } else {
+        uploadErrors.push(`${file.name}: upload failed (HTTP ${res.status}).`);
+      }
     }
+    if (photoUrls.length === 0) uploadErrors.push("No photos were uploaded successfully — please try again.");
 
     const videoUrls: string[] = [];
     for (const file of videos) {
       const fd = new FormData(); fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
-      if (res.ok) { const { url } = await res.json(); videoUrls.push(url); }
+      if (res.ok) {
+        const { url } = await res.json();
+        if (url) videoUrls.push(url);
+      }
+    }
+
+    if (uploadErrors.length > 0) {
+      setLoading(false);
+      setErrors([...errors, ...uploadErrors]);
+      return;
     }
 
     const finalMake = selectedMake === "Other" ? customMake : selectedMake;

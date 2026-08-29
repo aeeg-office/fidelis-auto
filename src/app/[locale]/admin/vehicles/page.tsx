@@ -40,7 +40,9 @@ export default async function AdminVehiclesPage() {
                 <Car size={20} className="text-[var(--color-text-inverse)]/30" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[var(--color-text-primary)]">{v.year} {v.make} {v.model}</p>
+                <Link href={`/admin/vehicles/${v.id}`} className="text-sm font-medium text-[var(--color-text-primary)] hover:text-[var(--color-accent)] transition-colors inline-block">
+                  {v.year} {v.make} {v.model} <span className="text-[var(--color-text-secondary)]">→ edit photos</span>
+                </Link>
                 <p className="text-xs text-[var(--color-text-secondary)]">
                   Slug: {v.slug} | {v.status} | {v.images.length} image(s)
                 </p>

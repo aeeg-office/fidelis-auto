@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Trash2 } from "lucide-react";
 import Link from "next/link";
-import OwnerPhotoManager from "@/components/OwnerPhotoManager";
+import VehicleImageManager, { type ManagerImage } from "@/components/VehicleImageManager";
 import { EXTERIOR_COLORS, INTERIOR_COLORS, TRANSMISSIONS } from "@/lib/car-data";
 
 type Vehicle = {
@@ -26,7 +26,7 @@ type Vehicle = {
   descriptionEn: string | null;
   descriptionAr: string | null;
   isPublished: boolean;
-  images: string[];
+  images: ManagerImage[];
 };
 
 export default function EditVehicleForm({
@@ -37,7 +37,7 @@ export default function EditVehicleForm({
   slug: string;
 }) {
   const router = useRouter();
-  const [images, setImages] = useState<string[]>(vehicle.images);
+  const [images, setImages] = useState<ManagerImage[]>(vehicle.images);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
@@ -159,7 +159,13 @@ export default function EditVehicleForm({
             <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">
               Photos
             </legend>
-            <OwnerPhotoManager initial={images} max={30} slug={slug} onChange={setImages} />
+            <VehicleImageManager
+              vehicleId={vehicle.id}
+              slug={slug}
+              initial={images}
+              max={30}
+              onChange={setImages}
+            />
           </fieldset>
 
           {error && <p className="text-sm text-[var(--color-error)]">{error}</p>}

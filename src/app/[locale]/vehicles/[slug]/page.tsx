@@ -8,7 +8,7 @@ import JsonLd from "@/components/JsonLd";
 import FavoriteButton from "@/components/FavoriteButton";
 import SocialShare from "@/components/SocialShare";
 import ContactSellerButton from "@/components/ContactSellerButton";
-import VehicleImage from "@/components/VehicleImage";
+import VehicleGallery, { type GalleryImage } from "@/components/VehicleGallery";
 import RelatedVehicles from "@/components/RelatedVehicles";
 
 // ─── Data ──────────────────────────────────────
@@ -19,7 +19,11 @@ type VehicleData = {
   exteriorColor: string | null; interiorColor: string | null;
   engine: string | null; transmission: string | null; drivetrain: string | null;
   price: string | null; descriptionEn: string | null; description: string | null;
-  isPublished: boolean; image: string | null;
+  isPublished: boolean;
+  /** Ordered images from the DB (primary first, then sortOrder). */
+  images: GalleryImage[];
+  /** Cover image == first of the ordered images (primary or first available). */
+  coverImage: string | null;
 };
 
 async function getVehicle(slug: string): Promise<VehicleData | null> {
@@ -31,7 +35,8 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
       },
     });
     if (vehicle) {
-      const primary = (vehicle as { images?: { src: string }[] }).images?.[0];
+      const images = (vehicle as { images: { src: string; alt?: string | null }[] }).images ?? [];
+      const cover = images[0]?.src ?? null;
       return {
         slug: vehicle.slug,
         title: vehicle.title,
@@ -50,7 +55,8 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         descriptionEn: vehicle.descriptionEn,
         description: vehicle.descriptionEn,
         isPublished: vehicle.isPublished,
-        image: primary?.src ?? null,
+        images: images.map((i) => ({ src: i.src, alt: i.alt })),
+        coverImage: cover,
       };
     }
   } catch {
@@ -74,6 +80,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: vehicle.title,
       description: `${vehicle.title} — ${vehicle.mileage?.toLocaleString() || "?"} miles.`,
       url: `https://fidelisauto.com/vehicles/${slug}`,
+      images: vehicle.coverImage
+        ? [{ url: `https://fidelisauto.com${vehicle.coverImage}` }]
+        : undefined,
     },
   };
 }
@@ -95,7 +104,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
   const pT = await getTranslations("vehicles.provenance");
 
-  const imagePath = vehicle.image || `/images/placeholder-${slug}.svg`;
+  const imagePath = vehicle.coverImage ?? `/images/placeholder-${slug}.svg`;
 
   return (
     <>
@@ -116,6 +125,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
         color: vehicle.exteriorColor || undefined,
         vehicleInteriorColor: vehicle.interiorColor || undefined,
         url: `https://fidelisauto.com/vehicles/${slug}`,
+        image: imagePath,
       }} />
 
       <div className="container-page py-6">
@@ -125,14 +135,11 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <section className="container-page">
-        <div className="relative aspect-[21/9] bg-[var(--color-surface-dark)] rounded-lg overflow-hidden mb-8">
-          <VehicleImage
-            src={imagePath}
-            alt={vehicle.title}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 90vw"
-            className="object-cover"
+        <div className="mb-8">
+          <VehicleGallery
+            images={vehicle.images}
+            title={vehicle.title}
+            fallbackSrc={imagePath}
           />
         </div>
       </section>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
+import { normalizeImageOrder, syncVehicleImages } from "@/lib/vehicle-images";
 
 export async function PATCH(
   request: Request,
@@ -13,13 +14,19 @@ export async function PATCH(
   const { id } = await params;
   try {
     const body = await request.json();
-    const { isFeatured, featuredUntil } = body;
+    const { isFeatured, images } = body;
 
-    const vehicle = await prisma.vehicle.update({
-      where: { id },
-      data: {
-        isFeatured: typeof isFeatured === "boolean" ? isFeatured : undefined,
-      },
+    const data: Record<string, unknown> = {};
+    if (typeof isFeatured === "boolean") data.isFeatured = isFeatured;
+
+    const ordered = Array.isArray(images) ? normalizeImageOrder(images) : null;
+
+    const vehicle = await prisma.$transaction(async (tx) => {
+      const updated = await tx.vehicle.update({ where: { id }, data });
+      if (ordered) {
+        await syncVehicleImages(tx, id, ordered, { deleteFiles: true });
+      }
+      return updated;
     });
 
     return NextResponse.json({ ok: true, isFeatured: vehicle.isFeatured });

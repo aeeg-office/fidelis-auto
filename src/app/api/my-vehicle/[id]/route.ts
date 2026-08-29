@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user-auth";
 import { can, type AccountRole } from "@/lib/authorization";
+import { normalizeImageOrder, syncVehicleImages } from "@/lib/vehicle-images";
 
 const EDITABLE = [
   "year", "make", "model", "trim", "vin", "mileage",
@@ -64,20 +65,33 @@ export async function PATCH(
     if (!updates.model) delete updates.title;
   }
 
-  let replaceImages: string[] | null = null;
+  // Image management: accept either a plain ordered array of URLs (legacy
+  // full-replace), or an ordered array of {id?, src, cover?} objects so the
+  // owner can reorder, change the cover, delete, and replace images.
+  let syncImages: { id?: string | null; src: string; cover?: boolean }[] | null = null;
+  let plainReplace: string[] | null = null;
   if (Array.isArray(data.images)) {
-    replaceImages = (data.images as unknown[])
-      .filter((u): u is string => typeof u === "string")
-      .slice(0, 30);
+    const arr = data.images as unknown[];
+    if (arr.length && arr.every((u) => typeof u === "string")) {
+      plainReplace = (arr as string[]).slice(0, 30);
+    } else {
+      const normalized = normalizeImageOrder(arr);
+      if (normalized) syncImages = normalized;
+    }
   }
 
   const vehicle = await prisma.$transaction(async (tx) => {
     const updated = await tx.vehicle.update({ where: { id }, data: updates });
-    if (replaceImages) {
+    if (syncImages) {
+      // New ordered-object format: reorder, set cover, delete dropped ids,
+      // and create new (replacement) uploads.
+      await syncVehicleImages(tx, id, syncImages, { deleteFiles: true });
+    } else if (plainReplace) {
+      // Legacy: full replace from a plain URL array.
       await tx.vehicleImage.deleteMany({ where: { vehicleId: id } });
-      if (replaceImages.length) {
+      if (plainReplace.length) {
         await tx.vehicleImage.createMany({
-          data: replaceImages.map((src, i) => ({
+          data: plainReplace.map((src, i) => ({
             vehicleId: id,
             src,
             alt: null,

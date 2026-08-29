@@ -23,17 +23,22 @@ export default async function Image({
   let year: number | string = "";
   let make = "";
   let model = "";
+  let coverImage: string | null = null;
 
   try {
     const vehicle = await prisma.vehicle.findUnique({
       where: { slug },
-      select: { title: true, year: true, make: true, model: true },
+      select: {
+        title: true, year: true, make: true, model: true,
+        images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }], take: 1 },
+      },
     });
     if (vehicle) {
       title = vehicle.title;
       year = vehicle.year;
       make = vehicle.make;
       model = vehicle.model;
+      coverImage = vehicle.images[0]?.src ?? null;
     }
   } catch {
     // DB unavailable — fall back to slug-derived title
@@ -59,7 +64,7 @@ export default async function Image({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: "64px 80px",
+          padding: coverImage ? "64px 80px 64px 480px" : "64px 80px",
           position: "relative",
         }}
       >
@@ -75,12 +80,39 @@ export default async function Image({
           }}
         />
 
+        {/* Cover photo (left panel) when an uploaded image exists */}
+        {coverImage && (
+          <div
+            style={{
+              position: "absolute",
+              top: 6,
+              left: 0,
+              bottom: 0,
+              width: 400,
+              background: "#000",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={coverImage}
+              alt=""
+              width={400}
+              height={624}
+              style={{ objectFit: "cover", width: "100%", height: "100%" }}
+            />
+          </div>
+        )}
+
         {/* Brand */}
         <div
           style={{
             position: "absolute",
             top: 36,
-            left: 80,
+            left: coverImage ? 480 : 80,
             display: "flex",
             alignItems: "center",
             gap: 12,
@@ -151,7 +183,7 @@ export default async function Image({
           style={{
             position: "absolute",
             bottom: 40,
-            left: 80,
+            left: coverImage ? 480 : 80,
             right: 80,
             display: "flex",
             justifyContent: "center",

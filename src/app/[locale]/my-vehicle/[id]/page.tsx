@@ -18,7 +18,11 @@ export default async function MyVehicleEditPage({
   });
   if (!vehicle || vehicle.ownerId !== user.id) redirect("/dashboard");
 
-  const images = vehicle.images.map((i) => i.src);
+  const images = vehicle.images.map((i) => ({
+    id: i.id,
+    src: i.src,
+    cover: i.isPrimary,
+  }));
 
   return <EditVehicleForm vehicle={{ ...vehicle, images }} slug={vehicle.slug} />;
 }
