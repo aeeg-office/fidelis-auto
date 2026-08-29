@@ -98,7 +98,7 @@ export default async function Image({
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={coverImage}
+              src={coverImage.startsWith("http") ? coverImage : `https://fidelisauto.com${coverImage}`}
               alt=""
               width={400}
               height={624}
