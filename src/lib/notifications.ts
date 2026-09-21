@@ -15,11 +15,11 @@ function getTwilioClient() {
 // ─── EMAIL ────────────────────────────────────
 
 export async function sendVerificationCode(email: string, code: string): Promise<boolean> {
-  console.log(`[VERIFICATION] Email: ${email} | Code: ${code}`);
+  console.log(`[VERIFICATION] Email: ${email} | Code: [REDACTED]`);
 
   if (!RESEND_API_KEY) {
-    console.log("[VERIFICATION] No RESEND_API_KEY — code in logs only.");
-    return true;
+    console.log("[VERIFICATION] No RESEND_API_KEY — channel disabled (code not logged for security).");
+    return false;
   }
 
   try {
@@ -27,7 +27,7 @@ export async function sendVerificationCode(email: string, code: string): Promise
       method: "POST",
       headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Fidelis Auto <aeeg.education@gmail.com>",
+        from: process.env.FIDELIS_EMAIL_FROM || "Fidelis Auto <no-reply@fidelis-auto.com>",
         to: email,
         subject: "Verify your Fidelis Auto account",
         html: `
@@ -53,9 +53,9 @@ export async function sendVerificationCode(email: string, code: string): Promise
 // ─── SMS ──────────────────────────────────────
 
 export async function sendSmsCode(phone: string, code: string): Promise<boolean> {
-  console.log(`[SMS VERIFICATION] Phone: ${phone} | Code: ${code}`);
+  console.log(`[SMS VERIFICATION] Phone: ${phone} | Code: [REDACTED]`);
   const client = getTwilioClient();
-  if (!client) { console.log("[SMS] Twilio not configured — code in logs only."); return true; }
+  if (!client) { console.log("[SMS] Twilio not configured — channel disabled (code not logged for security)."); return false; }
 
   try {
     const msg = await client.messages.create({
@@ -71,9 +71,9 @@ export async function sendSmsCode(phone: string, code: string): Promise<boolean>
 // ─── VOICE CALL ───────────────────────────────
 
 export async function callWithCode(phone: string, code: string): Promise<boolean> {
-  console.log(`[VOICE VERIFICATION] Phone: ${phone} | Code: ${code}`);
+  console.log(`[VOICE VERIFICATION] Phone: ${phone} | Code: [REDACTED]`);
   const client = getTwilioClient();
-  if (!client) { console.log("[VOICE] Twilio not configured — code in logs only."); return true; }
+  if (!client) { console.log("[VOICE] Twilio not configured — channel disabled (code not logged for security)."); return false; }
 
   try {
     const call = await client.calls.create({
@@ -89,9 +89,9 @@ export async function callWithCode(phone: string, code: string): Promise<boolean
 // ─── WHATSAPP ─────────────────────────────────
 
 export async function sendWhatsAppCode(phone: string, code: string): Promise<boolean> {
-  console.log(`[WHATSAPP VERIFICATION] Phone: ${phone} | Code: ${code}`);
+  console.log(`[WHATSAPP VERIFICATION] Phone: ${phone} | Code: [REDACTED]`);
   const client = getTwilioClient();
-  if (!client) { console.log("[WHATSAPP] Twilio not configured — code in logs only."); return true; }
+  if (!client) { console.log("[WHATSAPP] Twilio not configured — channel disabled (code not logged for security)."); return false; }
 
   try {
     const msg = await client.messages.create({
