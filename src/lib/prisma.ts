@@ -6,14 +6,15 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrisma(): PrismaClient {
-  try {
-    const url = process.env.DATABASE_URL || "postgresql://hermes_car:hc_platform_2026@localhost:5432/hermes_car";
-    const adapter = new PrismaPg({ connectionString: url });
-    return new PrismaClient({ adapter });
-  } catch {
-    // Fallback for build time when env vars may not be available
-    return new PrismaClient();
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    // Fail closed: never fall back to a hardcoded credential or a bare client.
+    throw new Error(
+      "DATABASE_URL is not set. Refusing to start without an explicit environment-provided database connection string."
+    );
   }
+  const adapter = new PrismaPg({ connectionString: url });
+  return new PrismaClient({ adapter });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrisma();

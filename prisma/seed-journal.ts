@@ -1,7 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const url = process.env.DATABASE_URL || "postgresql://hermes_car:***@localhost:5432/hermes_car";
+const url = process.env.DATABASE_URL;
+if (!url) {
+  throw new Error(
+    "DATABASE_URL is not set. Refusing to seed without an explicit environment-provided database connection string."
+  );
+}
 const adapter = new PrismaPg({ connectionString: url });
 const prisma = new PrismaClient({ adapter });
 
