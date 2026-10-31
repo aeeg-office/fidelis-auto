@@ -29,7 +29,7 @@ type VehicleData = {
 async function getVehicle(slug: string): Promise<VehicleData | null> {
   try {
     const vehicle = await prisma.vehicle.findUnique({
-      where: { slug },
+      where: { slug, isPublished: true },
       include: {
         images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
       },
