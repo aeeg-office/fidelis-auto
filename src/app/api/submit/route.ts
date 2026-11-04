@@ -4,7 +4,6 @@ import { can, type AccountRole } from "@/lib/authorization";
 import { normalizeListingSubmission } from "@/lib/listing-submission";
 import { getCurrentUser } from "@/lib/user-auth";
 import { scanAdText } from "@/lib/ad-scanner";
-import { autoPublish } from "@/lib/auto-publish";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -27,10 +26,10 @@ export async function POST(request: Request) {
 
     const listing = await prisma.listingRequest.create({ data: submission.value });
 
-    // Automated moderation: if the ad text is clean, approve AND publish immediately.
-    // Note: the seller's own `phone`/`email` contact fields are legitimate and already
-    // validated upstream — we scan only the free-text ad body so the phone/email rules
-    // catch off-platform harvesting in prose, not the seller's own contact info.
+    // Moderation: every submission is routed to the admin moderation queue.
+    // No submission auto-publishes — an admin must approve it (FID-AUD-202).
+    // The ad-text scanner still runs to surface violations to the moderator, but
+    // they never gate publication.
     const scan = scanAdText({
       make: submission.value.make,
       model: submission.value.model,
@@ -42,41 +41,12 @@ export async function POST(request: Request) {
       zipCode: submission.value.zipCode,
     });
 
-    if (scan.clean) {
-      try {
-        const published = await autoPublish(submission.value, listing.id);
-        return NextResponse.json(
-          {
-            ok: true,
-            id: listing.id,
-            autoApproved: true,
-            vehicleId: published.vehicleId,
-            violations: [],
-          },
-          { status: 201 },
-        );
-      } catch (publishError) {
-        console.error("Auto-publish failed for listing", listing.id, publishError);
-        // Fall back to pending so nothing is lost; admin can publish manually.
-        return NextResponse.json(
-          {
-            ok: true,
-            id: listing.id,
-            autoApproved: false,
-            violation: "Auto-publish error; sent to moderation.",
-            violations: [],
-          },
-          { status: 201 },
-        );
-      }
-    }
-
-    // Ad text violations found — route to manual moderation.
     return NextResponse.json(
       {
         ok: true,
         id: listing.id,
         autoApproved: false,
+        pendingModeration: true,
         violations: scan.violations,
       },
       { status: 201 },
