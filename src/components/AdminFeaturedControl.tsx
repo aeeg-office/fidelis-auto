@@ -10,10 +10,11 @@ export default function AdminFeaturedControl({
 }: {
   vehicleId: string;
   initialFeatured: boolean;
-  initialUntil?: string | null;
+  initialUntil?: Date | string | null;
 }) {
   const [featured, setFeatured] = useState(Boolean(initialFeatured));
-  const [until, setUntil] = useState<string>(initialUntil ? initialUntil.slice(0, 16) : "");
+  const iso = initialUntil instanceof Date ? initialUntil.toISOString() : initialUntil || "";
+  const [until, setUntil] = useState<string>(iso.slice(0, 16));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
