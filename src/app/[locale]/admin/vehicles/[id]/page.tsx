@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 import AdminVehicleImageManager from "@/components/AdminVehicleImageManager";
+import AdminFeaturedControl from "@/components/AdminFeaturedControl";
 
 export default async function AdminVehicleEditPage({
   params,
@@ -44,6 +45,15 @@ export default async function AdminVehicleEditPage({
             vehicleId={vehicle.id}
             slug={vehicle.slug}
             initial={initialImages}
+          />
+        </section>
+
+        <section className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 mt-6">
+          <h2 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold mb-4">Featured</h2>
+          <AdminFeaturedControl
+            vehicleId={vehicle.id}
+            initialFeatured={vehicle.isFeatured}
+            initialUntil={vehicle.featuredUntil}
           />
         </section>
       </div>
