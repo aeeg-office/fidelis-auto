@@ -25,6 +25,8 @@ type Vehicle = {
   price: string | null;
   descriptionEn: string | null;
   descriptionAr: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   isPublished: boolean;
   images: ManagerImage[];
 };
