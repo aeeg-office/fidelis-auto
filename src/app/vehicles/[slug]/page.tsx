@@ -105,7 +105,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const vehicle = await getVehicle(slug);
   if (!vehicle) return { title: "Vehicle Not Found" };
 
-  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ""} | Fidelis Auto`;
+  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ""}`;
   const canonical = `https://fidelisauto.com/vehicles/${slug}`;
   const ogImage = absoluteUrl(vehicle.coverImage);
 
