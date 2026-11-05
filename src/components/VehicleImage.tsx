@@ -76,6 +76,7 @@ export default function VehicleImage({
         loading={priority ? "eager" : loading ?? "lazy"}
         fetchPriority={priority ? "high" : fetchPriority}
         decoding={priority ? "sync" : "async"}
+        draggable={false}
       />
     );
   }

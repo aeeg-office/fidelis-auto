@@ -127,9 +127,11 @@ export default function VehicleGallery({
         <div
           key={images[index].src}
           className="relative aspect-[21/9] bg-[var(--color-surface-dark)] rounded-lg overflow-hidden cursor-zoom-in select-none"
+          style={{ touchAction: "pan-y" }}
           onClick={() => setLightboxOpen(true)}
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
+          onPointerCancel={() => (touchX.current = null)}
         >
           <VehicleImage
             src={images[index].src}
