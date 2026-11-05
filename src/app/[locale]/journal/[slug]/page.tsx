@@ -8,6 +8,8 @@ import SocialShare from "@/components/SocialShare";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import VehicleImage from "@/components/VehicleImage";
 
+export const dynamic = "force-dynamic";
+
 // ─── Types ──────────────────────────────────────
 
 type EntryData = {
