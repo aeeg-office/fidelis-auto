@@ -62,6 +62,8 @@ export default function EditVehicleForm({
       transmission: form.get("transmission"),
       drivetrain: form.get("drivetrain"),
       price: form.get("price"),
+      contactEmail: form.get("contactEmail") || null,
+      contactPhone: form.get("contactPhone") || null,
       descriptionEn: form.get("descriptionEn"),
       descriptionAr: form.get("descriptionAr"),
       images,
@@ -126,6 +128,8 @@ export default function EditVehicleForm({
               <F name="engine" label="Engine" defaultValue={vehicle.engine || ""} />
               <F name="drivetrain" label="Drivetrain" defaultValue={vehicle.drivetrain || ""} />
               <F name="price" label="Price" defaultValue={vehicle.price || ""} />
+              <F name="contactEmail" label="Public contact email (optional)" type="email" defaultValue={vehicle.contactEmail || ""} />
+              <F name="contactPhone" label="Public WhatsApp/phone (optional)" defaultValue={vehicle.contactPhone || ""} />
             </div>
           </fieldset>
 

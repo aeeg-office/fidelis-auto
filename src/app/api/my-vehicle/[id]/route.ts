@@ -8,6 +8,7 @@ const EDITABLE = [
   "year", "make", "model", "trim", "vin", "mileage",
   "exteriorColor", "interiorColor", "engine", "transmission",
   "drivetrain", "price", "descriptionEn", "descriptionAr",
+  "contactEmail", "contactPhone",
 ] as const;
 
 export async function GET(
