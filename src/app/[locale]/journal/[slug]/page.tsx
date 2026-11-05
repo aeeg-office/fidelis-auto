@@ -199,7 +199,7 @@ Whichever you choose, buy the best example you can afford, keep it maintained, a
 async function getEntry(slug: string): Promise<EntryData | null> {
   try {
     const entry = await prisma.journalEntry.findUnique({
-      where: { slug },
+      where: { slug, isPublished: true },
       select: {
         slug: true,
         title: true,

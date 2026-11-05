@@ -18,6 +18,16 @@ export async function PATCH(
 
     const data: Record<string, unknown> = {};
     if (typeof isFeatured === "boolean") data.isFeatured = isFeatured;
+    if (body.featuredUntil !== undefined) {
+      if (body.featuredUntil === null) data.featuredUntil = null;
+      else {
+        const until = new Date(body.featuredUntil);
+        if (Number.isNaN(until.getTime())) {
+          return NextResponse.json({ error: "Invalid featuredUntil date" }, { status: 400 });
+        }
+        data.featuredUntil = until;
+      }
+    }
 
     const ordered = Array.isArray(images) ? normalizeImageOrder(images) : null;
 

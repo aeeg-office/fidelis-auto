@@ -11,6 +11,31 @@ import ContactSellerButton from "@/components/ContactSellerButton";
 import VehicleGallery, { type GalleryImage } from "@/components/VehicleGallery";
 import RelatedVehicles from "@/components/RelatedVehicles";
 
+// ─── Config ────────────────────────────────────
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fidelisauto.com";
+
+/** Resolve a possibly-relative asset path to an absolute URL. */
+function absoluteUrl(path: string | null | undefined): string | undefined {
+  if (!path) return undefined;
+  if (/^https?:\/\//.test(path)) return path;
+  return `${BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
+/** Meta description from the long English description, flattened and truncated. */
+function buildDescription(title: string, descriptionEn: string | null | undefined): string {
+  const raw = descriptionEn?.replace(/\s+/g, " ").trim();
+  if (!raw) return title;
+  return raw.length > 158 ? `${raw.slice(0, 155).trimEnd()}…` : raw;
+}
+
+/** Structured-data price: parse the string price; omit when not parseable. */
+function parsePrice(price: string | null | undefined): number | null {
+  if (!price) return null;
+  const n = Number(price.trim());
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 // ─── Data ──────────────────────────────────────
 
 type VehicleData = {
@@ -24,14 +49,19 @@ type VehicleData = {
   images: GalleryImage[];
   /** Cover image == first of the ordered images (primary or first available). */
   coverImage: string | null;
+  /** Seller contact resolved from the owner (and dealer business profile when present). */
+  ownerEmail: string | null;
+  ownerPhone: string | null;
+  dealerPhone: string | null;
 };
 
 async function getVehicle(slug: string): Promise<VehicleData | null> {
   try {
     const vehicle = await prisma.vehicle.findUnique({
-      where: { slug },
+      where: { slug, isPublished: true },
       include: {
         images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
+        owner: { include: { dealerProfile: true } },
       },
     });
     if (vehicle) {
@@ -57,6 +87,9 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         isPublished: vehicle.isPublished,
         images: images.map((i) => ({ src: i.src, alt: i.alt })),
         coverImage: cover,
+        ownerEmail: vehicle.owner?.email ?? null,
+        ownerPhone: vehicle.owner?.phone ?? null,
+        dealerPhone: vehicle.owner?.dealerProfile?.phone ?? null,
       };
     }
   } catch {
@@ -72,17 +105,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const vehicle = await getVehicle(slug);
   if (!vehicle) return { title: "Vehicle Not Found" };
+
+  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ""}`;
+  const canonical = `https://fidelisauto.com/vehicles/${slug}`;
+  const ogImage = absoluteUrl(vehicle.coverImage);
+
   return {
-    title: vehicle.title,
-    description: `${vehicle.title} — ${vehicle.mileage?.toLocaleString() || "?"} miles. ${vehicle.exteriorColor} over ${vehicle.interiorColor}.`,
-    alternates: { canonical: `https://fidelisauto.com/vehicles/${slug}` },
+    title,
+    description: buildDescription(vehicle.title, vehicle.descriptionEn),
+    alternates: { canonical },
     openGraph: {
-      title: vehicle.title,
-      description: `${vehicle.title} — ${vehicle.mileage?.toLocaleString() || "?"} miles.`,
-      url: `https://fidelisauto.com/vehicles/${slug}`,
-      images: vehicle.coverImage
-        ? [{ url: `https://fidelisauto.com${vehicle.coverImage}` }]
-        : undefined,
+      type: "article",
+      title,
+      description: buildDescription(vehicle.title, vehicle.descriptionEn),
+      url: canonical,
+      siteName: "Fidelis Auto",
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: buildDescription(vehicle.title, vehicle.descriptionEn),
+      images: ogImage ? [ogImage] : undefined,
     },
   };
 }
@@ -105,6 +149,8 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
   const pT = await getTranslations("vehicles.provenance");
 
   const imagePath = vehicle.coverImage ?? `/images/placeholder-${slug}.svg`;
+  const canonical = `https://fidelisauto.com/vehicles/${slug}`;
+  const parsedPrice = parsePrice(vehicle.price);
 
   return (
     <>
@@ -112,20 +158,35 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: "https://fidelisauto.com" },
           { "@type": "ListItem", position: 2, name: "Vehicles", item: "https://fidelisauto.com/vehicles" },
-          { "@type": "ListItem", position: 3, name: vehicle.title, item: `https://fidelisauto.com/vehicles/${slug}` },
+          { "@type": "ListItem", position: 3, name: vehicle.title, item: canonical },
         ],
       }} />
       <JsonLd type="Vehicle" data={{
-        name: vehicle.title, modelDate: vehicle.year,
+        name: vehicle.title,
+        brand: { "@type": "Brand", name: vehicle.make },
         manufacturer: { "@type": "Organization", name: vehicle.make },
-        model: vehicle.model, vehicleIdentificationNumber: vehicle.vin || undefined,
+        model: vehicle.model,
+        modelDate: vehicle.year,
+        vehicleIdentificationNumber: vehicle.vin || undefined,
         mileageFromOdometer: vehicle.mileage ? { value: vehicle.mileage, unitText: "mi" } : undefined,
         vehicleTransmission: vehicle.transmission || undefined,
         vehicleEngine: vehicle.engine ? { name: vehicle.engine } : undefined,
         color: vehicle.exteriorColor || undefined,
         vehicleInteriorColor: vehicle.interiorColor || undefined,
-        url: `https://fidelisauto.com/vehicles/${slug}`,
-        image: imagePath,
+        url: canonical,
+        image: absoluteUrl(imagePath) ?? undefined,
+        description: vehicle.descriptionEn || vehicle.description || undefined,
+        ...(parsedPrice
+          ? {
+              offers: {
+                "@type": "Offer",
+                price: parsedPrice,
+                priceCurrency: "USD",
+                url: canonical,
+                availability: "https://schema.org/InStock",
+              },
+            }
+          : {}),
       }} />
 
       <div className="container-page py-6">
@@ -146,19 +207,21 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
       <section className="container-page pb-16">
         <div className="grid lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2">
-            <h1 className="font-[family-name:var(--font-cormorant)] text-4xl md:text-5xl font-semibold text-[var(--color-text-primary)] mb-2">
+          <div className="lg:col-span-2 min-w-0">
+            <h1 className="font-[family-name:var(--font-cormorant)] text-4xl md:text-5xl font-semibold text-[var(--color-text-primary)] mb-2 break-words">
               {vehicle.title}
             </h1>
             <p className="text-lg text-[var(--color-text-secondary)] mb-6">
               {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} miles` : ""}
             </p>
-            <div className="prose prose-lg max-w-none text-[var(--color-text-secondary)]">
-              <p>{vehicle.descriptionEn || vehicle.description || ""}</p>
-            </div>
+            {(vehicle.descriptionEn || vehicle.description) && (
+              <div className="prose prose-lg max-w-none text-[var(--color-text-secondary)]">
+                <p className="whitespace-pre-line">{vehicle.descriptionEn || vehicle.description}</p>
+              </div>
+            )}
           </div>
 
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 min-w-0">
             <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 {specs.map((spec) => (
@@ -174,7 +237,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
               {vehicle.vin && (
                 <div className="pt-4 border-t border-[var(--color-border)]">
                   <p className="text-xs text-[var(--color-text-secondary)] mb-1">{t("specs.vin")}</p>
-                  <p className="text-sm font-mono text-[var(--color-text-primary)]">{vehicle.vin}</p>
+                  <p className="text-sm font-mono text-[var(--color-text-primary)] break-words">{vehicle.vin}</p>
                 </div>
               )}
             </div>
@@ -183,10 +246,13 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
               <ContactSellerButton
                 vehicleSlug={slug}
                 vehicleTitle={vehicle.title}
+                ownerPhone={vehicle.ownerPhone}
+                dealerPhone={vehicle.dealerPhone}
+                ownerEmail={vehicle.ownerEmail}
               />
               <FavoriteButton slug={slug} />
               <SocialShare
-                url={`https://fidelisauto.com/vehicles/${slug}`}
+                url={canonical}
                 title={vehicle.title}
               />
             </div>
@@ -232,6 +298,9 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
             <ContactSellerButton
               vehicleSlug={slug}
               vehicleTitle={vehicle.title}
+              ownerPhone={vehicle.ownerPhone}
+              dealerPhone={vehicle.dealerPhone}
+              ownerEmail={vehicle.ownerEmail}
             />
           </div>
         </div>

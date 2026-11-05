@@ -26,6 +26,8 @@ export interface VehicleCardData {
   category?: string;
   /** Whether this is a featured/ premium listing. */
   isFeatured?: boolean;
+  /** Optional feature expiry (ISO); when set, listing is featured only until this time. */
+  featuredUntil?: string;
 }
 
 interface VehicleCardProps {

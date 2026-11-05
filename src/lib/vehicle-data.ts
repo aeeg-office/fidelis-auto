@@ -37,6 +37,16 @@ export async function getVehicles(opts: GetVehiclesOptions = {}): Promise<Vehicl
       ? [{ createdAt: "desc" as const }]
       : [{ isFeatured: "desc" as const }, { order: "asc" as const }];
 
+  // A vehicle counts as "featured" only while its feature has not expired.
+  // Expired features must not rank first or appear in the featured section.
+  const activeFeatured: Record<string, unknown> = {
+    isFeatured: true,
+    OR: [{ featuredUntil: null }, { featuredUntil: { gte: new Date() } }],
+  };
+  if (orderBy === "featured") {
+    where.OR = [activeFeatured, { isFeatured: false }];
+  }
+
   try {
     const rows = await prisma.vehicle.findMany({
       where,
@@ -66,6 +76,7 @@ export async function getVehicles(opts: GetVehiclesOptions = {}): Promise<Vehicl
         `/images/placeholder-${v.slug}.svg`,
       category: v.category || undefined,
       isFeatured: v.isFeatured || undefined,
+      featuredUntil: v.featuredUntil?.toISOString() ?? undefined,
     }));
   } catch {
     // DB unreachable — never show fabricated inventory.
@@ -73,8 +84,18 @@ export async function getVehicles(opts: GetVehiclesOptions = {}): Promise<Vehicl
   }
 }
 
-export function getFeaturedVehicles(limit = 2): Promise<VehicleCardData[]> {
-  return getVehicles({ status: "available", orderBy: "featured", limit });
+export async function getFeaturedVehicles(limit = 2): Promise<VehicleCardData[]> {
+  const rows = await getVehicles({ status: "available", orderBy: "featured", limit: 100 });
+  // Strictly active features only (unexpired), newest first, capped at limit.
+  const now = new Date();
+  const sorted = rows
+    .filter((v) => v.isFeatured === true && (!v.featuredUntil || new Date(v.featuredUntil) > now))
+    .sort((a, b) => {
+      const au = a.featuredUntil ? new Date(a.featuredUntil).getTime() : 0;
+      const bu = b.featuredUntil ? new Date(b.featuredUntil).getTime() : 0;
+      return bu - au;
+    });
+  return sorted.slice(0, limit);
 }
 
 export function getRecentVehicles(limit = 4): Promise<VehicleCardData[]> {

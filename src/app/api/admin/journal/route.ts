@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => null);
-  const { title, excerpt, contentEn, author } = body || {};
+  const { title, excerpt, contentEn, contentAr, author, category, coverImage } = body || {};
   if (!title || !contentEn) {
     return NextResponse.json({ error: "Title and content are required." }, { status: 400 });
   }
@@ -52,7 +52,10 @@ export async function POST(request: Request) {
       title,
       excerpt: excerpt || null,
       contentEn,
+      contentAr: contentAr || null,
       author: author || "Fidelis Auto",
+      category: category || null,
+      coverImage: coverImage || null,
       isPublished: false,
     },
   });

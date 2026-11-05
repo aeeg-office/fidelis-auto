@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/user-auth";
 import { can } from "@/lib/authorization";
 
 // PATCH /api/admin/services/[id] — publish / unpublish a service listing (guard: service:manage)
+// DELETE /api/admin/services/[id] — remove a service listing entirely (guard: service:manage)
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -27,4 +28,20 @@ export async function PATCH(
     data: { isPublished: publish },
   });
   return NextResponse.json({ ok: true, id: updated.id, isPublished: updated.isPublished });
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const actor = await getCurrentUser();
+  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!can(actor.role, "service:manage")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  const { id } = await params;
+  const existing = await prisma.serviceListing.findUnique({ where: { id } });
+  if (!existing) return NextResponse.json({ error: "Service listing not found" }, { status: 404 });
+  await prisma.serviceListing.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
 }

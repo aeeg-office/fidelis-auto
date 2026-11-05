@@ -140,15 +140,17 @@ model JournalEntry {
 }
 
 model Inquiry {
-  id        String   @id @default(cuid())
-  vehicleId String?
-  name      String
-  email     String
-  phone     String?
-  message   String   @db.Text
-  source    String   @default("contact-form")
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  vehicleId   String?
+  name        String
+  email       String
+  phone       String?
+  message     String   @db.Text
+  source      String   @default("contact-form")
+  isRead      Boolean  @default(false)
+  emailStatus String?  // "sent" | "failed" | null (no vehicle owner email available)
+  emailError  String?  // response body / error when emailStatus="failed"
+  createdAt   DateTime @default(now())
 }
 
 // ── Moderation Log ─────────────────────────────

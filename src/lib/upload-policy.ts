@@ -10,12 +10,26 @@ const MIME_TYPES: Record<string, { extension: string; maximumSize: number; kind:
   "video/webm": { extension: "webm", maximumSize: 100_000_000, kind: "video" },
 };
 
+const UNIT_LABEL: Record<"image" | "video", string> = {
+  image: "Images",
+  video: "Videos",
+};
+
 export function validateUpload(file: UploadDescriptor): UploadValidation {
   const definition = MIME_TYPES[file.type];
-  if (!definition) return { ok: false, error: "Only JPEG, PNG, WebP, AVIF, MP4, and WebM uploads are allowed." };
-  if (!Number.isFinite(file.size) || file.size <= 0) return { ok: false, error: "The uploaded file is empty or invalid." };
+  if (!definition) {
+    return { ok: false, error: "Only JPEG, PNG, WebP, AVIF, MP4, and WebM uploads are allowed." };
+  }
+  if (!Number.isFinite(file.size) || file.size <= 0) {
+    return { ok: false, error: "The uploaded file is empty or invalid." };
+  }
   if (file.size > definition.maximumSize) {
-    return { ok: false, error: `${definition.kind === "image" ? "Images must be 10 MB" : "Videos must be 100 MB"} or smaller.` };
+    const limitMb = (definition.maximumSize / 1_000_000).toFixed(0);
+    const receivedMb = (file.size / 1_000_000).toFixed(1);
+    return {
+      ok: false,
+      error: `${UNIT_LABEL[definition.kind]} must be ${limitMb} MB or smaller. Received ${receivedMb} MB.`,
+    };
   }
   return { ok: true, extension: definition.extension };
 }

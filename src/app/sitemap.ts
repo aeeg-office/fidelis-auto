@@ -38,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   let vehicleUrls: MetadataRoute.Sitemap = [];
+  let journalUrls: MetadataRoute.Sitemap = [];
   try {
     const vehicles = await prisma.vehicle.findMany({
       where: { isPublished: true },
@@ -49,9 +50,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.9,
     }));
+
+    const journal = await prisma.journalEntry.findMany({
+      where: { isPublished: true },
+      select: { slug: true, updatedAt: true },
+    });
+    journalUrls = journal.map((post) => ({
+      url: `${BASE_URL}/journal/${post.slug}`,
+      lastModified: post.updatedAt,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    }));
   } catch {
     // DB unavailable at request time — fall back to static routes only.
   }
 
-  return [...staticUrls, ...vehicleUrls];
+  return [...staticUrls, ...vehicleUrls, ...journalUrls];
 }

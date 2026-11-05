@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user-auth";
+import { can } from "@/lib/authorization";
 import { SERVICE_CATEGORIES } from "@/lib/fidelisTaxonomy";
 
-// POST /api/services — submit a specialist service listing (guard: any authenticated user)
+// POST /api/services — submit a specialist service listing (guard: can('service:manage') (DEALER + ADMIN roles))
 // New listings start unpublished and are approved by an admin in /admin/services.
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Sign in to submit a service." }, { status: 401 });
+  }
+  if (!can(user.role, "service:manage")) {
+    return NextResponse.json({ error: "You do not have permission to submit a service listing." }, { status: 403 });
   }
 
   const body = await request.json().catch(() => null);

@@ -16,16 +16,21 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json().catch(() => null);
-  const publish = typeof body?.publish === "boolean" ? body.publish : null;
-  if (publish === null) return NextResponse.json({ error: "Missing publish flag" }, { status: 400 });
+  if (!body) return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
 
   const existing = await prisma.journalEntry.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Journal entry not found" }, { status: 404 });
 
-  const updated = await prisma.journalEntry.update({
-    where: { id },
-    data: { isPublished: publish, publishedAt: publish ? (existing.publishedAt ?? new Date()) : existing.publishedAt },
-  });
+  const data: Record<string, unknown> = {};
+  if (typeof body.publish === "boolean") {
+    data.isPublished = body.publish;
+    data.publishedAt = body.publish ? (existing.publishedAt ?? new Date()) : existing.publishedAt;
+  }
+  for (const field of ["title", "excerpt", "contentEn", "contentAr", "category", "coverImage", "author"] as const) {
+    if (body[field] !== undefined) data[field] = body[field] === "" ? null : body[field];
+  }
+
+  const updated = await prisma.journalEntry.update({ where: { id }, data });
   return NextResponse.json({ ok: true, id: updated.id, isPublished: updated.isPublished });
 }
 

@@ -20,6 +20,9 @@ export default function JournalNewForm() {
         excerpt: fd.get("excerpt"),
         author: fd.get("author"),
         contentEn: fd.get("contentEn"),
+        contentAr: fd.get("contentAr"),
+        category: fd.get("category"),
+        coverImage: fd.get("coverImage"),
       }),
     }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
@@ -44,8 +47,25 @@ export default function JournalNewForm() {
         <input id="author" name="author" defaultValue="Fidelis Auto" className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]" />
       </div>
       <div>
-        <label htmlFor="contentEn" className="block text-sm font-medium mb-2">Content *</label>
+        <label htmlFor="category" className="block text-sm font-medium mb-2">Category</label>
+        <select id="category" name="category" className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
+          <option value="">Uncategorized</option>
+          {["Buying Guides","Selling Guides","Valuation & Prices","Inspection Guides","Provenance & Paperwork","Ownership & Running Costs","Maintenance Care","Restoration & Upgrades"].map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="coverImage" className="block text-sm font-medium mb-2">Cover image URL</label>
+        <input id="coverImage" name="coverImage" placeholder="/uploads/…" className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]" />
+      </div>
+      <div>
+        <label htmlFor="contentEn" className="block text-sm font-medium mb-2">Content (EN) *</label>
         <textarea id="contentEn" name="contentEn" required rows={12} className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]" />
+      </div>
+      <div>
+        <label htmlFor="contentAr" className="block text-sm font-medium mb-2">Content (AR, optional)</label>
+        <textarea id="contentAr" name="contentAr" rows={10} dir="rtl" lang="ar" className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]" />
       </div>
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
       <button type="submit" disabled={busy} className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-md font-medium disabled:opacity-50">
