@@ -86,8 +86,8 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         isPublished: vehicle.isPublished,
         images: images.map((i) => ({ src: i.src, alt: i.alt })),
         coverImage: cover,
-        ownerEmail: vehicle.owner?.email ?? null,
-        ownerPhone: vehicle.owner?.phone ?? null,
+        ownerEmail: vehicle.contactEmail ?? null, // never fall back to owner account email
+        ownerPhone: vehicle.contactPhone ?? vehicle.owner?.phone ?? null,
         dealerPhone: vehicle.owner?.dealerProfile?.phone ?? null,
       };
     }

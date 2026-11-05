@@ -49,7 +49,12 @@ type VehicleData = {
   images: GalleryImage[];
   /** Cover image == first of the ordered images (primary or first available). */
   coverImage: string | null;
-  /** Seller contact resolved from the owner (and dealer business profile when present). */
+  /**
+   * Seller contact. Public email renders ONLY from the per-listing
+   * contactEmail override — the raw owner account email is never exposed.
+   * WhatsApp/phone: contactPhone override, else the owner's phone, else
+   * the dealer profile phone.
+   */
   ownerEmail: string | null;
   ownerPhone: string | null;
   dealerPhone: string | null;
@@ -87,8 +92,8 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         isPublished: vehicle.isPublished,
         images: images.map((i) => ({ src: i.src, alt: i.alt })),
         coverImage: cover,
-        ownerEmail: vehicle.owner?.email ?? null,
-        ownerPhone: vehicle.owner?.phone ?? null,
+        ownerEmail: vehicle.contactEmail ?? null, // never fall back to owner account email
+        ownerPhone: vehicle.contactPhone ?? vehicle.owner?.phone ?? null,
         dealerPhone: vehicle.owner?.dealerProfile?.phone ?? null,
       };
     }
