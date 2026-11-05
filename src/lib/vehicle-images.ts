@@ -68,9 +68,17 @@ export async function syncVehicleImages(
   const primaryIdx = coverIdx >= 0 ? coverIdx : 0;
 
   // 1. Figure out which existing rows are being kept vs removed.
+  // A row is KEPT when its id appears in the list, OR when an ordered item
+  // with no id carries the same src (same-image update: cover/reorder). Only
+  // rows neither matched by id nor by src are dropped (deleted). This prevents
+  // src-only payloads from deleting every row + file before the updates run.
   const keptIds = new Set<string>();
   for (const o of ordered) {
-    if (o.id && existingById.has(o.id)) keptIds.add(o.id);
+    if (o.id && existingById.has(o.id)) {
+      keptIds.add(o.id);
+    } else if (!o.id && o.src && existingBySrc.has(o.src)) {
+      keptIds.add(existingBySrc.get(o.src)!.id);
+    }
   }
   const removed = existing.filter((e) => !keptIds.has(e.id));
 
