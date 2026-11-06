@@ -25,7 +25,7 @@ const FOREIGN_CURRENCY = /\b(usd|euro|sar|aed|gbp|kwd|qar|rmb|cny|yen|reais)\b|\
 // EGP tokens: Latin forms use a word boundary (note: no trailing \b — £ is a non-word char and ends
 // the token cleanly before whitespace/end-of-string); Arabic forms match exact characters.
 const EGP_LATIN = /^\s*e\s?£|\be\s?£|\be\.gp\b|\begp\b|\ble\b|\be£/i;
-const EGP_ARABIC = /ج\.م|الجنية|جنية|جنيه من مصري|جنيه|مصري/;
+const EGP_ARABIC = /ج\.م|جنيه من مصري|جنيه مصري|جنيه|الجنية|جنية|مصري/gi;
 const NEGOTIABLE = /negotiable|on request|price on request|for sale|n\.?a\.?|contact us|للتفاوض|على التفاوض|بدون سعر|افضل سعر|كلمنا|اتصل/i;
 
 interface Flagged { id: string; price: string | null; reason: string; }
