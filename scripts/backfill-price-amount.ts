@@ -18,11 +18,13 @@ const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url 
 
 const INT_MAX = 2_147_483_647;
 
-// Foreign-currency tokens (must never be backfilled into EGP). Symbols deliberately NOT word-bounded.
+// Foreign-currency tokens (must never be backfilled into EGP). The pound symbol £ is treated as
+// foreign ONLY when it is NOT the Egyptian-pound token "e£"/"E£"/"E £". So we strip EGP tokens
+// from the string FIRST, then test the remainder for any foreign-currency token.
 const FOREIGN_CURRENCY = /\b(usd|euro|sar|aed|gbp|kwd|qar|rmb|cny|yen|reais)\b|\$|€|£|ريال|دينار|درهم|سيار/i;
-// EGP tokens: Latin forms use a word boundary; Arabic forms are matched by exact characters
-// (no \b, which is ASCII-only in JavaScript and would fail around Arabic/glyph punctuation).
-const EGP_LATIN = /\b(egp|le|e£|e\.gp|e£)\b/i;
+// EGP tokens: Latin forms use a word boundary (note: no trailing \b — £ is a non-word char and ends
+// the token cleanly before whitespace/end-of-string); Arabic forms match exact characters.
+const EGP_LATIN = /^\s*e\s?£|\be\s?£|\be\.gp\b|\begp\b|\ble\b|\be£/i;
 const EGP_ARABIC = /ج\.م|الجنية|جنية|جنيه من مصري|جنيه|مصري/;
 const NEGOTIABLE = /negotiable|on request|price on request|for sale|n\.?a\.?|contact us|للتفاوض|على التفاوض|بدون سعر|افضل سعر|كلمنا|اتصل/i;
 
@@ -33,11 +35,18 @@ function parseAmount(price: string | null): { amount: number | null; flag?: stri
   const trimmed = price.trim();
   if (!trimmed) return { amount: null };
 
-  if (FOREIGN_CURRENCY.test(trimmed)) return { amount: null, flag: "currency-mismatch-foreign-token" };
   if (NEGOTIABLE.test(trimmed)) return { amount: null, flag: "negotiable-or-nonspecific" };
 
-  // Strip EGP currency tokens but KEEP commas/spaces so grouping can be validated.
-  const bare = trimmed.replace(EGP_LATIN, "").replace(EGP_ARABIC, "").trim();
+  // Strip EGP currency tokens (incl. the Egyptian pound "e£") BEFORE checking for foreign currency,
+  // so a valid "1,200,000 e£" is not misread as a foreign £ price.
+  const stripped = trimmed.replace(EGP_LATIN, "").replace(EGP_ARABIC, "").trim();
+
+  // Remove leading spaces from the EGP-token start anchor handling, then test remainder for foreign currency.
+  if (!stripped) return { amount: null, flag: "non-numeric-or-malformed-grouping" };
+  if (FOREIGN_CURRENCY.test(stripped)) return { amount: null, flag: "currency-mismatch-foreign-token" };
+
+  // Keep commas/spaces so grouping can be validated.
+  const bare = stripped;
 
   // Valid canonical forms (validate grouping BEFORE collapsing separators):
   //   thousands: "1,200,000"  -> digits where the LAST group is 3 and all prior groups are 3
