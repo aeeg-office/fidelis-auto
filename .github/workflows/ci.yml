@@ -1,0 +1,65 @@
+name: CI
+"on":
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hermes_car
+
+jobs:
+  lint-typecheck-test:
+    name: Lint / typecheck / unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Prisma generate (fresh client for typecheck)
+        run: npx prisma generate
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npx tsc --noEmit
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+      - name: Unit tests
+        run: npm test
+
+  build-migrate:
+    name: Build + migration validation
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hermes_car
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Prisma generate
+        run: npx prisma generate
+      - name: Migration validation (additive check)
+        run: npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > /tmp/new.sql
+      - name: Baseline schema (empty DB; prod was db-push-seeded)
+        run: npx prisma db push
+      - name: Build
+        run: DATABASE_URL="${{ env.DATABASE_URL }}" npm run build
