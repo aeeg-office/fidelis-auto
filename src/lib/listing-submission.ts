@@ -1,4 +1,8 @@
+import { parseAmount } from "../../scripts/price-parser";
+
 type ListingPayload = Record<string, unknown>;
+
+export type VehicleTypeValue = "CAR" | "MOTORCYCLE";
 
 type ListingSubmission = {
   userId: string;
@@ -10,6 +14,18 @@ type ListingSubmission = {
   model: string;
   trim: string | null;
   mileage: number | null;
+  mileageUnit: string;
+  vehicleType: VehicleTypeValue;
+  price: string | null;            // raw text price (always preserved)
+  priceAmount: number | null;      // smallest unit (piastres for EGP); null = unambiguous backfill not possible
+  currency: string;
+  bodyType: string | null;
+  fuelType: string | null;
+  isLicensed: boolean;
+  makeId: string | null;
+  modelId: string | null;
+  cityId: string | null;
+  countryId: string | null;
   exteriorColor: string | null;
   interiorColor: string | null;
   engine: string | null;
@@ -58,6 +74,26 @@ export function normalizeListingSubmission(payload: ListingPayload, authenticate
     return { ok: false, error: "Mileage must be a non-negative whole number." };
   }
 
+  // WS1 vehicle type: CAR | MOTORCYCLE (default CAR; reject unknown values).
+  const vehicleTypeRaw = asText(payload.vehicleType).toUpperCase();
+  const vehicleType: VehicleTypeValue = vehicleTypeRaw === "MOTORCYCLE" ? "MOTORCYCLE" : "CAR";
+
+  // WS1 numeric price: parse the raw price text with the same strict parser used for backfill, so
+  // the submission carry forward the safest amount. Ambiguous/foreign/malformed => priceAmount null
+  // but raw price text is still preserved; the submit flow must require a price for publication.
+  const price = asOptionalText(payload.price);
+  const parsed = price ? parseAmount(price) : { amount: null };
+  const priceAmount = parsed?.amount !== undefined && parsed.amount !== null ? parsed.amount : null;
+  const currency = asOptionalText(payload.currency) || "EGP";
+
+  // Optional WS1 taxonomy ids (must be plain text ids; validated against DB at the API layer).
+  const makeId = asOptionalText(payload.makeId);
+  const modelId = asOptionalText(payload.modelId);
+  const cityId = asOptionalText(payload.cityId);
+  const countryId = asOptionalText(payload.countryId);
+
+  const isLicensed = payload.isLicensed === true || payload.isLicensed === "true";
+
   const photoUrls = serializeUrlList(payload.photoUrls, "Photo");
   if (!photoUrls.ok) return photoUrls;
   const videoUrls = serializeUrlList(payload.videoUrls, "Video");
@@ -75,6 +111,18 @@ export function normalizeListingSubmission(payload: ListingPayload, authenticate
       model,
       trim: asOptionalText(payload.trim),
       mileage,
+      mileageUnit: asText(payload.mileageUnit) || "km",
+      vehicleType,
+      price,
+      priceAmount,
+      currency,
+      bodyType: asOptionalText(payload.bodyType),
+      fuelType: asOptionalText(payload.fuelType),
+      isLicensed,
+      makeId,
+      modelId,
+      cityId,
+      countryId,
       exteriorColor: asOptionalText(payload.exteriorColor),
       interiorColor: asOptionalText(payload.interiorColor),
       engine: asOptionalText(payload.engine),
