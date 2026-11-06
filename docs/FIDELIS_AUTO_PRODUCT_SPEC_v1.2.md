@@ -1,6 +1,8 @@
-# Fidelis Auto — Product Spec v1
+# Fidelis Auto — Product Spec v1.2
 
-**As of:** 6 Nov 2026 · **Owner:** Qadir Abdul-Baqi · **Source doc:** https://claude.ai/artifact/FN4NGHbqxYtWPcFGMZDswn
+**Version:** 1.2 · **Revised:** 6 Nov 2026 · **Owner:** Qadir Abdul-Baqi · **Status:** approved for build · This Markdown file is the source of truth; the online v1 doc (https://claude.ai/artifact/FN4NGHbqxYtWPcFGMZDswn) is superseded.
+
+**Changes from v1.1:** launch tiers made consistent across sections (filters, Journal, collections); phone-verification launch path added; Claude reviews limited to high-risk pull requests so the build fits Claude's usage limits.
 
 ## Executive summary
 
@@ -8,11 +10,11 @@
 
 **What must change is the data model, not the stack.** Vehicles store price as text, have no location, no currency, no vehicle type (so no motorcycles) and collector-only categories. The make list has no Chinese brands. Services have no specialties, languages, photos or reviews. There are no ad, plan or review tables. These are additive schema changes.
 
-**Launch target: 20 Nov 2026 (2 weeks), free-first.** The launch release covers what builds traffic: listings for cars and motorcycles across the full Egyptian market, verified accounts, gated contact, a basic services directory, the Journal, AdSense, and English plus full Arabic. Paid features show as "Free during launch" until payments go live (about 1 month).
+**Launch target: 20 Nov 2026, free-first, with two delivery tiers.** Must ship: additive vehicle data model, numeric price/currency and location, car/motorcycle types and full Egyptian-market make list, basic price/make/model/location/type filters, enforced phone verification and gated contact, Option C on core pages, and full Arabic. Ship if ready, otherwise in the following week: services directory upgrades, AdSense activation, collections, and "Free during launch" badges. The existing Journal remains available; content must be fact-checked before promotion. The owner authorizes the public launch announcement, not routine technical deployments.
 
 **Revenue thesis.** AdSense alone is small on Egyptian traffic (rough estimate: $10–$40/month at 20,000 page views). The business makes money from featured listings, dealer subscriptions, premium provider profiles and directly sold local ads. The Journal is written for the whole Middle East and North Africa to pull in higher-paying Gulf readers. The platform is built multi-country from day one, with Egypt launched and the Gulf as a soft, unmarketed early-access section.
 
-**Scope of this audit:** code and schema in the public repo only. The production server, database contents and deployed version were not checked and must be verified by Hermes before any deploy.
+**Scope and reconciliation:** This audit examined repository HEAD `8b67951` (5 Nov 2026), which is newer than production SHA `923cf86` cited in an earlier report. The latest owner-reported production deployment is also `8b67951`; Hermes must independently verify current GitHub `main`, deployed image SHA, database contents, user/test-account counts, and defect status before creating issues or deploying. Distinguish historical audit findings from already-fixed defects. Check whether this v1.2 specification is committed on `main`; do not assume that an uploaded or online copy has been pushed.
 
 ## Positioning and pillars
 
@@ -61,7 +63,7 @@
 
 ## Feature spec
 
-**Every feature carries its phase: L = launch (20 Nov), then P2, P3, P4.** Paid features ship visible and clickable, labelled "Free during launch", until payments go live.
+**Feature labels:** L = 20 Nov must-ship launch; L+ = ship if ready by 20 Nov, otherwise the following week; P2, P3, P4 = later phases. "Free during launch" labels are L+, not a blocker for the core launch.
 
 ### Listings (cars and motorcycles)
 
@@ -70,10 +72,11 @@
 | Vehicle type: car or motorcycle, each with its own section, makes, body types and filters | L |
 | Full Egyptian-market taxonomy, including Chinese brands, seeded and editable by admin | L |
 | Numeric price with currency; country, governorate/city; mileage in km; fuel; body type; "currently licensed" yes/no | L |
-| Smart search bar plus filters (make, model, year, price, mileage, body, transmission, fuel, location) and sorting | L |
+| Basic filters: vehicle type, make, model, price, location; sort by newest and price | L |
+| Smart search bar and extended filters (year, mileage, body, transmission, fuel) | L+ |
 | Listing stays live at least 30 days; seller can choose longer | L |
-| Curated collections (Classics, First cars, Family SUVs, Electric, Motorcycles) | L |
-| Featured and boosted placement (paid later) | L (free), P2 (paid) |
+| Curated collections (Classics, First cars, Family SUVs, Electric, Motorcycles) | L+ |
+| Featured and boosted placement (paid later) | L+ (free), P2 (paid) |
 | AI listing intake: photos or a voice note become a structured bilingual listing | P2 |
 | Automatic expiry with a WhatsApp "still for sale?" check-in | P3 |
 | Price vs market indicator, from ongoing weekly or monthly research | P4 |
@@ -105,10 +108,10 @@
 
 | Feature | Phase |
 | --- | --- |
-| Any verified user can post a provider profile, reviewed by the moderation pipeline | L |
-| Six service groups (existing taxonomy) plus specialist tags by make, era and skill | L |
-| Languages spoken (Arabic, Arabic + English), WhatsApp, coverage area, photos | L |
-| Location search ("VW specialist near Maadi") and links from listings to matching specialists | L (basic), P3 (full) |
+| Any verified user can post a provider profile, reviewed by the moderation pipeline | L+ |
+| Six service groups (existing taxonomy) plus specialist tags by make, era and skill | L+ |
+| Languages spoken (Arabic, Arabic + English), WhatsApp, coverage area, photos | L+ |
+| Location search ("VW specialist near Maadi") and links from listings to matching specialists | L+ (basic), P3 (full) |
 | Request a service: describe the problem, matching providers reply | P3 |
 | Verified badge, top placement and lead alerts (premium) | P2 |
 
@@ -116,7 +119,8 @@
 
 | Feature | Phase |
 | --- | --- |
-| First 15–20 fact-checked articles (buying tips, car care, motorcycles, market news), region-wide | L |
+| Existing 7 published articles stay live and fact-checked | L |
+| Grow to 15–20 fact-checked articles (buying tips, car care, motorcycles, market news), region-wide, before applying for AdSense | L+ |
 | SEO fields, sitemap, schema, hreflang; steady publishing schedule | L |
 | Auto-generated landing pages (make/model/city, specialist/city) | P3 |
 
@@ -127,7 +131,7 @@
 | Owner-only admin; named admin accounts with limited permissions when someone is added | L |
 | Reset, suspend and remove users; create admins | L |
 | Edit makes, models, categories, collections and homepage sections without code | L (basic), P2 (full) |
-| Toggle ad slots, featured items and "Free during launch" labels | L |
+| Toggle ad slots, featured items and "Free during launch" labels | L+ |
 | Weekly report to Telegram (users, listings, top searches, problems) | P2 |
 | Translation editor, AI settings, pricing tiers, Studio Cover settings | P2–P3 |
 
@@ -152,7 +156,7 @@
 | Premium provider profiles | Service providers | Verified badge, top placement in their area and specialty, portfolio, lead alerts | P2 |
 | Directly sold ads and sponsorships | Local businesses (tires, insurance, parts, detailers) | Contextual slots (tires on SUV pages, insurance on listings), sponsored collections, sponsored specialist placements; self-serve booking later | P3 |
 | Pro photo package | Sellers | Multiple Studio Cover angles and the dark showroom treatment | P2 |
-| Google AdSense | Google | Slots on Journal, search results and listing pages, capped so they never crowd the listing | L |
+| Google AdSense | Google | Slots on Journal, search results and listing pages, capped so they never crowd the listing | L+ |
 
 Prices are set after the free phase, from real usage data; the owner chooses them in admin without code.
 
@@ -160,7 +164,7 @@ Prices are set after the free phase, from real usage data; the owner chooses the
 
 **Free-launch mechanics:**
 
-- Every paid feature is built and clickable, with a "Free during launch" badge, so users get used to it and the upgrade path is already tested.
+- "Free during launch" badges and clickable premium previews are L+; they must not delay essential listings, trust, search, localization or mobile design.
 - An admin switch per feature turns on checkout once the payment provider is live (under Fidelis Consulting).
 - Usage of each free premium feature is tracked, so pricing is based on what people actually used.
 
@@ -174,12 +178,12 @@ Prices are set after the free phase, from real usage data; the owner chooses the
 | --- | --- | --- |
 | `Country`, `City` (new) | Code, names EN/AR, currency, phone prefix, `isLive`, `isEarlyAccess` | L |
 | `Make`, `Model` (new, replaces hardcoded lists) | Names EN/AR, `vehicleType` (CAR or MOTORCYCLE), origin, active flag; admin-editable | L |
-| `Vehicle` | Add `vehicleType`, `priceAmount` (integer, smallest unit), `currency`, `countryId`, `cityId`, `bodyType`, `fuelType`, `isLicensed`, `expiresAt`, `makeId`/`modelId`; default mileage unit km; map old categories to collections | L |
-| `Collection` (new) | Curated groups shown on the homepage; rules or hand-picked; admin-editable | L |
+| `Vehicle` | Add `vehicleType`, `priceAmount` (integer, smallest unit), `currency`, `countryId`, `cityId`, `bodyType`, `fuelType`, `isLicensed`, `expiresAt`, `makeId`/`modelId`; default mileage unit km; keep the old `category` field working until collections ship (L+), then map it | L |
+| `Collection` (new) | Curated groups shown on the homepage; rules or hand-picked; admin-editable | L+ |
 | `User` | Enforce `phoneVerified` before interaction; add `preferredLanguage`, `countryId`; admin permission set for named admins | L |
-| `ServiceListing` | Add `specialties` (make, era, skill tags), `languages`, `coverageArea`, `cityId`, `whatsapp`, photos, `verifiedAt`, `isPremium` | L |
+| `ServiceListing` | Add `specialties` (make, era, skill tags), `languages`, `coverageArea`, `cityId`, `whatsapp`, photos, `verifiedAt`, `isPremium` | L+ |
 | `SiteSetting` (new) | Key/value settings the admin edits: homepage sections, launch badges, feature switches, ad slot toggles | L |
-| `AdPlacement` (new) | Slot key, page type, format, provider (AdSense or direct), active flag | L |
+| `AdPlacement` (new) | Slot key, page type, format, provider (AdSense or direct), active flag | L+ |
 | `VehicleMedia` (extends `VehicleImage`) | `kind` (photo, video, sound), `originalSrc`, `enhancedSrc`, `studioCoverSrc`, `processingStatus`, `durationSec` | P2 |
 | `Review` (new) | Reviewer (verified user), provider, rating, text, `providerContext`, `status` (published, under review, removed) | P2 |
 | `Plan`, `Subscription`, `Promotion`, `Payment` (new) | Tiers and prices, active subscriptions, boosts and featured periods, payment records | P2 |
@@ -212,11 +216,12 @@ Prices are set after the free phase, from real usage data; the owner chooses the
 
 ## Phases
 
-**Launch on 20 Nov 2026 with only what builds traffic; each later phase starts when its gate is met.** Phase dates after launch are targets and move with the gates.
+**Target public launch: 20 Nov 2026.** L items are mandatory; L+ items may ship in the following week without delaying launch. The owner decides when to announce the public launch; Hermes autonomously handles routine releases and rollback. Later phase dates are targets, subject to their gates.
 
 | Phase | Dates | Scope | Gate to move on |
 | --- | --- | --- | --- |
-| **Launch** | 6 Nov – 20 Nov 2026 | Cars and motorcycles · verified accounts · services directory · Journal and AdSense · English and full Arabic | **Launch gate:** no high defects; owner's 4 cars live |
+| **Launch (L)** | 6 Nov – 20 Nov 2026 | Additive vehicle model · numeric price/location · cars and motorcycles/full makes · basic filters · phone verification/gated contact · Option C core pages · full Arabic | **Technical gate:** no critical/high defects, tested rollback, owner's 4 cars live; **public announcement:** owner decision |
+| **Launch follow-up (L+)** | By 27 Nov 2026 | Services upgrades · AdSense · curated collections · "Free during launch" badges | Ship independently when ready; do not block L |
 | **Phase 2** | 21 Nov – 18 Dec 2026 | Payments switched on · reviews · Studio Cover photos · video and engine sound · AI listing intake | **Payments live:** checkout tested |
 | **Phase 3** | Jan – Feb 2027 | AI moderation · request a service · direct ads and sponsors · auto SEO pages · dealer tools | **Egypt busy:** then market the Gulf |
 | **Phase 4** | From Mar 2027 | Native mobile app · parts classifieds · market price data · Gulf marketing | — |
@@ -226,36 +231,36 @@ Payments go live inside phase 2 (about 1 month out); Gulf marketing waits until 
 ### Launch acceptance criteria
 
 - [ ] Owner can log in as super admin; named admin accounts can be created
-- [ ] Any visitor can browse; contact, save, post and review require a phone-verified account
+- [ ] Any visitor can browse; contact, save and post require a phone-verified account (reviews remain P2)
 - [ ] Cars and motorcycles can be listed with numeric price, city and the full Egyptian make list, including Chinese brands
 - [ ] Search and filters return correct results on mobile in English and Arabic
 - [ ] Photos upload, compress to WebP sizes and keep a capped original
-- [ ] Any verified user can post a service profile with specialties and languages; moderation flags bad ones
-- [ ] 15–20 Journal articles published; AdSense script and slots live on Journal, search and listing pages
-- [ ] Paid features show "Free during launch"; admin can toggle them
+- [ ] Existing Journal remains functional and its public content is fact-checked before promotion
+- [ ] L+ follow-up, not launch blockers: service-profile upgrades, AdSense slots, curated collections and "Free during launch" labels
 - [ ] Option C design on homepage, search, listing, services and registration; logo in place
 - [ ] Installable web app passes on Android and iPhone
-- [ ] Owner's 4 classics live with full galleries
+- [ ] Owner's 4 classics live with full galleries (owner supplies authentic listing information/media)
 - [ ] No open high or critical defects; backup taken and rollback tested before the production deploy
 
 ## Build workflow and security
 
-**GitHub is the single coordination layer: Hermes turns this spec into issues, agents build on branches, and Claude plus Codex review every pull request before Hermes merges.**
+**GitHub is the single coordination layer: Hermes turns this spec into issues, agents build on branches, Codex reviews every pull request (Claude joins for high-risk ones), and Hermes merges.**
 
 | Role | Who | Does |
 | --- | --- | --- |
-| Orchestrator | Hermes (M1) | Splits phases into issues, assigns agents, merges, deploys, reports to Telegram |
+| Orchestrator | Hermes (fleet controller) | Reconciles live/repo state; creates issues, assigns agents, reviews, merges, deploys, monitors and automatically rolls back routine releases; reports to Telegram |
 | Builders | Hermes agents via OpenRouter (M2 frontend, M3 backend and database, M4 services, Journal, translations) | One issue per branch, with tests |
 | Design | Claude | Design system, page layouts, component specs, Studio Cover look |
-| Review | Claude and ChatGPT Codex | Independent review of each pull request against its acceptance criteria; both must pass for anything touching auth, payments or migrations |
-| Owner | Qadir | Approves phase gates, merges to production, anything involving money or legal matters |
+| Review | ChatGPT Codex (every pull request) and Claude (high-risk only) | Codex reviews each pull request against its acceptance criteria. Claude also reviews anything touching auth, phone verification, payments, migrations or the design system; both must pass for those. Limiting Claude to these keeps the build within Claude's usage limits |
+| Owner | Qadir | Decides public launch announcement, pricing/money, legal matters, material business policy, and irreversible or potentially data-destructive actions; not routine merges or deployments |
 
 **Issue format (every task):** title, phase label, area label, the spec section it implements, acceptance criteria as checkboxes, files likely touched, and "done means" evidence (test output, screenshot, URL). Agents post that evidence on the pull request; reviewers check it, not the agent's claim.
 
 **Branch and release rules:**
 
 - One issue, one branch, one pull request; no direct commits to `main`.
-- `main` deploys only after the build and tests pass; every database migration runs against a backup first, with a written rollback.
+- Hermes autonomously merges and deploys routine tested changes from `main`, with SHA-tagged images, health checks and automatic rollback on critical regression. No routine approval gates.
+- Before each migration, verify a backup and rehearse the migration on a restored copy. Additive, backward-compatible migrations may proceed autonomously if tested and reversible; stop for owner approval when data loss, destructive changes or irreversibility is possible.
 - Model choice by task: cheap models for repetitive, low-risk work; a strong model for architecture, migrations, auth and any task a cheap model has failed twice.
 
 **Security: build it right now (costly to fix later):**
@@ -286,6 +291,8 @@ Payments go live inside phase 2 (about 1 month out); Gulf marketing waits until 
 
 **Verification cost decision (needed before launch):** the codebase already uses Twilio, which is the most expensive option found for Egypt. Recommended order: WhatsApp authentication code first (most Egyptian users have WhatsApp; check Meta's current rate for Egypt), a cheaper SMS provider as fallback, and strict rate limits (one code per minute, five per day per number) to stop abuse running up the bill. Also register an alphanumeric sender ID with the regulator, which takes about 2–3 weeks, so start now.
 
+**Launch path for phone verification (L is blocked without it):** the cheaper channels may not be ready by 20 Nov. WhatsApp codes need a WhatsApp Business number and Meta business setup; a new SMS provider's sender ID takes 2–3 weeks. So the launch uses the existing Twilio integration, with strict rate limits and a monthly spend cap. Hermes builds verification behind a provider switch, so moving to WhatsApp or a cheaper SMS provider later is a configuration change, not new code.
+
 ## Risks and open decisions
 
 **The biggest risk is an empty marketplace, not the code.** Every other risk is manageable with the mitigations below.
@@ -304,9 +311,10 @@ Payments go live inside phase 2 (about 1 month out); Gulf marketing waits until 
 
 **Decisions needed from the owner:**
 
-- [ ] Verification channel: WhatsApp first with SMS fallback (recommended), or SMS only?
+- [ ] Verification channel: WhatsApp first with SMS fallback (recommended), or SMS only? Launch uses Twilio with a spend cap either way (see Costs)
+- [ ] Set the Twilio monthly spend cap for launch
 - [ ] SMS provider: switch from Twilio to a cheaper provider, or keep Twilio?
-- [ ] Approve the launch cut and the 20 Nov target date
+- [x] Approve the two-tier launch scope (v1.1, carried into v1.2); 20 Nov remains a target, with the public announcement reserved to the owner
 - [ ] Logo direction: designed by Claude in the launch window, or by a freelancer?
 - [ ] Confirm Q29 default: owner approves badges, review removals, bans, refunds and anything involving money or legal matters
 - [ ] Start sender ID registration and set up the WhatsApp Business number and Zoho domain email this week
