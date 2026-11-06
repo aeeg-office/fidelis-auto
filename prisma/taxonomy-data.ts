@@ -24,9 +24,12 @@ export const CAR_TAXONOMY: MakeTaxonomy[] = [
       { en: "Arrizo 5", ar: "أريزو 5" }, { en: "Arrizo 6", ar: "أريزو 6" },
       { en: "Arrizo 7", ar: "أريزو 7" }, { en: "Tiggo 3", ar: "تيجو 3" },
       { en: "Tiggo 3x", ar: "تيجو 3 إكس" }, { en: "Tiggo 4", ar: "تيجو 4" },
-      { en: "Tiggo 5x", ar: "تيجو 5" }, { en: "Tiggo 6", ar: "تيجو 6" },
+      { en: "Tiggo 5x", ar: "تيجو 5 إكس" }, { en: "Tiggo 6", ar: "تيجو 6" },
       { en: "Tiggo 7", ar: "تيجو 7" }, { en: "Tiggo 7 Pro", ar: "تيجو 7 برو" },
+      { en: "Tiggo 7 Pro Max", ar: "تيجو 7 برو ماكس" },
       { en: "Tiggo 8", ar: "تيجو 8" }, { en: "Tiggo 8 Pro", ar: "تيجو 8 برو" },
+      { en: "Tiggo 8 Pro Max", ar: "تيجو 8 برو ماكس" }, { en: "Tiggo 9", ar: "تيجو 9" },
+      { en: "Arrizo 8", ar: "أريزو 8" },
       { en: "QQ", ar: "كيوكيو" },
     ],
   },
@@ -34,7 +37,7 @@ export const CAR_TAXONOMY: MakeTaxonomy[] = [
     nameEn: "BAIC", nameAr: "بايك", origin: "CN",
     models: [
       { en: "U5 Plus", ar: "يو 5" }, { en: "X35", ar: "إكس 35" }, { en: "X55", ar: "إكس 55" },
-      { en: "X7", ar: "إكس 7" },
+      { en: "X7", ar: "إكس 7" }, { en: "BJ30", ar: "بي جاي 30" },
     ],
   },
   {
