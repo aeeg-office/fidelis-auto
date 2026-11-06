@@ -1,9 +1,10 @@
-/* WS1 seed: Country, City, and launch Make taxonomy.
- * Concrete, real market facts only (no invented makes/models).
- * Full per-model listing (incl. motorcycle makes, EN/AR names) is WS1b from real research sources.
+/* WS1/WS1b seed: Country, City, Make, and Model taxonomy (full Egyptian-market).
+ * Concrete, research-sourced market facts only (no invented makes/models) — see ./taxonomy-data.
+ * Idempotent via upsert on the schema's unique keys.
  */
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { CAR_TAXONOMY, MOTORCYCLE_TAXONOMY } from "./taxonomy-data";
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL is not set. Refusing to seed without it.");
@@ -45,49 +46,7 @@ const EG_CITIES: { nameEn: string; nameAr: string }[] = [
   { nameEn: "6th of October", nameAr: "مدينة السادس من أكتوبر" },
 ];
 
-// Launch car makes present on the Egyptian market — real, incl. Chinese brands.
-const CAR_MAKES: { nameEn: string; nameAr: string; origin: string }[] = [
-  { nameEn: "Chery", nameAr: "شيري", origin: "CN" },
-  { nameEn: "BYD", nameAr: "بي واي دي", origin: "CN" },
-  { nameEn: "Geely", nameAr: "جيلي", origin: "CN" },
-  { nameEn: "Jetour", nameAr: "جيتور", origin: "CN" },
-  { nameEn: "Haval", nameAr: "هافال", origin: "CN" },
-  { nameEn: "Changan", nameAr: "تشانجان", origin: "CN" },
-  { nameEn: "MG", nameAr: "إم جي", origin: "GB" },
-  { nameEn: "Tank", nameAr: "تانك", origin: "CN" },
-  { nameEn: "Sehol", nameAr: "سي هول", origin: "CN" },
-  { nameEn: "Toyota", nameAr: "تويوتا", origin: "JP" },
-  { nameEn: "Nissan", nameAr: "نيسان", origin: "JP" },
-  { nameEn: "Honda", nameAr: "هوندا", origin: "JP" },
-  { nameEn: "Mitsubishi", nameAr: "ميتسوبيشي", origin: "JP" },
-  { nameEn: "Suzuki", nameAr: "سوزوكي", origin: "JP" },
-  { nameEn: "Hyundai", nameAr: "هيونداي", origin: "KR" },
-  { nameEn: "Kia", nameAr: "كيا", origin: "KR" },
-  { nameEn: "Chevrolet", nameAr: "شيفروليه", origin: "US" },
-  { nameEn: "Ford", nameAr: "فورد", origin: "US" },
-  { nameEn: "Jeep", nameAr: "جيب", origin: "US" },
-  { nameEn: "Opel", nameAr: "أوبل", origin: "DE" },
-  { nameEn: "Volkswagen", nameAr: "فولكس فاجن", origin: "DE" },
-  { nameEn: "BMW", nameAr: "بي إم دبليو", origin: "DE" },
-  { nameEn: "Mercedes-Benz", nameAr: "مرسيدس", origin: "DE" },
-  { nameEn: "Audi", nameAr: "أودي", origin: "DE" },
-  { nameEn: "Peugeot", nameAr: "بيجو", origin: "FR" },
-  { nameEn: "Citroen", nameAr: "سيتروين", origin: "FR" },
-  { nameEn: "Renault", nameAr: "رينو", origin: "FR" },
-  { nameEn: "Fiat", nameAr: "فيات", origin: "IT" },
-  { nameEn: "Skoda", nameAr: "سكودا", origin: "CZ" },
-  { nameEn: "Volvo", nameAr: "فولفو", origin: "SE" },
-  { nameEn: "Lexus", nameAr: "لكزس", origin: "JP" },
-  { nameEn: "Mazda", nameAr: "مازدا", origin: "JP" },
-  { nameEn: "Daihatsu", nameAr: "دايهاتسو", origin: "JP" },
-  { nameEn: "Lada", nameAr: "لادا", origin: "RU" },
-];
-
-// Motorcycle makes on the Egyptian market — real, EN only (validated via market; WS1b adds AR/full list).
-const MOTORCYCLE_MAKES: string[] = [
-  "Honda", "Yamaha", "Suzuki", "Kawasaki", "KTM", "BMW Motorrad",
-  "Sym", "Zontes", "Benelli", "Vespa", "Aprilia", "CFMoto",
-];
+// Makes + models live in ./taxonomy-data (CAR_TAXONOMY, MOTORCYCLE_TAXONOMY) — research-sourced.
 
 async function main() {
   console.log("Seeding countries, cities, and launch make taxonomy...");
@@ -117,26 +76,39 @@ async function main() {
   }
 
   let makeCount = 0;
-  for (const m of CAR_MAKES) {
-    // upsert on the unique (nameEn, vehicleType) in the schema.
-    const rec = await prisma.make.upsert({
-      where: { nameEn_vehicleType: { nameEn: m.nameEn, vehicleType: "CAR" } },
-      update: { nameAr: m.nameAr, origin: m.origin, isActive: true },
-      create: { ...m, vehicleType: "CAR", isActive: true },
+  let modelCount = 0;
+
+  const seedMake = async (
+    m: { nameEn: string; nameAr: string; origin?: string; models: { en: string; ar: string }[] },
+    vehicleType: "CAR" | "MOTORCYCLE",
+  ) => {
+    const make = await prisma.make.upsert({
+      where: { nameEn_vehicleType: { nameEn: m.nameEn, vehicleType } },
+      update: { nameAr: m.nameAr, origin: m.origin ?? null, isActive: true },
+      create: {
+        nameEn: m.nameEn, nameAr: m.nameAr, origin: m.origin ?? null,
+        vehicleType, isActive: true,
+      },
     });
-    void rec;
     makeCount++;
-  }
-  for (const mn of MOTORCYCLE_MAKES) {
-    const rec = await prisma.make.upsert({
-      where: { nameEn_vehicleType: { nameEn: mn, vehicleType: "MOTORCYCLE" } },
-      update: { isActive: true },
-      create: { nameEn: mn, vehicleType: "MOTORCYCLE", isActive: true },
-    });
-    void rec;
-    makeCount++;
-  }
-  console.log(`  makes: ${makeCount} new (CAR ${CAR_MAKES.length} list, MOTORCYCLE ${MOTORCYCLE_MAKES.length} list)`);
+    for (const model of m.models) {
+      await prisma.model.upsert({
+        where: { makeId_nameEn: { makeId: make.id, nameEn: model.en } },
+        update: { nameAr: model.ar, isActive: true },
+        create: {
+          makeId: make.id, nameEn: model.en, nameAr: model.ar, vehicleType, isActive: true,
+        },
+      });
+      modelCount++;
+    }
+  };
+
+  for (const m of CAR_TAXONOMY) await seedMake(m, "CAR");
+  for (const m of MOTORCYCLE_TAXONOMY) await seedMake(m, "MOTORCYCLE");
+
+  console.log(
+    `  makes: ${makeCount} (CAR ${CAR_TAXONOMY.length}, MOTORCYCLE ${MOTORCYCLE_TAXONOMY.length}) · models: ${modelCount}`,
+  );
 
   // Homepage/site defaults (non-technical admin toggles start as empty settings here).
   await prisma.siteSetting.upsert({
