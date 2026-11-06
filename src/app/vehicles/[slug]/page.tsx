@@ -9,6 +9,8 @@ import SocialShare from "@/components/SocialShare";
 import ContactSellerButton from "@/components/ContactSellerButton";
 import VehicleGallery, { type GalleryImage } from "@/components/VehicleGallery";
 import RelatedVehicles from "@/components/RelatedVehicles";
+import { decidePhoneGate } from "@/lib/phone-gate";
+import { getCurrentUser } from "@/lib/user-auth";
 
 // ─── Config ────────────────────────────────────
 
@@ -137,6 +139,15 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
   const vehicle = await getVehicle(slug);
   if (!vehicle) notFound();
 
+  // WS2 privacy: gate seller phone/WhatsApp behind decidePhoneGate when enabled (off by default).
+  const viewer = await getCurrentUser();
+  const gateSeen = decidePhoneGate(viewer ? { id: viewer.id, phoneVerified: viewer.phoneVerified } : null);
+  const vehicleForContact = {
+    ...vehicle,
+    ownerPhone: gateSeen.allowed ? vehicle.ownerPhone : null,
+    dealerPhone: gateSeen.allowed ? vehicle.dealerPhone : null,
+  };
+
   const specs = [
     { label: "Year", value: vehicle.year, icon: Calendar },
     { label: "Mileage", value: vehicle.mileage ? `${vehicle.mileage.toLocaleString()} mi` : "—", icon: Gauge },
@@ -242,9 +253,9 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
               <ContactSellerButton
                 vehicleSlug={slug}
                 vehicleTitle={vehicle.title}
-                ownerPhone={vehicle.ownerPhone}
-                dealerPhone={vehicle.dealerPhone}
-                ownerEmail={vehicle.ownerEmail}
+                ownerPhone={vehicleForContact.ownerPhone}
+                dealerPhone={vehicleForContact.dealerPhone}
+                ownerEmail={vehicleForContact.ownerEmail}
               />
               <FavoriteButton slug={slug} />
               <SocialShare
@@ -294,9 +305,9 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
             <ContactSellerButton
               vehicleSlug={slug}
               vehicleTitle={vehicle.title}
-              ownerPhone={vehicle.ownerPhone}
-              dealerPhone={vehicle.dealerPhone}
-              ownerEmail={vehicle.ownerEmail}
+              ownerPhone={vehicleForContact.ownerPhone}
+              dealerPhone={vehicleForContact.dealerPhone}
+              ownerEmail={vehicleForContact.ownerEmail}
             />
           </div>
         </div>

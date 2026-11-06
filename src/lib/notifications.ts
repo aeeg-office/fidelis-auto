@@ -1,5 +1,13 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 
+// Redact a phone number for logs (keeps the last 2 digits + country hint, never the full number).
+function redactPhone(phone: string): string {
+  if (!phone) return "(none)";
+  const p = phone.replace(/[^\d+]/g, "");
+  if (p.length < 4) return "***";
+  return `${p.slice(0, 3)}***${p.slice(-2)}`;
+}
+
 // Twilio (SMS / Voice / WhatsApp)
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID || "";
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN || "";
@@ -53,7 +61,7 @@ export async function sendVerificationCode(email: string, code: string): Promise
 // ─── SMS ──────────────────────────────────────
 
 export async function sendSmsCode(phone: string, code: string): Promise<boolean> {
-  console.log(`[SMS VERIFICATION] Phone: ${phone} | Code: [REDACTED]`);
+  console.log(`[SMS VERIFICATION] Phone: ${redactPhone(phone)} | Code: [REDACTED]`);
   const client = getTwilioClient();
   if (!client) { console.log("[SMS] Twilio not configured — channel disabled (code not logged for security)."); return false; }
 
@@ -63,15 +71,15 @@ export async function sendSmsCode(phone: string, code: string): Promise<boolean>
       from: twilioPhone,
       to: phone,
     });
-    console.log(`[SMS SENT] ${phone} | SID: ${msg.sid}`);
+    console.log(`[SMS SENT] ${redactPhone(phone)} | SID: ${msg.sid}`);
     return true;
-  } catch (err) { console.error(`[SMS ERROR] ${phone}:`, err); return false; }
+  } catch (err) { console.error(`[SMS ERROR] ${redactPhone(phone)}:`, err); return false; }
 }
 
 // ─── VOICE CALL ───────────────────────────────
 
 export async function callWithCode(phone: string, code: string): Promise<boolean> {
-  console.log(`[VOICE VERIFICATION] Phone: ${phone} | Code: [REDACTED]`);
+  console.log(`[VOICE VERIFICATION] Phone: ${redactPhone(phone)} | Code: [REDACTED]`);
   const client = getTwilioClient();
   if (!client) { console.log("[VOICE] Twilio not configured — channel disabled (code not logged for security)."); return false; }
 
@@ -81,15 +89,15 @@ export async function callWithCode(phone: string, code: string): Promise<boolean
       to: phone,
       from: twilioPhone,
     });
-    console.log(`[VOICE CALLED] ${phone} | SID: ${call.sid}`);
+    console.log(`[VOICE CALLED] ${redactPhone(phone)} | SID: ${call.sid}`);
     return true;
-  } catch (err) { console.error(`[VOICE ERROR] ${phone}:`, err); return false; }
+  } catch (err) { console.error(`[VOICE ERROR] ${redactPhone(phone)}:`, err); return false; }
 }
 
 // ─── WHATSAPP ─────────────────────────────────
 
 export async function sendWhatsAppCode(phone: string, code: string): Promise<boolean> {
-  console.log(`[WHATSAPP VERIFICATION] Phone: ${phone} | Code: [REDACTED]`);
+  console.log(`[WHATSAPP VERIFICATION] Phone: ${redactPhone(phone)} | Code: [REDACTED]`);
   const client = getTwilioClient();
   if (!client) { console.log("[WHATSAPP] Twilio not configured — channel disabled (code not logged for security)."); return false; }
 
@@ -99,7 +107,7 @@ export async function sendWhatsAppCode(phone: string, code: string): Promise<boo
       from: `whatsapp:${twilioPhone}`,
       to: `whatsapp:${phone}`,
     });
-    console.log(`[WHATSAPP SENT] ${phone} | SID: ${msg.sid}`);
+    console.log(`[WHATSAPP SENT] ${redactPhone(phone)} | SID: ${msg.sid}`);
     return true;
-  } catch (err) { console.error(`[WHATSAPP ERROR] ${phone}:`, err); return false; }
+  } catch (err) { console.error(`[WHATSAPP ERROR] ${redactPhone(phone)}:`, err); return false; }
 }
