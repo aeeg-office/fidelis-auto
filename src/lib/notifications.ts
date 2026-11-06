@@ -19,9 +19,12 @@ function sanitizeProviderError(err: unknown): string {
     // Fall back to a generic message if the object has no useful detail.
     if (s.length > 300) s = s.slice(0, 300);
   }
-  // Mask any on-screen phone-like number (e.g. Twilio puts it in "to"/"message" fields).
-  // E.164-style: +1-3 digits then 8-12 digits, optionally grouped.
-  s = s.replace(/\+?\d{8,15}/g, (m) => (m.length >= 6 ? `${m.slice(0, 3)}***${m.slice(-2)}` : m));
+  // Mask any on-screen phone-like number, including grouped forms like "+20 100 123 4567".
+  // First collapse spaces/dashes/plus.grouping into a run of digits, then mask contiguous 8-15
+  // digit runs that likely form an E.164 number.
+  s = s
+    .replace(/(\+?\d[\d\s\-().]{7,}\d)/g, (m) => `${m[0]}***${m[m.length - 1]}`)
+    .replace(/\+?\d{8,15}/g, (m) => (m.length >= 6 ? `${m.slice(0, 3)}***${m.slice(-2)}` : m));
   return s || "unknown provider error";
 }
 

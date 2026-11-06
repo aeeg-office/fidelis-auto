@@ -24,45 +24,41 @@ function localDay(d: Date): string {
 }
 
 /**
- * Atomically check-and-increment the durable per-IP window (hourly cap, survives restarts/multi-worker).
- * Returns true if the send is allowed (and the counter is now incremented); false if over the cap.
- * The window is keyed by the ACTUAL start timestamp, so a stale record self-resets on expiry.
+ * Atomically check-and-increment the durable per-IP window (hourly cap; survives restart/multi-worker).
+ * Uses a single conditional `INSERT ... ON CONFLICT ... DO UPDATE ... WHERE count < limit RETURNING`,
+ * which is atomic under any isolation level — a concurrent duplicate can never overshoot the cap.
+ * A stale window self-resets by re-keying the row to the new window with count 1 (we delete expired
+ * rows on read so a fresh window always starts at 1). Returns true when a send is allowed.
  */
 async function durableIpQuota(ip: string, now: Date): Promise<boolean> {
   const cutoff = new Date(now.getTime() - IP_WINDOW_MS);
-  return await prisma.$transaction(async (tx) => {
-    const rec = await tx.otpIpCounter.findUnique({ where: { ip } });
-    if (!rec || rec.windowStart < cutoff) {
-      // Fresh window (or expired): reset to now with count 1.
-      await tx.otpIpCounter.upsert({
-        where: { ip },
-        update: { windowStart: now, count: 1, updatedAt: now },
-        create: { ip, windowStart: now, count: 1, updatedAt: now },
-      });
-      return true;
-    }
-    if (rec.count >= IP_SEND_LIMIT) return false;
-    await tx.otpIpCounter.update({ where: { ip }, data: { count: { increment: 1 }, updatedAt: now } });
-    return true;
-  });
+  // Prune expired windows (best-effort; if missing the atomically-decremented upsert still guards).
+  await prisma.otpIpCounter.deleteMany({ where: { windowStart: { lt: cutoff } } }).catch(() => undefined);
+
+  const rows: { allowed: boolean }[] = await prisma.$queryRaw`
+    INSERT INTO "OtpIpCounter" ("ip", "windowStart", "count", "updatedAt")
+    VALUES (${ip}, ${now}, 1, ${now})
+    ON CONFLICT ("ip") DO UPDATE
+      SET "count" = "OtpIpCounter"."count" + 1,
+          "updatedAt" = ${now}
+      WHERE "OtpIpCounter"."count" < ${IP_SEND_LIMIT}
+    RETURNING ("count" <= ${IP_SEND_LIMIT}) AS "allowed"
+  `;
+  return rows.length === 1;
 }
 
-/** Atomically check-and-increment the durable per-PHONE-per-day cap (keyed by number). */
+/** Atomic conditional increment for the per-PHONE-per-day cap (keyed by the phone NUMBER). */
 async function durablePhoneQuota(phone: string, now: Date): Promise<boolean> {
   const day = localDay(now);
-  return await prisma.$transaction(async (tx) => {
-    const rec = await tx.otpPhoneDaily.findUnique({ where: { phone_day: { phone, day } } });
-    if (!rec) {
-      await tx.otpPhoneDaily.create({ data: { phone, day, count: 1 } });
-      return true;
-    }
-    if (rec.count >= DAILY_PHONE_LIMIT) return false;
-    await tx.otpPhoneDaily.update({
-      where: { phone_day: { phone, day } },
-      data: { count: { increment: 1 } },
-    });
-    return true;
-  });
+  const rows: { allowed: boolean }[] = await prisma.$queryRaw`
+    INSERT INTO "OtpPhoneDaily" ("phone", "day", "count")
+    VALUES (${phone}, ${day}, 1)
+    ON CONFLICT ("phone", "day") DO UPDATE
+      SET "count" = "OtpPhoneDaily"."count" + 1
+      WHERE "OtpPhoneDaily"."count" < ${DAILY_PHONE_LIMIT}
+    RETURNING ("count" <= ${DAILY_PHONE_LIMIT}) AS "allowed"
+  `;
+  return rows.length === 1;
 }
 
 export async function POST(request: Request) {
