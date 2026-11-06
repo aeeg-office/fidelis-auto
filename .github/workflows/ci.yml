@@ -57,7 +57,14 @@ jobs:
       - run: npm ci
       - name: Prisma generate
         run: npx prisma generate
-      - name: Migration validation (additive check)
+      - name: Enforce additive-only migrations (no destructive statements)
+        run: |
+          if grep -riE 'DROP (TABLE|COLUMN|INDEX|TYPE)|TRUNCATE|DELETE FROM' prisma/migrations --include='migration.sql'; then
+            echo "::error::Destructive migration statement found. Additive-only changes are required (see PRODUCT_SPEC_v1.2 §Data model)."
+            exit 1
+          fi
+          echo "OK: all migrations are additive-only"
+      - name: Migration validation (schema compiles)
         run: npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > /tmp/new.sql
       - name: Baseline schema (empty DB; prod was db-push-seeded)
         run: npx prisma db push

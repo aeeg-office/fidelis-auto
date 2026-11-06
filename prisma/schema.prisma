@@ -37,6 +37,107 @@ enum AuditAction {
   SESSION_REVOKED
 }
 
+enum VehicleType {
+  CAR
+  MOTORCYCLE
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  ELECTRIC
+  HYBRID
+  LPG
+  CNG
+  OTHER
+}
+
+enum BodyType {
+  SEDAN
+  HATCHBACK
+  SUV
+  PICKUP
+  VAN
+  COUPE
+  CONVERTIBLE
+  WAGON
+  MPV
+  OTHER
+}
+
+// ── Taxonomy (WS1) ─────────────────────────────
+model Country {
+  id           String  @id @default(cuid())
+  code         String  @unique // ISO 3166-1 alpha-2, e.g. EG
+  nameEn       String
+  nameAr       String
+  currency     String  @default("EGP")
+  phonePrefix  String  @default("+20")
+  isLive       Boolean @default(false)
+  isEarlyAccess Boolean @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  cities     City[]
+  vehicles   Vehicle[]
+  users      User[]
+}
+
+model City {
+  id        String  @id @default(cuid())
+  countryId String
+  nameEn    String
+  nameAr    String? // optional Arabic city name (some cities share transliteration)
+  createdAt DateTime @default(now())
+
+  country  Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  vehicles Vehicle[]
+
+  @@index([countryId, nameEn])
+}
+
+model Make {
+  id           String      @id @default(cuid())
+  nameEn       String
+  nameAr       String?
+  vehicleType  VehicleType @default(CAR)
+  origin       String?     // country of brand origin, e.g. "CN", "DE"
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  models   Model[]
+  vehicles Vehicle[]
+
+  @@unique([nameEn, vehicleType])
+  @@index([vehicleType, isActive])
+}
+
+model Model {
+  id          String      @id @default(cuid())
+  makeId      String
+  nameEn      String
+  nameAr      String?
+  vehicleType VehicleType @default(CAR)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  make     Make       @relation(fields: [makeId], references: [id], onDelete: Cascade)
+  vehicles Vehicle[]
+
+  @@unique([makeId, nameEn])
+  @@index([makeId, vehicleType])
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String?  @db.Text
+  description String?
+  updatedAt DateTime @updatedAt
+}
+
 // ── Vehicles ──────────────────────────────────
 model Vehicle {
   id            String   @id @default(cuid())
@@ -49,13 +150,24 @@ model Vehicle {
   trim          String?
   vin           String?
   mileage       Int?
-  mileageUnit   String   @default("mi")
+  mileageUnit   String   @default("km") // km default (WS1); existing mi rows kept as-is
   exteriorColor String?
   interiorColor String?
   engine        String?
   transmission  String?
   drivetrain    String?
-  price         String?
+  price         String?          // raw text price (kept per WS1); use priceAmount for filters
+  priceAmount   Int?             // numeric price in smallest unit (priceAmount/100 = EGP)
+  currency      String   @default("EGP")
+  vehicleType   VehicleType @default(CAR)
+  bodyType      BodyType?
+  fuelType      FuelType?
+  isLicensed    Boolean?
+  expiresAt     DateTime?        // listing expiry; min 30-day duration at submit
+  countryId     String?
+  cityId        String?
+  makeId        String?
+  modelId       String?
   status        String   @default("available") // available, sold, pending
   descriptionEn String?  @db.Text
   descriptionAr String?  @db.Text
@@ -63,7 +175,7 @@ model Vehicle {
   storyAr       String?  @db.Text
   isFeatured    Boolean  @default(false)
   featuredUntil DateTime?
-  category      String   @default("Other") // Modern, Classic, Vintage, EV, Other
+  category      String   @default("Other") // Modern, Classic, Vintage, EV, Other (kept for collections; mapped later)
   isPublished   Boolean  @default(false)
   order         Int      @default(0)
   contactEmail  String?
@@ -77,9 +189,16 @@ model Vehicle {
   journalEntries JournalEntry[]
   favorites      Favorite[]
 
-  owner User? @relation("VehicleOwner", fields: [ownerId], references: [id])
+  owner   User?     @relation("VehicleOwner", fields: [ownerId], references: [id])
+  country Country?  @relation(fields: [countryId], references: [id])
+  city    City?     @relation(fields: [cityId], references: [id])
+  makeRel Make?     @relation(fields: [makeId], references: [id])
+  modelRel Model?   @relation(fields: [modelId], references: [id])
 
   @@index([ownerId])
+  @@index([countryId, vehicleType, isPublished, priceAmount])
+  @@index([makeId, modelId, year])
+  @@index([cityId])
 }
 
 model VehicleImage {
@@ -194,8 +313,12 @@ model User {
   phoneVerificationCode  String?
   phoneVerificationCodeExpiry DateTime?
   emailResendCount Int   @default(0)
+  preferredLanguage String @default("en") // "en" | "ar"
+  countryId       String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  countryRef Country? @relation(fields: [countryId], references: [id])
 
   listingRequests ListingRequest[]
   vehicles       Vehicle[] @relation("VehicleOwner")
