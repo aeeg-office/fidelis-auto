@@ -9,7 +9,7 @@ describe("upload policy", () => {
 
   it("rejects unknown MIME types and oversized files", () => {
     expect(validateUpload({ type: "application/pdf", size: 10 })).toEqual({ ok: false, error: "Only JPEG, PNG, WebP, AVIF, MP4, and WebM uploads are allowed." });
-    expect(validateUpload({ type: "image/png", size: 10_000_001 })).toEqual({ ok: false, error: "Images must be 10 MB or smaller." });
-    expect(validateUpload({ type: "video/mp4", size: 100_000_001 })).toEqual({ ok: false, error: "Videos must be 100 MB or smaller." });
+    expect(validateUpload({ type: "image/png", size: 10_000_001 })).toEqual({ ok: false, error: "Images must be 10 MB or smaller. Received 10.0 MB." });
+    expect(validateUpload({ type: "video/mp4", size: 100_000_001 })).toEqual({ ok: false, error: "Videos must be 100 MB or smaller. Received 100.0 MB." });
   });
 });

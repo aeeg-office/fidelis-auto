@@ -24,10 +24,14 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
+      - name: Prisma generate (fresh client for typecheck)
+        run: npx prisma generate
       - name: Lint
         run: npm run lint
       - name: Typecheck
         run: npx tsc --noEmit
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
       - name: Unit tests
         run: npm test
 
@@ -54,7 +58,7 @@ jobs:
       - name: Prisma generate
         run: npx prisma generate
       - name: Migration validation (additive check)
-        run: npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > /tmp/new.sql
+        run: npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > /tmp/new.sql
       - name: Apply migrations
         run: npx prisma migrate deploy
       - name: Build

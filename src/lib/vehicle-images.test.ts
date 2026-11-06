@@ -57,7 +57,7 @@ function makeShim() {
         return { count: before - rows.length };
       }),
     },
-    $transaction: vi.fn(async <T,>(fn: (p: typeof prisma) => Promise<T>) => fn(prisma as any)),
+    $transaction: vi.fn(async <T,>(fn: (p: typeof prisma) => Promise<T>) => fn(prisma as unknown as typeof prisma)),
   };
   const seed = (id: string, src: string, sortOrder: number, isPrimary: boolean) =>
     rows.push({ id, vehicleId: "v1", src, sortOrder, isPrimary });
