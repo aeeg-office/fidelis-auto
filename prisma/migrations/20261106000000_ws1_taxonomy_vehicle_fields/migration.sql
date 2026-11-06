@@ -101,7 +101,13 @@ CREATE INDEX "City_countryId_nameEn_idx" ON "City"("countryId", "nameEn");
 CREATE INDEX "Make_vehicleType_isActive_idx" ON "Make"("vehicleType", "isActive");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Make_nameEn_vehicleType_key" ON "Make"("nameEn", "vehicleType");
+
+-- CreateIndex
 CREATE INDEX "Model_makeId_vehicleType_idx" ON "Model"("makeId", "vehicleType");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Model_makeId_nameEn_key" ON "Model"("makeId", "nameEn");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SiteSetting_key_key" ON "SiteSetting"("key");

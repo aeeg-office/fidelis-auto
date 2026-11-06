@@ -81,7 +81,6 @@ const CAR_MAKES: { nameEn: string; nameAr: string; origin: string }[] = [
   { nameEn: "Mazda", nameAr: "مازدا", origin: "JP" },
   { nameEn: "Daihatsu", nameAr: "دايهاتسو", origin: "JP" },
   { nameEn: "Lada", nameAr: "لادا", origin: "RU" },
-  { nameEn: "Geely EMGRAND", nameAr: "جيلي إمجراند", origin: "CN" },
 ];
 
 // Motorcycle makes on the Egyptian market — real, EN only (validated via market; WS1b adds AR/full list).
@@ -119,22 +118,23 @@ async function main() {
 
   let makeCount = 0;
   for (const m of CAR_MAKES) {
-    const existing = await prisma.make.findFirst({
-      where: { nameEn: m.nameEn, vehicleType: "CAR" },
+    // upsert on the unique (nameEn, vehicleType) in the schema.
+    const rec = await prisma.make.upsert({
+      where: { nameEn_vehicleType: { nameEn: m.nameEn, vehicleType: "CAR" } },
+      update: { nameAr: m.nameAr, origin: m.origin, isActive: true },
+      create: { ...m, vehicleType: "CAR", isActive: true },
     });
-    if (!existing) {
-      await prisma.make.create({ data: { ...m, vehicleType: "CAR", isActive: true } });
-      makeCount++;
-    }
+    void rec;
+    makeCount++;
   }
   for (const mn of MOTORCYCLE_MAKES) {
-    const existing = await prisma.make.findFirst({
-      where: { nameEn: mn, vehicleType: "MOTORCYCLE" },
+    const rec = await prisma.make.upsert({
+      where: { nameEn_vehicleType: { nameEn: mn, vehicleType: "MOTORCYCLE" } },
+      update: { isActive: true },
+      create: { nameEn: mn, vehicleType: "MOTORCYCLE", isActive: true },
     });
-    if (!existing) {
-      await prisma.make.create({ data: { nameEn: mn, vehicleType: "MOTORCYCLE", isActive: true } });
-      makeCount++;
-    }
+    void rec;
+    makeCount++;
   }
   console.log(`  makes: ${makeCount} new (CAR ${CAR_MAKES.length} list, MOTORCYCLE ${MOTORCYCLE_MAKES.length} list)`);
 

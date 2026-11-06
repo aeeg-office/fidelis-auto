@@ -109,6 +109,7 @@ model Make {
   models   Model[]
   vehicles Vehicle[]
 
+  @@unique([nameEn, vehicleType])
   @@index([vehicleType, isActive])
 }
 
@@ -125,6 +126,7 @@ model Model {
   make     Make       @relation(fields: [makeId], references: [id], onDelete: Cascade)
   vehicles Vehicle[]
 
+  @@unique([makeId, nameEn])
   @@index([makeId, vehicleType])
 }
 
