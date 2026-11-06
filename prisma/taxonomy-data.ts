@@ -22,11 +22,27 @@ export const CAR_TAXONOMY: MakeTaxonomy[] = [
     nameEn: "Chery", nameAr: "شيري", origin: "CN",
     models: [
       { en: "Arrizo 5", ar: "أريزو 5" }, { en: "Arrizo 6", ar: "أريزو 6" },
-      { en: "Arrizo 7", ar: "أريزو 7" }, { en: "Tiggo 2", ar: "تيجو 2" },
-      { en: "Tiggo 3x", ar: "تيجو 3" }, { en: "Tiggo 4", ar: "تيجو 4" },
+      { en: "Arrizo 7", ar: "أريزو 7" }, { en: "Tiggo 3", ar: "تيجو 3" },
+      { en: "Tiggo 3x", ar: "تيجو 3 إكس" }, { en: "Tiggo 4", ar: "تيجو 4" },
       { en: "Tiggo 5x", ar: "تيجو 5" }, { en: "Tiggo 6", ar: "تيجو 6" },
-      { en: "Tiggo 7 Pro", ar: "تيجو 7" }, { en: "Tiggo 8 Pro", ar: "تيجو 8" },
+      { en: "Tiggo 7", ar: "تيجو 7" }, { en: "Tiggo 7 Pro", ar: "تيجو 7 برو" },
+      { en: "Tiggo 8", ar: "تيجو 8" }, { en: "Tiggo 8 Pro", ar: "تيجو 8 برو" },
       { en: "QQ", ar: "كيوكيو" },
+    ],
+  },
+  {
+    nameEn: "BAIC", nameAr: "بايك", origin: "CN",
+    models: [
+      { en: "U5 Plus", ar: "يو 5" }, { en: "X35", ar: "إكس 35" }, { en: "X55", ar: "إكس 55" },
+      { en: "X7", ar: "إكس 7" },
+    ],
+  },
+  {
+    nameEn: "JAC", nameAr: "جاك", origin: "CN",
+    models: [
+      // JS4 and JS7 cited in the review (jac-egypt.com); JS3/S3 confirmed via JAC Egypt / Ellithy.
+      { en: "JS4", ar: "جاي إس 4" }, { en: "JS7", ar: "جاي إس 7" },
+      { en: "JS3", ar: "جاي إس 3" }, { en: "S3", ar: "إس 3" },
     ],
   },
   {
