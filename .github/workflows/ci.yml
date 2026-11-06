@@ -60,6 +60,6 @@ jobs:
       - name: Migration validation (additive check)
         run: npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > /tmp/new.sql
       - name: Baseline schema (empty DB; prod was db-push-seeded)
-        run: npx prisma db push --skip-generate
+        run: npx prisma db push
       - name: Build
         run: DATABASE_URL="${{ env.DATABASE_URL }}" npm run build
