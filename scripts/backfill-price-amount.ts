@@ -1,10 +1,13 @@
-/* WS1 price backfill: copy unambiguous numeric prices from `price` text into `priceAmount`.
- * Rules (per spec §6 WS1):
- *  - Only rows whose `price` parses to a clean numeric amount (digits + optional thousand separators)
- *    and an optional currency-word (EGP/LE/E£/جنيه/جنيه مصري) are treated as unambiguous.
- *  - Ambiguous / negotiable / currency-mismatched rows are left with priceAmount NULL and flagged.
+/* WS1 price backfill: copy unambiguous numeric EGP prices from `price` text into `priceAmount`.
+ * `priceAmount` is the numeric price in the currency's SMALLEST unit (for EGP, piastres: 1 EGP = 100).
+ * Rules (spec §6 WS1, "backfill only unambiguous numeric prices"):
+ *  - Accept ONLY prices that parse to a clean integer amount with NO foreign-currency token.
+ *  - A price is unambiguous when digits form a valid integer with EGP thousand-grouping
+ *    (plain "500000", or comma-grouped "1,200,000"), optionally followed by an EGP currency word.
+ *  - Ambiguous / negotiable / currency-mismatched / malformed-grouping values are left NULL and flagged.
+ *  - Values exceeding PostgreSQL INTEGER max (2147483647) are flagged, never written.
  *  - Raw `price` text is ALWAYS preserved (never overwritten).
- * Run AFTER the WS1 migration; idempotent; read-only on production until verified on a backup.
+ * Idempotent. Run AFTER the WS1 migration; read-only on production until a backup is verified.
  */
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -13,7 +16,15 @@ const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL is not set. Refusing to run backfill without it.");
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
 
-const CURRENCY_WORDS = ["egp", "le", "e£", "e£", "e.gp", "جنية", "جنيه", "ج.م", "usd", "$"];
+const INT_MAX = 2_147_483_647;
+
+// Foreign-currency tokens (must never be backfilled into EGP). Symbols deliberately NOT word-bounded.
+const FOREIGN_CURRENCY = /\b(usd|euro|sar|aed|gbp|kwd|qar|rmb|cny|yen|reais)\b|\$|€|£|ريال|دينار|درهم|سيار/i;
+// EGP tokens: Latin forms use a word boundary; Arabic forms are matched by exact characters
+// (no \b, which is ASCII-only in JavaScript and would fail around Arabic/glyph punctuation).
+const EGP_LATIN = /\b(egp|le|e£|e\.gp|e£)\b/i;
+const EGP_ARABIC = /ج\.م|الجنية|جنية|جنيه من مصري|جنيه|مصري/;
+const NEGOTIABLE = /negotiable|on request|price on request|for sale|n\.?a\.?|contact us|للتفاوض|على التفاوض|بدون سعر|افضل سعر|كلمنا|اتصل/i;
 
 interface Flagged { id: string; price: string | null; reason: string; }
 
@@ -21,36 +32,53 @@ function parseAmount(price: string | null): { amount: number | null; flag?: stri
   if (!price) return { amount: null };
   const trimmed = price.trim();
   if (!trimmed) return { amount: null };
-  const lower = trimmed.toLowerCase();
-  const hasCurrency = CURRENCY_WORDS.some((w) => lower.includes(w));
-  // Negotiable / on-request markers -> ambiguous
-  if (/(negotiable|على التفاوض|for sale|on request|price on request|بدون سعر|n\.?a\.?|contact us|افضل سعر)/i.test(trimmed)) {
-    return { amount: null, flag: "negotiable-or-nonspecific" };
+
+  if (FOREIGN_CURRENCY.test(trimmed)) return { amount: null, flag: "currency-mismatch-foreign-token" };
+  if (NEGOTIABLE.test(trimmed)) return { amount: null, flag: "negotiable-or-nonspecific" };
+
+  // Strip EGP currency tokens but KEEP commas/spaces so grouping can be validated.
+  const bare = trimmed.replace(EGP_LATIN, "").replace(EGP_ARABIC, "").trim();
+
+  // Valid canonical forms (validate grouping BEFORE collapsing separators):
+  //   thousands: "1,200,000"  -> digits where the LAST group is 3 and all prior groups are 3
+  //   plain:     "500000"     -> pure digits (no separator)
+  const commaGrouped = /^\d{1,3}(,\d{3})+$/.test(bare);
+  const plainDigits = /^\d+$/.test(bare);
+  // Space-separated digits that are not valid 3-digit thousands groups -> ambiguous ("1 2 3").
+  if (/^\d{1,3}( \d{3})+$/.test(bare)) return { amount: null, flag: "ambiguous-space-grouping" };
+
+  let amount: number | null = null;
+  if (commaGrouped || plainDigits) {
+    amount = parseInt(bare.replace(/,/g, ""), 10);
   }
-  // Strip currency tokens (symbols and words) so "1,200,000 EGP" and "$25000" both parse.
-    const digitsOnly = trimmed
-      .replace(/egp|le|e£|e\.gp|جنية|جنيه|ج\.م|usd|£|€|\$/gi, "") // currency words + symbols
-      .trim();
-    // Pure digits with optional thousand separators (e.g. "1,200,000", "1200000")
-    const numeric = digitsOnly.replace(/[,\s]/g, "");
-    if (/^[0-9]+$/.test(numeric)) {
-      const amount = parseInt(numeric, 10);
-      if (amount > 0) return { amount };
-      return { amount: null, flag: "zero" };
-    }
-    if (digitsOnly.includes(",") && /^[\d,.]+$/.test(digitsOnly)) {
-      return { amount: null, flag: "ambiguous-unknown-separator-or-decimal" };
-    }
-    return { amount: null, flag: "non-numeric" };
+  if (amount === null) {
+    if (/\d,\d{1,2}\b/.test(bare) || /^\d{1,3}\.\d/.test(bare)) return { amount: null, flag: "ambiguous-decimal-or-range" };
+    return { amount: null, flag: "non-numeric-or-malformed-grouping" };
+  }
+  if (amount <= 0) return { amount: null, flag: "zero" };
+
+  // priceAmount is in smallest unit (piastres for EGP). Guard INT overflow.
+  const smallestUnits = amount * 100;
+  if (!Number.isSafeInteger(smallestUnits) || smallestUnits > INT_MAX) {
+    return { amount: null, flag: "exceeds-int-max" };
+  }
+  return { amount: smallestUnits };
 }
 
 async function main() {
-  const vehicles = await prisma.vehicle.findMany({ where: { price: { not: null } }, select: { id: true, price: true } });
+  const vehicles = await prisma.vehicle.findMany({
+    where: { price: { not: null } },
+    select: { id: true, price: true, currency: true },
+  });
   console.log(`Processing ${vehicles.length} vehicles with a price value.`);
   const flagged: Flagged[] = [];
   let backfilled = 0;
 
   for (const v of vehicles) {
+    if (v.currency && v.currency !== "EGP") {
+      flagged.push({ id: v.id, price: v.price, reason: `non-EGP currency (${v.currency})` });
+      continue;
+    }
     const { amount, flag } = parseAmount(v.price);
     if (amount !== null) {
       await prisma.vehicle.update({ where: { id: v.id }, data: { priceAmount: amount } });
@@ -60,7 +88,7 @@ async function main() {
     }
   }
 
-  console.log(`\nBackfilled priceAmount on ${backfilled} unambiguous rows.`);
+  console.log(`\nBackfilled priceAmount (smallest units / piastres) on ${backfilled} unambiguous rows.`);
   console.log(`Flagged ${flagged.length} ambiguous/unsafe rows (left as-is, priceAmount NULL):`);
   for (const f of flagged) console.log(`  - ${f.id}: "${f.price}" -> ${f.reason}`);
   console.log("\nRaw `price` text preserved on all rows.");
