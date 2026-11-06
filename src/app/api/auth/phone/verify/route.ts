@@ -12,41 +12,61 @@ export async function POST(request: Request) {
 
     const { code } = await request.json();
     if (!code || typeof code !== "string") return NextResponse.json({ error: "Code is required" }, { status: 400 });
+    const trimmed = code.trim();
+    if (!/^\d{6}$/.test(trimmed)) return NextResponse.json({ error: "Invalid code" }, { status: 400 });
 
-    // Enforce the attempt limit durably BEFORE consuming (prevents unlimited brute-force guesses).
-    if ((user.phoneOtpAttempts ?? 0) >= MAX_OTP_ATTEMPTS) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { phoneVerificationCode: null, phoneVerificationCodeExpiry: null, phoneOtpAttempts: 0 },
-      }).catch(() => undefined);
-      return NextResponse.json({ error: "Too many failed attempts. Request a new code." }, { status: 429 });
-    }
-
-    // Atomic, phone-bound consumption: compare the stored (user-id, code, expiry) in a single
-    // conditional update so a concurrent send-code cannot race us into verifying a restored phone.
     const now = new Date();
-    const result = await prisma.user.updateMany({
+
+    // Atomic consume: verify ONLY when code matches, is unexpired, attempts < MAX, and the account
+    // is still unverified. One conditional updateMany = no read-then-write race and bounded guesses.
+    const ok = await prisma.user.updateMany({
       where: {
         id: user.id,
-        phoneVerificationCode: code,
+        phoneVerified: false,
+        phoneVerificationCode: trimmed,
         phoneVerificationCodeExpiry: { gt: now },
+        phoneOtpAttempts: { lt: MAX_OTP_ATTEMPTS },
       },
       data: { phoneVerified: true, phoneVerificationCode: null, phoneVerificationCodeExpiry: null },
     });
 
-    if (result.count === 0) {
-      // Wrong code (or expired) — increment durable attempts. Expired is treated as a failed try.
-      const latest = await prisma.user.findUnique({ where: { id: user.id }, select: { phoneOtpAttempts: true, phoneVerificationCode: true, phoneVerificationCodeExpiry: true } });
-      const attempts = (latest?.phoneOtpAttempts ?? 0) + 1;
-      await prisma.user.update({ where: { id: user.id }, data: { phoneOtpAttempts: attempts } }).catch(() => undefined);
-      const wrongCode = latest && latest.phoneVerificationCode === code && latest.phoneVerificationCodeExpiry && latest.phoneVerificationCodeExpiry > now;
-      return NextResponse.json(
-        { error: wrongCode ? "Wrong code" : "Code expired. Request a new code." },
-        { status: 400 },
-      );
+    if (ok.count === 1) {
+      return NextResponse.json({ ok: true, message: "Phone verified." });
     }
 
-    return NextResponse.json({ ok: true, message: "Phone verified." });
+    // Not verified: atomically count the failed attempt against a LIVE challenge (unverified,
+    // unexpired, under the cap) so surprise guesses cannot inflate the counter. On reaching MAX,
+    // invalidate the challenge so further guesses are impossible. Expected message differs by why
+    // the consume failed — determined below after the atomic increment.
+    const failed = await prisma.user.updateMany({
+      where: {
+        id: user.id,
+        phoneVerified: false,
+        phoneVerificationCodeExpiry: { gt: now },
+        phoneOtpAttempts: { lt: MAX_OTP_ATTEMPTS },
+      },
+      data: { phoneOtpAttempts: { increment: 1 } },
+    });
+
+    if (failed.count === 1) {
+      const latest = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { phoneOtpAttempts: true, phoneOtpSentDay: true },
+      });
+      const attempts = latest?.phoneOtpAttempts ?? 0;
+      if (attempts >= MAX_OTP_ATTEMPTS) {
+        // Exhausted: invalidate the challenge durably.
+        await prisma.user.updateMany({
+          where: { id: user.id, phoneVerified: false, phoneVerificationCode: trimmed },
+          data: { phoneVerificationCode: null, phoneVerificationCodeExpiry: null },
+        });
+        return NextResponse.json({ error: "Too many failed attempts. Request a new code." }, { status: 429 });
+      }
+      return NextResponse.json({ error: "Wrong code" }, { status: 400 });
+    }
+
+    // No live challenge matched (wrong/expired/invalidated or already gone).
+    return NextResponse.json({ error: "Code expired. Request a new code." }, { status: 400 });
   } catch (error) {
     console.error("Phone verify error:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

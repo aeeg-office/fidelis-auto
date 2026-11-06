@@ -11,51 +11,58 @@ import {
 } from "@/lib/phone-verification";
 import { sendSmsCode } from "@/lib/notifications";
 
-const DAILY_PHONE_LIMIT = 5;
-const IP_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const IP_SEND_LIMIT = 10; // durable per-IP sends per hour (DB-backed, survives restarts/multi-worker)
+const IP_WINDOW_MS = 60 * 60 * 1000; // durable per-IP window (1 hour)
+const IP_SEND_LIMIT = 10; // durable per-IP sends per hour
+const DAILY_PHONE_LIMIT = 5; // durable per-phone-per-day sends (keyed by number, not account)
 
-async function durableIpQuotaOk(ip: string): Promise<boolean> {
-  const now = new Date();
-  const windowStart = new Date(Date.now() - IP_WINDOW_MS);
-  const rec = await prisma.otpIpCounter.findUnique({ where: { ip } });
-  if (!rec) return true;
-  if (rec.windowStart < windowStart) return true; // stale window -> reset
-  return rec.count < IP_SEND_LIMIT;
+/** Local calendar day "YYYY-MM-DD" used to key the daily per-phone counter. */
+function localDay(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
 }
 
-async function durableIpRecord(ip: string): Promise<void> {
-  const now = new Date();
-  const windowStart = new Date(Date.now() - IP_WINDOW_MS);
-  // Read-then-write inside a transaction: if the stored window is stale, start a fresh count (1),
-  // else increment. This keeps the hour-window reset correct across restarts and multi-worker.
-  await prisma.$transaction(async (tx) => {
+/**
+ * Atomically check-and-increment the durable per-IP window (hourly cap, survives restarts/multi-worker).
+ * Returns true if the send is allowed (and the counter is now incremented); false if over the cap.
+ * The window is keyed by the ACTUAL start timestamp, so a stale record self-resets on expiry.
+ */
+async function durableIpQuota(ip: string, now: Date): Promise<boolean> {
+  const cutoff = new Date(now.getTime() - IP_WINDOW_MS);
+  return await prisma.$transaction(async (tx) => {
     const rec = await tx.otpIpCounter.findUnique({ where: { ip } });
-    if (!rec || rec.windowStart < windowStart) {
+    if (!rec || rec.windowStart < cutoff) {
+      // Fresh window (or expired): reset to now with count 1.
       await tx.otpIpCounter.upsert({
         where: { ip },
-        update: { count: 1, windowStart, updatedAt: now },
-        create: { ip, windowStart, count: 1, updatedAt: now },
+        update: { windowStart: now, count: 1, updatedAt: now },
+        create: { ip, windowStart: now, count: 1, updatedAt: now },
       });
-    } else {
-      await tx.otpIpCounter.update({
-        where: { ip },
-        data: { count: { increment: 1 }, updatedAt: now },
-      });
+      return true;
     }
-  }).catch(() => undefined);
+    if (rec.count >= IP_SEND_LIMIT) return false;
+    await tx.otpIpCounter.update({ where: { ip }, data: { count: { increment: 1 }, updatedAt: now } });
+    return true;
+  });
 }
 
-/** True if the user's durable daily per-phone send count is still under the cap (reset daily). */
-async function durablePhoneQuotaOk(userId: string): Promise<boolean> {
-  const now = new Date();
-  const u = await prisma.user.findUnique({ where: { id: userId }, select: { phoneOtpSentCount: true, phoneOtpSentDay: true } });
-  if (!u) return false;
-  if (!u.phoneOtpSentDay) return true;
-  // Same calendar day? Compare date (not time).
-  const sameDay = u.phoneOtpSentDay.toDateString() === now.toDateString();
-  if (!sameDay) return true; // stale bucket -> allow (reset happens on record)
-  return (u.phoneOtpSentCount ?? 0) < DAILY_PHONE_LIMIT;
+/** Atomically check-and-increment the durable per-PHONE-per-day cap (keyed by number). */
+async function durablePhoneQuota(phone: string, now: Date): Promise<boolean> {
+  const day = localDay(now);
+  return await prisma.$transaction(async (tx) => {
+    const rec = await tx.otpPhoneDaily.findUnique({ where: { phone_day: { phone, day } } });
+    if (!rec) {
+      await tx.otpPhoneDaily.create({ data: { phone, day, count: 1 } });
+      return true;
+    }
+    if (rec.count >= DAILY_PHONE_LIMIT) return false;
+    await tx.otpPhoneDaily.update({
+      where: { phone_day: { phone, day } },
+      data: { count: { increment: 1 } },
+    });
+    return true;
+  });
 }
 
 export async function POST(request: Request) {
@@ -80,13 +87,14 @@ export async function POST(request: Request) {
     if (!normalized) return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
 
     const ip = getClientIp(request);
+    const now = new Date();
 
-    // Durable DB-backed quotas first (survive restart / multi-worker).
-    if (!(await durableIpQuotaOk(ip))) {
+    // Durable DB-backed quotas (survive restart / multi-worker; atomic check-and-increment).
+    if (!(await durableIpQuota(ip, now))) {
       return NextResponse.json({ error: "Too many requests from your network. Try again later." }, { status: 429 });
     }
-    if (!(await durablePhoneQuotaOk(user.id))) {
-      return NextResponse.json({ error: "Max SMS codes for today reached. Try again tomorrow." }, { status: 429 });
+    if (!(await durablePhoneQuota(normalized, now))) {
+      return NextResponse.json({ error: "Max SMS codes for this number today reached. Try again tomorrow." }, { status: 429 });
     }
 
     // Fast in-memory limiter (1/min + 5/day per phone; 1h per-IP) as a complement.
@@ -97,31 +105,27 @@ export async function POST(request: Request) {
         { status: 429 },
       );
     }
-
-    // Commit durable counters (per-IP window; daily per-phone + reset OTP attempt counter).
-    await durableIpRecord(ip);
     rateLimiter.record(normalized, ip);
-    const now = new Date();
-    await prisma.user.update({
-      where: { id: user.id },
+
+    // Atomically store phone + code + expiry in ONE write, and only while the account is still
+    // UNVERIFIED. This closes the race where a send-code could re-point an already-verified account's
+    // phone (or pair a code with the wrong number). Guard via updateMany(phoneVerified:false).
+    const code = generateOtp();
+    const expiry = new Date(Date.now() + 10 * 60 * 1000);
+    const update = await prisma.user.updateMany({
+      where: { id: user.id, phoneVerified: false },
       data: {
         phone: normalized,
-        phoneVerificationCode: null, // invalidate any prior code so a fresh one is required
-        phoneVerificationCodeExpiry: null,
-        phoneOtpAttempts: 0, // reset guess counter on a fresh code
-        phoneOtpSentCount: user.phoneOtpSentDay && user.phoneOtpSentDay.toDateString() === now.toDateString()
-          ? { increment: 1 }
-          : 1,
+        phoneVerificationCode: code,
+        phoneVerificationCodeExpiry: expiry,
+        phoneOtpAttempts: 0, // reset the guess counter on a fresh challenge
         phoneOtpSentDay: now,
       },
     });
-
-    const code = generateOtp();
-    const expiry = new Date(Date.now() + 10 * 60 * 1000);
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { phoneVerificationCode: code, phoneVerificationCodeExpiry: expiry },
-    });
+    if (update.count === 0) {
+      // The account became verified between our check and the write — do not send.
+      return NextResponse.json({ error: "Phone already verified" }, { status: 400 });
+    }
 
     const provider = (process.env.PHONE_PROVIDER || "off").toLowerCase();
     // Mock provider is for local/staging test only — simulate a successful send, no real SMS.

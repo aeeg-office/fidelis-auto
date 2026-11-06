@@ -148,6 +148,17 @@ model OtpIpCounter {
   @@index([windowStart])
 }
 
+// Durable per-phone-per-day OTP send counter — keys the daily 5-code limit by the PHONE NUMBER,
+// not the account, so multiple accounts targeting the same number cannot bypass it across
+// workers/restarts. day is the local calendar day ("YYYY-MM-DD").
+model OtpPhoneDaily {
+  phone String // e.g. "+20123456789"
+  day   String // "YYYY-MM-DD"
+  count Int    @default(0)
+
+  @@id([phone, day])
+}
+
 // ── Vehicles ──────────────────────────────────
 model Vehicle {
   id            String   @id @default(cuid())

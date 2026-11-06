@@ -8,6 +8,23 @@ function redactPhone(phone: string): string {
   return `${p.slice(0, 3)}***${p.slice(-2)}`;
 }
 
+// Sanitize a provider error message/object for logs: mask any phone number substrings and collapse
+// the object to a short safe string (provider errors can embed the destructured phone).
+function sanitizeProviderError(err: unknown): string {
+  let s = "";
+  if (err instanceof Error) s = err.message;
+  else if (typeof err === "string") s = err;
+  else if (err && typeof err === "object") {
+    try { s = JSON.stringify(err); } catch { s = String(err); }
+    // Fall back to a generic message if the object has no useful detail.
+    if (s.length > 300) s = s.slice(0, 300);
+  }
+  // Mask any on-screen phone-like number (e.g. Twilio puts it in "to"/"message" fields).
+  // E.164-style: +1-3 digits then 8-12 digits, optionally grouped.
+  s = s.replace(/\+?\d{8,15}/g, (m) => (m.length >= 6 ? `${m.slice(0, 3)}***${m.slice(-2)}` : m));
+  return s || "unknown provider error";
+}
+
 // Twilio (SMS / Voice / WhatsApp)
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID || "";
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN || "";
@@ -73,7 +90,7 @@ export async function sendSmsCode(phone: string, code: string): Promise<boolean>
     });
     console.log(`[SMS SENT] ${redactPhone(phone)} | SID: ${msg.sid}`);
     return true;
-  } catch (err) { console.error(`[SMS ERROR] ${redactPhone(phone)}:`, err); return false; }
+  } catch (err) { console.error(`[SMS ERROR] ${redactPhone(phone)}:`, sanitizeProviderError(err)); return false; }
 }
 
 // ─── VOICE CALL ───────────────────────────────
@@ -91,7 +108,7 @@ export async function callWithCode(phone: string, code: string): Promise<boolean
     });
     console.log(`[VOICE CALLED] ${redactPhone(phone)} | SID: ${call.sid}`);
     return true;
-  } catch (err) { console.error(`[VOICE ERROR] ${redactPhone(phone)}:`, err); return false; }
+  } catch (err) { console.error(`[VOICE ERROR] ${redactPhone(phone)}:`, sanitizeProviderError(err)); return false; }
 }
 
 // ─── WHATSAPP ─────────────────────────────────
@@ -109,5 +126,5 @@ export async function sendWhatsAppCode(phone: string, code: string): Promise<boo
     });
     console.log(`[WHATSAPP SENT] ${redactPhone(phone)} | SID: ${msg.sid}`);
     return true;
-  } catch (err) { console.error(`[WHATSAPP ERROR] ${redactPhone(phone)}:`, err); return false; }
+  } catch (err) { console.error(`[WHATSAPP ERROR] ${redactPhone(phone)}:`, sanitizeProviderError(err)); return false; }
 }

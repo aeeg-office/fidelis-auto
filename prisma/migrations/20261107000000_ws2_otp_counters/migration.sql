@@ -13,6 +13,15 @@ CREATE TABLE "OtpIpCounter" (
     CONSTRAINT "OtpIpCounter_pkey" PRIMARY KEY ("ip")
 );
 
+-- CreateTable
+CREATE TABLE "OtpPhoneDaily" (
+    "phone" TEXT NOT NULL,
+    "day" TEXT NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "OtpPhoneDaily_pkey" PRIMARY KEY ("phone","day")
+);
+
 -- CreateIndex
 CREATE INDEX "OtpIpCounter_windowStart_idx" ON "OtpIpCounter"("windowStart");
 
