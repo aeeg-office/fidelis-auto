@@ -1,18 +1,17 @@
 name: CI
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-on:
+"on":
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hermes_car
   NODE_VERSION: "20"
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hermes_car
 
 jobs:
   lint-typecheck-test:
@@ -31,8 +30,6 @@ jobs:
         run: npx tsc --noEmit
       - name: Unit tests
         run: npm test
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
 
   build-migrate:
     name: Build + migration validation
@@ -46,13 +43,7 @@ jobs:
           POSTGRES_DB: hermes_car
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      DATABASE_URL: ${{ env.DATABASE_URL }}
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -62,8 +53,8 @@ jobs:
       - run: npm ci
       - name: Prisma generate
         run: npx prisma generate
-      - name: Migration validation (compile-only, additive)
-        run: npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > /tmp/new.sql && head -5 /tmp/new.sql
+      - name: Migration validation (additive check)
+        run: npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > /tmp/new.sql
       - name: Apply migrations
         run: npx prisma migrate deploy
       - name: Build
