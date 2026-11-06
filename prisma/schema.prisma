@@ -335,8 +335,6 @@ model User {
   phoneVerificationCodeExpiry DateTime?
   emailResendCount Int   @default(0)
   phoneOtpAttempts Int   @default(0) // durable OTP attempt counter (verify route)
-  phoneOtpSentCount Int  @default(0) // durable daily SMS-per-phone counter (persist across restarts)
-  phoneOtpSentDay  DateTime?         // day bucket for the daily send counter
   preferredLanguage String @default("en") // "en" | "ar"
   countryId       String?
   createdAt    DateTime  @default(now())

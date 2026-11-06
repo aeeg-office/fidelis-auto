@@ -61,6 +61,24 @@ async function durablePhoneQuota(phone: string, now: Date): Promise<boolean> {
   return rows.length === 1;
 }
 
+/** Release (decrement) a durable IP reservation after a failed send so a transient provider error
+ *  does not permanently consume the hourly budget. Bounded at 0; best-effort. */
+async function durableIpRelease(ip: string): Promise<void> {
+  await prisma.otpIpCounter.updateMany({
+    where: { ip, count: { gt: 0 } },
+    data: { count: { decrement: 1 } },
+  }).catch(() => undefined);
+}
+
+/** Release (decrement) a durable per-phone-per-day reservation after a failed send. */
+async function durablePhoneRelease(phone: string, now: Date): Promise<void> {
+  const day = localDay(now);
+  await prisma.otpPhoneDaily.updateMany({
+    where: { phone, day, count: { gt: 0 } },
+    data: { count: { decrement: 1 } },
+  }).catch(() => undefined);
+}
+
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
@@ -115,7 +133,6 @@ export async function POST(request: Request) {
         phoneVerificationCode: code,
         phoneVerificationCodeExpiry: expiry,
         phoneOtpAttempts: 0, // reset the guess counter on a fresh challenge
-        phoneOtpSentDay: now,
       },
     });
     if (update.count === 0) {
@@ -132,6 +149,9 @@ export async function POST(request: Request) {
     // Real (twilio) delivery — never mistake mock for live SMS delivery (§5). Requires creds.
     const sent = await sendSmsCode(normalized, code);
     if (!sent) {
+      // Release the reserved quota so a transient provider error does not permanently consume the
+      // user's hourly/daily budget (bounded at 0, best-effort).
+      await Promise.all([durableIpRelease(ip), durablePhoneRelease(normalized, now)]);
       return NextResponse.json(
         { error: "SMS sending is not available right now. Try again later.", smsUnavailable: true },
         { status: 502 },

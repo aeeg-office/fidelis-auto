@@ -1,7 +1,5 @@
 -- AlterTable
-ALTER TABLE "User" ADD COLUMN     "phoneOtpAttempts" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "phoneOtpSentCount" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "phoneOtpSentDay" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN     "phoneOtpAttempts" INTEGER NOT NULL DEFAULT 0;
 
 -- CreateTable
 CREATE TABLE "OtpIpCounter" (

@@ -1,21 +1,27 @@
 // Resolve an approximate client IP for server-side abuse control.
 //
-// Trusted-proxy posture (Hardening): X-Forwarded-For is client-appendable, so the ORIGINAL client
-// address is the LAST hop before our edge proxy — i.e. the rightmost entry a trusted proxy appended.
-// If we don't run behind a trusted proxy that overwrites X-Real-IP, an attacker can rotate the header
-// and evade the per-IP cap. To keep this safe:
-//   - Production ingress (nginx/Caddy) MUST set `X-Forwarded-For $proxy_add_x_forwarded_for` and
-//     `X-Real-IP $remote_addr` from the real peer, and MUST strip/overwrite inbound XFF from clients.
-//   - We prefer the LAST entry of X-Forwarded-For (the trusted proxy's appended real peer) rather than
-//     the leftmost (client-controlled), so a trusting attacker header cannot spoof a fresh IP.
+// TRUSTED-PROXY POSTURE (required, see below): the per-IP OTP send cap is the main defense against
+// a single authenticated client burning SMS budget across many phone numbers. X-Forwarded-For is
+// client-appendable, so we MUST read from a header the edge proxy sets from the real peer and that
+// clients cannot override.
+//
+// Production (Nginx/Caddy in front of Next.js) MUST set BOTH:
+//   proxy_set_header X-Real-IP $remote_addr;              # the true client, server-derived
+//   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; # append-on to a chain
+// and the proxy MUST overwrite any client-supplied X-Forwarded-For (Nginx does this by default when
+// using $proxy_add_x_forwarded_for — it appends to the existing value; if you cannot trust the
+// inbound header, strip it in server config). Order of preference:
+//   1. X-Real-IP  — server-derived, not client-controllable. Preferred.
+//   2. last XFF entry — the hop the trusted proxy connected from (only if X-Real-IP absent).
 export function getClientIp(request: Request): string {
+  const real = request.headers.get("x-real-ip");
+  if (real) return real.trim();
   const fwd = request.headers.get("x-forwarded-for");
   if (fwd) {
     const parts = fwd.split(",").map((s) => s.trim()).filter(Boolean);
-    // Rightmost entry = the peer the trusted proxy connected from (unless proxy overwrites it).
     return parts[parts.length - 1] || "unknown";
   }
-  return request.headers.get("x-real-ip") || "unknown";
+  return "unknown";
 }
 
 /** True when the client IP is a documented private/loopback range (tests / local dev). */
