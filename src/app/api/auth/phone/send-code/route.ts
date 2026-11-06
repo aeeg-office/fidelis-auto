@@ -103,6 +103,18 @@ export async function POST(request: Request) {
     const ip = getClientIp(request);
     const now = new Date();
 
+    // Order matters for quota integrity: the cheap in-memory limiter (1/min + 5/day per phone; 1h
+    // per-IP) is checked FIRST. Only if it allows do we consume durable DB quota — so a rate-limited
+    // request (e.g. a double-click "resend code") never consumes the durable daily budget without a
+    // real SMS being sent. The durable atomic increments happen only on an allowed send.
+    const decision: OtpDecision = rateLimiter.allow(normalized, ip);
+    if (!decision.ok) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later.", retryAfterSeconds: decision.retryAfterSeconds },
+        { status: 429 },
+      );
+    }
+
     // Durable DB-backed quotas (survive restart / multi-worker; atomic check-and-increment).
     if (!(await durableIpQuota(ip, now))) {
       return NextResponse.json({ error: "Too many requests from your network. Try again later." }, { status: 429 });
@@ -111,14 +123,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Max SMS codes for this number today reached. Try again tomorrow." }, { status: 429 });
     }
 
-    // Fast in-memory limiter (1/min + 5/day per phone; 1h per-IP) as a complement.
-    const decision: OtpDecision = rateLimiter.allow(normalized, ip);
-    if (!decision.ok) {
-      return NextResponse.json(
-        { error: "Too many requests. Try again later.", retryAfterSeconds: decision.retryAfterSeconds },
-        { status: 429 },
-      );
-    }
+    // We are about to send — consume both the in-memory and durable slots now.
     rateLimiter.record(normalized, ip);
 
     // Atomically store phone + code + expiry in ONE write, and only while the account is still
@@ -136,7 +141,9 @@ export async function POST(request: Request) {
       },
     });
     if (update.count === 0) {
-      // The account became verified between our check and the write — do not send.
+      // The account became verified between our check and the write — do not send, and release the
+      // reserved durable quota so an already-verified account doesn't consume anyone's budget.
+      await Promise.all([durableIpRelease(ip), durablePhoneRelease(normalized, now)]);
       return NextResponse.json({ error: "Phone already verified" }, { status: 400 });
     }
 

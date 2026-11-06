@@ -72,14 +72,18 @@ export class OtpRateLimiter {
 export const rateLimiter = new OtpRateLimiter();
 
 // Normalize an Egyptian/any E.164-ish phone for keying and display safety.
+// Returns a valid E.164 string (leading "+" + 10-15 digits) or "" when the input is not a plausible
+// phone number, so garbage never reaches the DB or the quota-key tables.
 export function normalizePhone(raw: string): string {
   let p = (raw || "").replace(/[\s\-().]/g, "");
   if (!p) return "";
-  // Local Egypt format "01x..." -> international "+20"
+  // Local Egypt format "01x..." -> international "+20"; plain 8-11 digits -> assume Egypt "+20".
   if (/^0\d{9,10}$/.test(p)) p = "+20" + p.slice(1);
-  else if (/^\d{9,10}$/.test(p)) p = "+20" + p;
-  else if (!p.startsWith("+")) p = "+" + p; // assume already E.164 with + included below
-  return p;
+  else if (/^\d{8,11}$/.test(p)) p = "+20" + p;
+  else if (!p.startsWith("+") && /^\d{10,15}$/.test(p)) p = "+" + p;
+  // Validate final shape: "+" then 10-15 digits (E.164). Anything else is rejected (empty).
+  if (/^\+\d{10,15}$/.test(p)) return p;
+  return "";
 }
 
 // Provider switch. "off"/missing/empty = disabled (fail-closed). "mock" = test/local sim.

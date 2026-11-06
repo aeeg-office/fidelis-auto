@@ -65,6 +65,13 @@ describe("normalizePhone", () => {
     expect(normalizePhone("")).toBe("");
     expect(normalizePhone("  ")).toBe("");
   });
+
+  it("rejects non-phone input (garbage must never reach the DB or quota keys)", () => {
+    expect(normalizePhone("abc")).toBe("");
+    expect(normalizePhone("+abc")).toBe("");
+    expect(normalizePhone("phone")).toBe("");
+    expect(normalizePhone("123")).toBe(""); // too short to be a real number
+  });
 });
 
 describe("generateOtp", () => {
