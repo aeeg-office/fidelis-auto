@@ -53,7 +53,7 @@ const CAR_MAKES: { nameEn: string; nameAr: string; origin: string }[] = [
   { nameEn: "Jetour", nameAr: "جيتور", origin: "CN" },
   { nameEn: "Haval", nameAr: "هافال", origin: "CN" },
   { nameEn: "Changan", nameAr: "تشانجان", origin: "CN" },
-  { nameEn: "MG", nameAr: "إم جي", origin: "CN" },
+  { nameEn: "MG", nameAr: "إم جي", origin: "GB" },
   { nameEn: "Tank", nameAr: "تانك", origin: "CN" },
   { nameEn: "Sehol", nameAr: "سي هول", origin: "CN" },
   { nameEn: "Toyota", nameAr: "تويوتا", origin: "JP" },

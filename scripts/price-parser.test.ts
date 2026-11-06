@@ -49,6 +49,13 @@ describe("price parser (WS1 backfill)", () => {
     expect(parseAmount(String(Math.floor(INT_MAX / 100)))).toEqual({ amount: Math.floor(INT_MAX / 100) * 100 });
   });
 
+  it("rejects embedded currency tokens that would merge two amounts", () => {
+    // "100جنيه200" — the Arabic token is embedded between digits; stripping it would merge to 100200.
+    expect(parseAmount("100جنيه200")).toEqual({ amount: null, flag: "non-numeric-or-malformed-grouping" });
+    expect(parseAmount("100EGP200")).toEqual({ amount: null, flag: "non-numeric-or-malformed-grouping" });
+    expect(parseAmount("50LE60")).toEqual({ amount: null, flag: "non-numeric-or-malformed-grouping" });
+  });
+
   it("rejects empty / whitespace-only values", () => {
     expect(parseAmount("")).toEqual({ amount: null });
     expect(parseAmount(null)).toEqual({ amount: null });

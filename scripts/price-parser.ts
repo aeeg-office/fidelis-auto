@@ -18,7 +18,9 @@ const FOREIGN_CURRENCY = /\b(usd|euro|sar|aed|gbp|kwd|qar|rmb|cny|yen|reais)\b|\
 // EGP tokens: Latin forms use a word boundary (no trailing \b — £ is a non-word char and ends the
 // token cleanly before whitespace/end-of-string); Arabic forms match exact characters.
 const EGP_LATIN = /^\s*e\s?£|\be\s?£|\be\.gp\b|\begp\b|\ble\b|\be£/i;
-const EGP_ARABIC = /ج\.م|جنيه من مصري|جنيه مصري|جنيه|الجنية|جنية|مصري/gi;
+// Arabic EGP tokens must be STANDALONE (bounded by whitespace / start / end), so an embedded token
+// like "100جنيه200" is NOT stripped (it stays non-numeric and is flagged) — prevents merging amounts.
+const EGP_ARABIC = /(?:^|\s)(?:ج\.م|جنيه من مصري|جنيه مصري|جنيه|الجنية|جنية|مصري)(?=\s|$)/gi;
 const NEGOTIABLE = /negotiable|on request|price on request|for sale|n\.?a\.?|contact us|للتفاوض|على التفاوض|بدون سعر|افضل سعر|كلمنا|اتصل/i;
 
 export interface ParseResult {

@@ -21,8 +21,10 @@ interface Flagged { id: string; price: string | null; reason: string; }
 const APPLY = process.argv.includes("--apply");
 
 async function main() {
+  // Only un-backfilled rows (priceAmount IS NULL) are candidates, so an idempotent re-run never
+  // clobbers an already-corrected priceAmount with a stale text-derived value.
   const vehicles = await prisma.vehicle.findMany({
-    where: { price: { not: null } },
+    where: { price: { not: null }, priceAmount: null },
     select: { id: true, price: true, currency: true },
   });
   console.log(`Processing ${vehicles.length} vehicles with a price value. (${APPLY ? "APPLY mode" : "DRY-RUN"})`);
