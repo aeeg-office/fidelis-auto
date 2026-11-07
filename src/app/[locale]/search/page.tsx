@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Search } from "lucide-react";
 import VehicleCard from "@/components/VehicleCard";
 import { getVehicles } from "@/lib/vehicle-data";
+import SearchFilters from "./SearchFilters";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -14,36 +15,112 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-function matches(vehicle: { title: string; make: string; model: string; year: number; category?: string }, q: string): boolean {
-  const haystack = [
-    vehicle.title,
-    vehicle.make,
-    vehicle.model,
-    String(vehicle.year),
-    String(vehicle.category || ""),
-  ]
-    .join(" ")
-    .toLowerCase();
+// ─── Smart free-text matching (WS9) ──────────────
+// Normalizes Arabic-Latin so "suv", "SUV", "دفع رباعي", "céline"-style diacritics and tab/space
+// noise all resolve: lowercase, strip Latin + Arabic diacritics, fold Arabic letter variants.
+function normalizeText(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "") // Latin combining diacritics
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "") // Arabic diacritics + tatweel
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ؤ/g, "و")
+    .replace(/ئ/g, "ي")
+    .replace(/ة/g, "ه")
+    .trim();
+}
+
+interface SearchVehicle {
+  title: string;
+  make: string;
+  model: string;
+  year: number;
+  category?: string;
+  trim?: string | null;
+  transmission?: string | null;
+  bodyType?: string | null;
+  fuelType?: string | null;
+}
+
+function matches(v: SearchVehicle, q: string): boolean {
+  const haystack = normalizeText(
+    [
+      v.title,
+      v.make,
+      v.model,
+      String(v.year),
+      v.category || "",
+      v.trim || "",
+      v.transmission || "",
+      v.bodyType || "",
+      v.fuelType || "",
+    ].join(" "),
+  );
   return haystack.includes(q);
 }
 
+// Transmission is free text on the model (e.g. "Automatic", "6-speed Manual"); fold it into the
+// three canonical buckets the filter UI exposes.
+function normalizeTransmission(value?: string | null): string {
+  const v = (value || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  if (v.includes("automatic")) return "Automatic";
+  if (v.includes("manual")) return "Manual";
+  return "Other";
+}
+
+type MaybeParam = string | string[] | undefined;
+const first = (v: MaybeParam): string => (Array.isArray(v) ? v[0] || "" : v || "");
+
+// ─── Page ────────────────────────────────────────
 export default async function SearchPage({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ q?: string | string[] }>;
+  searchParams: Promise<{
+    q?: string | string[];
+    year?: string | string[];
+    maxMileage?: string | string[];
+    bodyType?: string | string[];
+    fuelType?: string | string[];
+    transmission?: string | string[];
+  }>;
 }) {
-  const [{ locale }, sp, t, tv] = await Promise.all([
-    params,
+  const { locale } = await params;
+  const [sp, t, tv] = await Promise.all([
     searchParams,
-    getTranslations({ locale: (await params).locale, namespace: "searchPage" }),
-    getTranslations({ locale: (await params).locale, namespace: "vehicles" }),
+    getTranslations({ locale, namespace: "searchPage" }),
+    getTranslations({ locale, namespace: "vehicles" }),
   ]);
 
-  const q = (sp.q || "").toString().trim().toLowerCase();
+  const rawQ = first(sp.q).trim();
+  const q = normalizeText(rawQ);
+  const year = first(sp.year).trim();
+  const maxMileage = first(sp.maxMileage).trim();
+  const bodyType = first(sp.bodyType).trim().toUpperCase();
+  const fuelType = first(sp.fuelType).trim().toUpperCase();
+  const transmission = first(sp.transmission).trim();
+
   const allVehicles = await getVehicles({ status: "available", orderBy: "featured" });
-  const results = q ? allVehicles.filter((v) => matches(v, q)) : allVehicles;
+
+  let results = allVehicles;
+  if (q) results = results.filter((v) => matches(v, q));
+  if (year) {
+    const y = parseInt(year, 10);
+    if (!Number.isNaN(y)) results = results.filter((v) => v.year === y);
+  }
+  if (maxMileage) {
+    const m = parseInt(maxMileage, 10);
+    if (!Number.isNaN(m)) results = results.filter((v) => (v.mileage ?? Infinity) <= m);
+  }
+  if (bodyType) results = results.filter((v) => (v.bodyType ?? "") === bodyType);
+  if (fuelType) results = results.filter((v) => (v.fuelType ?? "") === fuelType);
+  if (transmission) {
+    const tt = normalizeTransmission(transmission);
+    results = results.filter((v) => normalizeTransmission(v.transmission) === tt);
+  }
 
   return (
     <>
@@ -54,12 +131,20 @@ export default async function SearchPage({
             <Search size={14} /> {t("searchLabel")}
           </p>
           <h1 className="font-[family-name:var(--font-cormorant)] text-4xl md:text-6xl font-semibold text-[var(--color-text-inverse)]">
-            {q ? `${t("resultsFor")} “${q}”` : t("title")}
+            {rawQ ? `${t("resultsFor")} “${rawQ}”` : t("title")}
           </h1>
           <p className="mt-3 text-[var(--color-text-inverse)]/70 max-w-2xl">
             {t("description")}
           </p>
         </div>
+      </section>
+
+      {/* Smart search + extended filters */}
+      <section className="container-page pt-8 md:pt-10">
+        <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-[var(--color-accent)] mb-4">
+          {t("filtersTitle")}
+        </h2>
+        <SearchFilters />
       </section>
 
       {/* Results */}
@@ -68,7 +153,7 @@ export default async function SearchPage({
           <p className="text-sm text-[var(--color-text-secondary)]">
             {results.length} {results.length === 1 ? tv("vehiclesFound_one") : tv("vehiclesFound_other")}
           </p>
-          {q && (
+          {rawQ && (
             <Link
               href="/vehicles"
               className="text-sm font-medium text-[var(--color-accent)] hover:underline"

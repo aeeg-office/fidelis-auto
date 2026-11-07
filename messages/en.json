@@ -161,7 +161,38 @@
     "yearMin": "Min Year",
     "yearMax": "Max Year",
     "newest": "Newest",
-    "other": "Other"
+    "other": "Other",
+    "fuelType": "Fuel Type",
+    "maxMileage": "Max Mileage",
+    "allFuelTypes": "All Fuel Types",
+    "allTransmissions": "All Transmissions",
+    "allYears": "All Years",
+    "bodyTypes": {
+      "SEDAN": "Sedan",
+      "HATCHBACK": "Hatchback",
+      "SUV": "SUV",
+      "PICKUP": "Pickup",
+      "VAN": "Van",
+      "COUPE": "Coupe",
+      "CONVERTIBLE": "Convertible",
+      "WAGON": "Wagon",
+      "MPV": "MPV",
+      "OTHER": "Other"
+    },
+    "fuelTypes": {
+      "PETROL": "Petrol",
+      "DIESEL": "Diesel",
+      "ELECTRIC": "Electric",
+      "HYBRID": "Hybrid",
+      "LPG": "LPG",
+      "CNG": "CNG",
+      "OTHER": "Other"
+    },
+    "transmissions": {
+      "Manual": "Manual",
+      "Automatic": "Automatic",
+      "Other": "Other"
+    }
   },
   "contact": {
     "title": "Get in Touch",
@@ -182,13 +213,15 @@
   },
   "searchPage": {
     "title": "Search the Collection",
-    "description": "Search by make, model, year, or category. Every vehicle is documented and verified.",
+    "description": "Search by make, model, year, body type, fuel type, or transmission. Every vehicle is documented and verified.",
     "resultsFor": "Results for",
     "browseAll": "Browse all vehicles →",
     "noResults": "No vehicles match your search",
-    "noResultsDesc": "Try a different make, model, or year, or browse the full collection.",
+    "noResultsDesc": "Try a different make, model, body type, or year, or browse the full collection.",
     "browseCta": "Browse All Vehicles",
-    "searchLabel": "Search"
+    "searchLabel": "Search",
+    "filtersTitle": "Smart Search & Filters",
+    "searchPlaceholder": "Search make, model, body type, fuel..."
   },
   "privacy": {
     "title": "Privacy Policy",

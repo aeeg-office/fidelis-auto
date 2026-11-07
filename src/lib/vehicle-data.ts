@@ -67,6 +67,8 @@ export async function getVehicles(opts: GetVehiclesOptions = {}): Promise<Vehicl
       exteriorColor: v.exteriorColor,
       engine: v.engine,
       transmission: v.transmission,
+      bodyType: v.bodyType,
+      fuelType: v.fuelType,
       price: v.price,
       city: null,
       country: null,

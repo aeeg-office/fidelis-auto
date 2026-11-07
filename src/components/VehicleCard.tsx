@@ -15,6 +15,10 @@ export interface VehicleCardData {
   exteriorColor?: string | null;
   engine?: string | null;
   transmission?: string | null;
+  /** BodyType enum value (e.g. "SUV") when the listing has one — used by smart search/filters. */
+  bodyType?: string | null;
+  /** FuelType enum value (e.g. "PETROL") when the listing has one — used by smart search/filters. */
+  fuelType?: string | null;
   price?: string | null;
   city?: string | null;
   country?: string | null;
