@@ -548,6 +548,21 @@
       "save": "حفظ",
       "saving": "جارٍ الحفظ...",
       "cancel": "إلغاء"
+    },
+    "dealers": "التجار",
+    "services": "الخدمات",
+    "usersTitle": "المستخدمون",
+    "users": {
+      "title": "المستخدمون",
+      "noUsers": "لا يوجد مستخدمون بعد.",
+      "joined": "انضم",
+      "submissions": "طلب(ات)",
+      "verified": "موثّق",
+      "notVerified": "غير موثّق",
+      "suspended": "موقوف",
+      "suspend": "إيقاف",
+      "reinstate": "إعادة تفعيل",
+      "suspendError": "تعذّرت تحديث حالة الإيقاف."
     }
   },
   "affiliateLinks": {
