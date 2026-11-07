@@ -10,6 +10,7 @@ import SocialShare from "@/components/SocialShare";
 import ContactSellerButton from "@/components/ContactSellerButton";
 import VehicleGallery, { type GalleryImage } from "@/components/VehicleGallery";
 import RelatedVehicles from "@/components/RelatedVehicles";
+import VehicleReviews from "@/components/VehicleReviews";
 import { decidePhoneGate } from "@/lib/phone-gate";
 import { getCurrentUser } from "@/lib/user-auth";
 
@@ -317,6 +318,13 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </section>
+
+      {/* WS14: verified-user reviews (spec P2 trust) */}
+      <VehicleReviews
+        slug={slug}
+        userId={viewer?.id ?? null}
+        isVerified={Boolean(viewer && (viewer.verified || viewer.phoneVerified))}
+      />
 
       {/* Related Vehicles */}
       <RelatedVehicles

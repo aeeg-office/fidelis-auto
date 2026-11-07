@@ -624,6 +624,21 @@
     "removeFromFavorites": "إزالة من المفضلة",
     "addToFavorites": "أضف إلى المفضلة"
   },
+  "reviews": {
+    "title": "التقييمات",
+    "writeReview": "اكتب تقييمًا",
+    "rating": "التقييم",
+    "yourReview": "تقييمك",
+    "submit": "إرسال التقييم",
+    "pending": "قيد المراجعة",
+    "signInToReview": "سجّل الدخول لكتابة تقييم.",
+    "verifyToReview": "تحقق من بريدك الإلكتروني أو هاتفك لكتابة تقييم.",
+    "noReviewsYet": "لا توجد تقييمات بعد. كن أول من يقيّم هذه السيارة.",
+    "alreadyReviewed": "لقد قمت بالفعل بتقييم هذه السيارة.",
+    "submittedPending": "شكرًا لك — تقييمك قيد المراجعة.",
+    "providerContext": "سياق للبائع (اختياري، يظهر للمشرفين فقط)",
+    "providerContextHint": "أضف سياقًا يذهب إلى مشرفي فيديليس فقط، وليس للزوار."
+  },
   "socialShare": {
     "share": "مشاركة",
     "shareOnWhatsApp": "مشاركة على واتساب",

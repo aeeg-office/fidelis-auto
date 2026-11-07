@@ -18,6 +18,14 @@ enum AccountRole {
   SUPER_ADMIN
 }
 
+// WS14: verified-user reviews — moderation status. New reviews start UNDER_REVIEW and
+// only become PUBLISHED after an admin picks them up (spec P2 trust).
+enum ReviewStatus {
+  published
+  under_review
+  removed
+}
+
 enum DealerApprovalStatus {
   PENDING
   APPROVED
@@ -209,7 +217,8 @@ model Vehicle {
   milestones     ProvenanceMilestone[]
   journalEntries JournalEntry[]
   favorites      Favorite[]
-  collectionLinks CollectionVehicle[]
+collectionLinks CollectionVehicle[]
+  reviews        Review[]
 
   owner   User?     @relation("VehicleOwner", fields: [ownerId], references: [id])
   country Country?  @relation(fields: [countryId], references: [id])
@@ -352,6 +361,7 @@ model User {
   serviceListings ServiceListing[]
   sentMessages       Message[]   @relation(name: "messageSender")
   receivedMessages   Message[]   @relation(name: "messageReceiver")
+  reviews            Review[]
   conversationsAs1   Conversation[] @relation(name: "conversationParticipant1")
   conversationsAs2   Conversation[] @relation(name: "conversationParticipant2")
 }
@@ -482,6 +492,28 @@ model Favorite {
   createdAt DateTime @default(now())
 
   @@unique([userId, vehicleId])
+}
+
+// ── Reviews (WS14, spec P2 trust) ───────────────
+// Only verified users can review a vehicle/listing. providerContext is optional
+// context submitted by the seller/provider that is never shown publicly — it goes
+// only to admin moderation (e.g. "buyer is a serious collector", extenuating facts).
+model Review {
+  id               String       @id @default(cuid())
+  vehicleId        String
+  authorId         String
+  rating           Int          // 1–5
+  text             String       @db.Text
+  providerContext  String?      @db.Text // provider context → admin only, never public
+  status           ReviewStatus @default(under_review)
+  createdAt        DateTime     @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, status, createdAt])
+  @@index([authorId])
+  @@index([status, createdAt])
 }
 
 // ── Messaging ───────────────────────────────────
