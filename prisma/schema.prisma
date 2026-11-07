@@ -419,6 +419,11 @@ model ServiceListing {
   website     String?
   city        String?
   country     String?
+  // WS11 Services L+ — specialist provider profile (additive)
+  specialties String?  @db.Text // JSON array of specialist tags (make / era / skill)
+  languages   String?  // spoken languages, e.g. "Arabic" | "Arabic + English"
+  coverageArea String? // geographic coverage area
+  whatsapp    String?  // WhatsApp contact number
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
