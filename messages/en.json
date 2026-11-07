@@ -609,6 +609,21 @@
     "removeFromFavorites": "Remove from Favorites",
     "addToFavorites": "Add to Favorites"
   },
+  "reviews": {
+    "title": "Reviews",
+    "writeReview": "Write a Review",
+    "rating": "Rating",
+    "yourReview": "Your Review",
+    "submit": "Submit Review",
+    "pending": "Pending",
+    "signInToReview": "Sign in to write a review.",
+    "verifyToReview": "Verify your email or phone to write a review.",
+    "noReviewsYet": "No reviews yet. Be the first to review this vehicle.",
+    "alreadyReviewed": "You have already reviewed this vehicle.",
+    "submittedPending": "Thanks — your review is pending moderation.",
+    "providerContext": "Context for the seller (optional, shown to admins only)",
+    "providerContextHint": "Add context that should go to Fidelis admins, not public visitors."
+  },
   "socialShare": {
     "share": "Share",
     "shareOnWhatsApp": "Share on WhatsApp",
