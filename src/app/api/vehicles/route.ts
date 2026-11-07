@@ -18,6 +18,9 @@ import { prisma } from "@/lib/prisma";
 
 const VALID_SORTS = new Set(["newest", "price_low", "price_high"]);
 
+/** Valid VehicleType enum values (from prisma schema) — guards the Prisma enum from garbage. */
+const VALID_VEHICLE_TYPES = new Set(["CAR", "MOTORCYCLE"]);
+
 function asText(v: string | null): string | null {
   return v && v.trim() ? v.trim() : null;
 }
@@ -30,7 +33,10 @@ function asInt(v: string | null): number | null {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const type = asText(url.searchParams.get("type"));
+    const typeRaw = asText(url.searchParams.get("type"));
+    // Guard the Prisma enum: an invalid vehicleType must not reach the query (would throw enum
+    // validation and hit the catch-all 500). Unknown types behave like no filter, never invent data.
+    const type = typeRaw && VALID_VEHICLE_TYPES.has(typeRaw as never) ? typeRaw : null;
     const make = asText(url.searchParams.get("make"));
     const model = asText(url.searchParams.get("model"));
     const city = asText(url.searchParams.get("city"));
