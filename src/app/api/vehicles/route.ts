@@ -49,7 +49,11 @@ export async function GET(request: Request) {
     const priceMinPiastres = priceMinLbs !== null ? priceMinLbs * 100 : null;
     const priceMaxPiastres = priceMaxLbs !== null ? priceMaxLbs * 100 : null;
 
-    const where: Record<string, unknown> = { isPublished: true };
+    const where: Record<string, unknown> = {
+      isPublished: true,
+      // WS3: only live listings — exclude expired. Null = unlimited (older rows / admin choice).
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+    };
     if (type) where.vehicleType = type;
     if (make) where.make = { contains: make, mode: "insensitive" };
     if (model) where.model = { contains: model, mode: "insensitive" };
