@@ -50,7 +50,21 @@
       "electricDesc": "Modern electric and hybrid vehicles"
     },
     "noFeaturedEmpty": "No featured vehicles yet. New additions will appear here as they're published.",
-    "noRecentEmpty": "No vehicles have been added yet. Check back soon."
+    "noRecentEmpty": "No vehicles have been added yet. Check back soon.",
+    "curatedCollections": "Curated Collections",
+    "curatedSubtitle": "Hand-picked groups of vehicles — from timeless classics to modern electrics and everything between.",
+    "viewAllCollections": "View All Collections",
+    "collectionsEmpty": "Collections are being curated. Check back soon."
+  },
+  "collections": {
+    "title": "Curated Collections",
+    "description": "Hand-picked groups of vehicles — each one documented and verified by the Fidelis Auto team.",
+    "viewCollection": "View Collection",
+    "empty": "No collections published yet. Check back soon.",
+    "vehicleCount": "{count} vehicles",
+    "backToCollections": "Back to all collections",
+    "noVehicles": "No vehicles in this collection yet.",
+    "coverAlt": "Cover image for {title}"
   },
   "footer": {
     "tagline": "For the love of cars. Every car has a story — we help you find yours.",
@@ -126,7 +140,8 @@
     "notAvailable": "Not available",
     "mileageUnit": "mi",
     "miles": "miles",
-    "recentlySold": "Recently Sold"
+    "recentlySold": "Recently Sold",
+    "nearbySpecialists": "Nearby specialists in {city}"
   },
   "filters": {
     "search": "Search vehicles...",
@@ -609,6 +624,21 @@
     "removeFromFavorites": "Remove from Favorites",
     "addToFavorites": "Add to Favorites"
   },
+  "reviews": {
+    "title": "Reviews",
+    "writeReview": "Write a Review",
+    "rating": "Rating",
+    "yourReview": "Your Review",
+    "submit": "Submit Review",
+    "pending": "Pending",
+    "signInToReview": "Sign in to write a review.",
+    "verifyToReview": "Verify your email or phone to write a review.",
+    "noReviewsYet": "No reviews yet. Be the first to review this vehicle.",
+    "alreadyReviewed": "You have already reviewed this vehicle.",
+    "submittedPending": "Thanks — your review is pending moderation.",
+    "providerContext": "Context for the seller (optional, shown to admins only)",
+    "providerContextHint": "Add context that should go to Fidelis admins, not public visitors."
+  },
   "socialShare": {
     "share": "Share",
     "shareOnWhatsApp": "Share on WhatsApp",
@@ -673,6 +703,11 @@
     "networkLabel": "Fidelis network",
     "title": "Specialist Services",
     "description": "A curated directory for the practical work behind exceptional ownership: restoration, maintenance, inspection, transport, storage, and more — arranged across six trusted specialties.",
+    "locationSearchPlaceholder": "Search by city or area",
+    "locationSearchClear": "Clear location",
+    "locationSearchHint": "Find a specialist near you.",
+    "locationEmptyTitle": "No specialists found in this location yet",
+    "locationEmptyDesc": "Try a different city or remove the location filter to browse the full directory.",
     "submitYourService": "Submit Your Service",
     "emptyTitle": "The specialist directory is being curated.",
     "emptyDesc": "Check back soon for verified service partners.",

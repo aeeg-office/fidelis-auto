@@ -1,18 +1,23 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowRight, Car, CableCar, Zap } from "lucide-react";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import VehicleCard from "@/components/VehicleCard";
+import VehicleImage from "@/components/VehicleImage";
 import RecentlySold from "@/components/RecentlySold";
 import { getFeaturedVehicles, getRecentVehicles } from "@/lib/vehicle-data";
+import { getVisibleCollections } from "@/lib/collections-data";
 
 export default async function HomePage() {
   const t = await getTranslations("homepage");
   const tHero = await getTranslations("hero");
+  const locale = await getLocale();
+  const isAr = locale === "ar";
 
-  const [featuredVehicles, recentVehicles] = await Promise.all([
+  const [featuredVehicles, recentVehicles, collections] = await Promise.all([
     getFeaturedVehicles(2),
     getRecentVehicles(4),
+    getVisibleCollections(),
   ]);
 
   const CATEGORIES = [
@@ -80,6 +85,63 @@ export default async function HomePage() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* Curated Collections */}
+      <section className="py-16 md:py-20 border-b border-[var(--color-border)]">
+        <div className="container-page">
+          <div className="text-center mb-12">
+            <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3">
+              {t("curatedCollections")}
+            </h2>
+            <p className="text-[var(--color-text-secondary)] max-w-xl mx-auto">
+              {t("curatedSubtitle")}
+            </p>
+          </div>
+
+          {collections.length === 0 ? (
+            <p className="text-center text-[var(--color-text-secondary)]">{t("collectionsEmpty")}</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {collections.slice(0, 6).map((c, i) => {
+                const title = isAr && c.titleAr ? c.titleAr : c.titleEn;
+                return (
+                  <Link
+                    key={c.id}
+                    href={`/collections/${c.slug}`}
+                    className="group block bg-[var(--color-surface)] rounded-[var(--radius-card)] border border-[var(--color-border)] overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-[var(--color-accent)]/50"
+                  >
+                    <div className="relative aspect-[16/9] bg-[var(--color-surface-dark)] overflow-hidden">
+                      {c.coverSrc ? (
+                        <VehicleImage
+                          src={c.coverSrc}
+                          alt={title}
+                          fill
+                          priority={i < 3}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <span className="absolute inset-0 flex items-center justify-center text-sm text-[var(--color-text-secondary)] uppercase tracking-wider">
+                          {title}
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors leading-tight">
+                        {title}
+                      </h3>
+                      <span className="inline-flex items-center mt-2 text-sm font-medium text-[var(--color-text-primary)]">
+                        {t("viewAllCollections")}
+                        <ArrowRight size={14} className="ms-1 text-[var(--color-accent)] transition-transform duration-200 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

@@ -1,0 +1,34 @@
+-- WS12 Curated Collections L+ — additive (2026-11-07)
+-- Creates the curated-collections tables. No destructive ops; no existing data touched.
+
+CREATE TABLE IF NOT EXISTS "Collection" (
+  "id" TEXT NOT NULL,
+  "slug" TEXT NOT NULL,
+  "titleEn" TEXT NOT NULL,
+  "titleAr" TEXT,
+  "descriptionEn" TEXT,
+  "descriptionAr" TEXT,
+  "coverImage" TEXT,
+  "isVisible" BOOLEAN NOT NULL DEFAULT true,
+  "sortOrder" INTEGER NOT NULL DEFAULT 0,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL,
+  CONSTRAINT "Collection_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "Collection_slug_key" UNIQUE ("slug")
+);
+
+CREATE TABLE IF NOT EXISTS "CollectionVehicle" (
+  "collectionId" TEXT NOT NULL,
+  "vehicleId" TEXT NOT NULL,
+  "sortOrder" INTEGER NOT NULL DEFAULT 0,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "CollectionVehicle_pkey" PRIMARY KEY ("collectionId", "vehicleId")
+);
+
+CREATE INDEX IF NOT EXISTS "Collection_isVisible_sortOrder_idx" ON "Collection"("isVisible", "sortOrder");
+CREATE INDEX IF NOT EXISTS "CollectionVehicle_vehicleId_idx" ON "CollectionVehicle"("vehicleId");
+
+ALTER TABLE "CollectionVehicle" ADD CONSTRAINT IF NOT EXISTS "CollectionVehicle_collectionId_fkey"
+  FOREIGN KEY ("collectionId") REFERENCES "Collection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CollectionVehicle" ADD CONSTRAINT IF NOT EXISTS "CollectionVehicle_vehicleId_fkey"
+  FOREIGN KEY ("vehicleId") REFERENCES "Vehicle"("id") ON DELETE CASCADE ON UPDATE CASCADE;

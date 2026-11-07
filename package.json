@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "prebuild": "prisma generate",
     "db:seed-taxonomy": "tsx prisma/seed-taxonomy.ts",
+    "db:seed-collections": "tsx prisma/seed-collections.ts",
     "db:backfill-price": "tsx scripts/backfill-price-amount.ts"
   },
   "dependencies": {
