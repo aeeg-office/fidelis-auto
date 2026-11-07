@@ -4,11 +4,13 @@
  *   npx tsx scripts/backfill-webp.ts /path/to/uploads
  *
  * Scans the given directory (recursively) for raster originals
- * (*.jpg / *.jpeg / *.png / *.webp / *.avif) and, for each, writes the three
- * WebP derivatives (-thumb.webp ~320px, -800.webp, -1600.webp) next to the
- * original. It skips files whose -thumb.webp already exists (so re-runs are
- * safe), always preserves originals, and logs per-file errors without
- * aborting the rest of the run.
+ * (*.jpg / *.jpeg / *.png / *.webp / *.avif) and, for each, writes the capped
+ * original copy (-2560.webp, Spec L — see src/lib/upload-policy.ts) plus the
+ * three WebP derivatives (-thumb.webp ~320px, -800.webp, -1600.webp) next to
+ * the original. It skips files whose -2560.webp already exists (so re-runs are
+ * safe — a first run after this change also emits the capped copy for uploads
+ * that predate it), always preserves originals, and logs per-file errors
+ * without aborting the rest of the run.
  *
  * Pure filesystem operation — it needs only the directory path, not the DB.
  * Point it at the exact uploads volume you want to process; do NOT run it
@@ -17,6 +19,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import sharp from "sharp";
+import { MAX_ORIGINAL_DIM, capOriginalDimensions, cappedOriginalFilename } from "../src/lib/upload-policy";
 
 const DERIVATIVES = [
   { suffix: "-thumb", width: 320 },
@@ -26,8 +29,8 @@ const DERIVATIVES = [
 
 const INPUT_EXTS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
 
-// Basenames that match our generated derivative naming (<stem>-thumb/-800/-1600).
-const DERIVATIVE_SUFFIX_RE = /-(thumb|800|1600)$/i;
+// Basenames that match our generated outputs (<stem>-thumb/-800/-1600/-2560).
+const DERIVATIVE_SUFFIX_RE = /-(thumb|800|1600|2560)$/i;
 
 async function exists(p: string): Promise<boolean> {
   try {
@@ -60,15 +63,26 @@ async function generateFor(file: string): Promise<"generated" | "skipped"> {
   const dir = path.dirname(file);
   const ext = path.extname(file);
   const stem = path.basename(file, ext);
+  const filename = path.basename(file);
 
-  const thumb = path.join(dir, `${stem}-thumb.webp`);
-  if (await exists(thumb)) {
+  // Gate on the capped copy rather than -thumb.webp so a re-run after this
+  // change adds the Spec L -2560.webp to uploads that predate it.
+  const capped = path.join(dir, cappedOriginalFilename(filename));
+  if (await exists(capped)) {
     return "skipped";
   }
 
   const source = sharp(file);
   const meta = await source.metadata();
   if (!meta.width || !meta.height) throw new Error("not a readable image");
+
+  // Capped original copy (Spec L) — same policy as the upload pipeline.
+  const { width, height } = capOriginalDimensions(meta.width, meta.height, MAX_ORIGINAL_DIM);
+  await source
+    .clone()
+    .resize({ width, height, fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 85 })
+    .toFile(capped);
 
   for (const d of DERIVATIVES) {
     const out = path.join(dir, `${stem}${d.suffix}.webp`);
@@ -109,7 +123,7 @@ async function main(): Promise<void> {
         console.log(`OK   ${file}`);
       } else {
         skipped++;
-        console.log(`SKIP ${file} (-thumb.webp already exists)`);
+        console.log(`SKIP ${file} (-2560.webp already exists)`);
       }
     } catch (error) {
       failed++;
