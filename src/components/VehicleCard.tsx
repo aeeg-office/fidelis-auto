@@ -124,8 +124,8 @@ export default function VehicleCard({
             <h3 className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors leading-tight">
               {vehicle.year} {vehicle.make} {vehicle.model}
             </h3>
+            {/* Price in ink, not gold — gold fails WCAG AA on white at text size (WS4); priceText localized (WS5) */}
             {vehicle.price && (
-{/* Price in ink, not gold — gold fails WCAG AA on white at text size (WS4); priceText localized (WS5) */}
               <span className="shrink-0 text-base font-bold text-[var(--color-text-primary)] text-right leading-tight">
                 {priceText}
               </span>
