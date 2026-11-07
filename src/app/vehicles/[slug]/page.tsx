@@ -146,6 +146,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
     ...vehicle,
     ownerPhone: gateSeen.allowed ? vehicle.ownerPhone : null,
     dealerPhone: gateSeen.allowed ? vehicle.dealerPhone : null,
+    ownerEmail: gateSeen.allowed ? vehicle.ownerEmail : null,
   };
 
   const specs = [

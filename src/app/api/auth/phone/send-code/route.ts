@@ -39,9 +39,17 @@ async function durableIpQuota(ip: string, now: Date): Promise<boolean> {
     INSERT INTO "OtpIpCounter" ("ip", "windowStart", "count", "updatedAt")
     VALUES (${ip}, ${now}, 1, ${now})
     ON CONFLICT ("ip") DO UPDATE
-      SET "count" = "OtpIpCounter"."count" + 1,
+      SET "count" = CASE
+            WHEN "OtpIpCounter"."windowStart" < ${cutoff} THEN 1
+            ELSE "OtpIpCounter"."count" + 1
+          END,
+          "windowStart" = CASE
+            WHEN "OtpIpCounter"."windowStart" < ${cutoff} THEN ${now}
+            ELSE "OtpIpCounter"."windowStart"
+          END,
           "updatedAt" = ${now}
       WHERE "OtpIpCounter"."count" < ${IP_SEND_LIMIT}
+         OR "OtpIpCounter"."windowStart" < ${cutoff}
     RETURNING ("count" <= ${IP_SEND_LIMIT}) AS "allowed"
   `;
   return rows.length === 1;
@@ -62,7 +70,8 @@ async function durablePhoneQuota(phone: string, now: Date): Promise<boolean> {
 }
 
 /** Release (decrement) a durable IP reservation after a failed send so a transient provider error
- *  does not permanently consume the hourly budget. Bounded at 0; best-effort. */
+ *  does not permanently consume the hourly budget. Bounded at 0; best-effort. This runs in the
+ *  same hourly window the reservation was taken, so the updateMany hits the fresh row. */
 async function durableIpRelease(ip: string): Promise<void> {
   await prisma.otpIpCounter.updateMany({
     where: { ip, count: { gt: 0 } },
