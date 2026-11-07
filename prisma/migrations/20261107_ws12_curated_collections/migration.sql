@@ -28,7 +28,16 @@ CREATE TABLE IF NOT EXISTS "CollectionVehicle" (
 CREATE INDEX IF NOT EXISTS "Collection_isVisible_sortOrder_idx" ON "Collection"("isVisible", "sortOrder");
 CREATE INDEX IF NOT EXISTS "CollectionVehicle_vehicleId_idx" ON "CollectionVehicle"("vehicleId");
 
-ALTER TABLE "CollectionVehicle" ADD CONSTRAINT IF NOT EXISTS "CollectionVehicle_collectionId_fkey"
-  FOREIGN KEY ("collectionId") REFERENCES "Collection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "CollectionVehicle" ADD CONSTRAINT IF NOT EXISTS "CollectionVehicle_vehicleId_fkey"
-  FOREIGN KEY ("vehicleId") REFERENCES "Vehicle"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- FK constraints added idempotently via DO blocks (PostgreSQL does NOT support
+-- IF NOT EXISTS on ADD CONSTRAINT).
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'CollectionVehicle_collectionId_fkey') THEN
+    ALTER TABLE "CollectionVehicle" ADD CONSTRAINT "CollectionVehicle_collectionId_fkey"
+      FOREIGN KEY ("collectionId") REFERENCES "Collection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'CollectionVehicle_vehicleId_fkey') THEN
+    ALTER TABLE "CollectionVehicle" ADD CONSTRAINT "CollectionVehicle_vehicleId_fkey"
+      FOREIGN KEY ("vehicleId") REFERENCES "Vehicle"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
