@@ -47,6 +47,8 @@ type VehicleData = {
   engine: string | null; transmission: string | null; drivetrain: string | null;
   price: string | null; descriptionEn: string | null; description: string | null;
   isPublished: boolean;
+  /** City name (EN first, AR fallback) — used for the WS13 nearby-specialists link. */
+  cityName: string | null;
   /** Ordered images from the DB (primary first, then sortOrder). */
   images: GalleryImage[];
   /** Cover image == first of the ordered images (primary or first available). */
@@ -69,6 +71,7 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
       include: {
         images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
         owner: { include: { dealerProfile: true } },
+        city: { select: { nameEn: true, nameAr: true } },
       },
     });
     if (vehicle) {
@@ -92,6 +95,7 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         descriptionEn: vehicle.descriptionEn,
         description: vehicle.descriptionEn,
         isPublished: vehicle.isPublished,
+        cityName: vehicle.city?.nameEn || vehicle.city?.nameAr || null,
         images: images.map((i) => ({ src: i.src, alt: i.alt })),
         coverImage: cover,
         ownerEmail: vehicle.contactEmail ?? null, // never fall back to owner account email
@@ -277,6 +281,14 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
                 url={canonical}
                 title={vehicle.title}
               />
+              {vehicle.cityName && (
+                <Link
+                  href={`/services?city=${encodeURIComponent(vehicle.cityName)}`}
+                  className="block w-full text-center rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-accent)] hover:border-[var(--color-accent)] transition-colors"
+                >
+                  {t("nearbySpecialists", { city: vehicle.cityName })}
+                </Link>
+              )}
             </div>
           </div>
         </div>

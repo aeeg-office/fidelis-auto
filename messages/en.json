@@ -140,7 +140,8 @@
     "notAvailable": "Not available",
     "mileageUnit": "mi",
     "miles": "miles",
-    "recentlySold": "Recently Sold"
+    "recentlySold": "Recently Sold",
+    "nearbySpecialists": "Nearby specialists in {city}"
   },
   "filters": {
     "search": "Search vehicles...",
@@ -687,6 +688,11 @@
     "networkLabel": "Fidelis network",
     "title": "Specialist Services",
     "description": "A curated directory for the practical work behind exceptional ownership: restoration, maintenance, inspection, transport, storage, and more — arranged across six trusted specialties.",
+    "locationSearchPlaceholder": "Search by city or area",
+    "locationSearchClear": "Clear location",
+    "locationSearchHint": "Find a specialist near you.",
+    "locationEmptyTitle": "No specialists found in this location yet",
+    "locationEmptyDesc": "Try a different city or remove the location filter to browse the full directory.",
     "submitYourService": "Submit Your Service",
     "emptyTitle": "The specialist directory is being curated.",
     "emptyDesc": "Check back soon for verified service partners.",
