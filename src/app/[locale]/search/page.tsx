@@ -34,10 +34,11 @@ export default async function SearchPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ q?: string | string[] }>;
 }) {
-  const [{ locale }, sp, t] = await Promise.all([
+  const [{ locale }, sp, t, tv] = await Promise.all([
     params,
     searchParams,
     getTranslations({ locale: (await params).locale, namespace: "searchPage" }),
+    getTranslations({ locale: (await params).locale, namespace: "vehicles" }),
   ]);
 
   const q = (sp.q || "").toString().trim().toLowerCase();
@@ -50,7 +51,7 @@ export default async function SearchPage({
       <section className="bg-[var(--color-surface-dark)] py-16 md:py-20">
         <div className="container-page">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-accent)] mb-3 flex items-center gap-2">
-            <Search size={14} /> Search
+            <Search size={14} /> {t("searchLabel")}
           </p>
           <h1 className="font-[family-name:var(--font-cormorant)] text-4xl md:text-6xl font-semibold text-[var(--color-text-inverse)]">
             {q ? `${t("resultsFor")} “${q}”` : t("title")}
@@ -65,7 +66,7 @@ export default async function SearchPage({
       <section className="container-page py-10 md:py-14">
         <div className="flex items-center justify-between mt-2 mb-6">
           <p className="text-sm text-[var(--color-text-secondary)]">
-            {results.length} {results.length === 1 ? "vehicle" : "vehicles"} found
+            {results.length} {results.length === 1 ? tv("vehiclesFound_one") : tv("vehiclesFound_other")}
           </p>
           {q && (
             <Link

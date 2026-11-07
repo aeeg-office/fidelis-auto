@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { requireAdminApi } from "@/lib/auth";
 
-// GET /api/admin/dealers — list dealer applications with owner info (guard: admin session)
+// GET /api/admin/dealers — list dealer applications with owner info (guard: dealer:manage; non-admins get 403)
 export async function GET() {
-  if (!(await verifySession())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdminApi("dealer:manage");
+  if (guard.response) return guard.response;
 
   const dealers = await prisma.dealerProfile.findMany({
     include: {

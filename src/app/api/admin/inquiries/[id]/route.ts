@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { requireAdminApi } from "@/lib/auth";
 
 // PATCH /api/admin/inquiries/[id] — mark read/unread
 // DELETE /api/admin/inquiries/[id] — remove an inquiry
+// (guard: admin session; non-admins get 403)
 export async function PATCH(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await verifySession())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdminApi();
+  if (guard.response) return guard.response;
+
   const { id } = await params;
   const existing = await prisma.inquiry.findUnique({ where: { id } });
   if (!existing) {
@@ -27,9 +28,9 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await verifySession())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdminApi();
+  if (guard.response) return guard.response;
+
   const { id } = await params;
   await prisma.inquiry.delete({ where: { id } });
   return NextResponse.json({ ok: true });

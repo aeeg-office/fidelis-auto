@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import VehicleCard from "./VehicleCard";
 import type { VehicleCardData } from "./VehicleCard";
 import { getVehicles } from "@/lib/vehicle-data";
@@ -24,6 +25,7 @@ export default async function RelatedVehicles({
   year,
   allVehicles,
 }: RelatedVehiclesProps) {
+  const t = await getTranslations("vehicles");
   const pool =
     allVehicles ?? (await getVehicles({ status: "available", orderBy: "recent", limit: 100 }));
 
@@ -46,7 +48,7 @@ export default async function RelatedVehicles({
     <section className="py-16 bg-[var(--color-surface)] border-t border-[var(--color-border)]">
       <div className="container-page">
         <h2 className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-semibold text-[var(--color-text-primary)] mb-8">
-          Related Vehicles
+          {t("relatedVehicles")}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {scored.map(({ vehicle }) => (

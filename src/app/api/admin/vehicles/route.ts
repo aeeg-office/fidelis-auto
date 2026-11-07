@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { requireAdminApi } from "@/lib/auth";
 
+// POST /api/admin/vehicles — create a vehicle listing (guard: admin session; non-admins get 403)
 export async function POST(request: Request) {
-  if (!(await verifySession())) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+  const guard = await requireAdminApi();
+  if (guard.response) return guard.response;
 
   const formData = await request.formData();
   const year = parseInt(formData.get("year") as string);
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const baseSlug = `${make}-${model}-${year}`.toLowerCase().replace(/\s+/g, "-");
   const slug = baseSlug;
 
-  const vehicle = await prisma.vehicle.create({
+  await prisma.vehicle.create({
     data: {
       slug,
       title: `${year} ${make} ${model}${formData.get("trim") ? " " + formData.get("trim") : ""}`,

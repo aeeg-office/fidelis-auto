@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { MapPin, Gauge, Wrench, Cog, Star } from "lucide-react";
 import VehicleImage from "./VehicleImage";
 
@@ -47,13 +48,6 @@ function extractPrice(value?: string | null): number | null {
   return parseInt(clean, 10);
 }
 
-function formatPrice(value?: string | null): string {
-  if (!value) return "Price on Application";
-  const n = extractPrice(value);
-  if (n === null) return value === "POA" ? "Price on Application" : value;
-  return `$${n.toLocaleString()}`;
-}
-
 const CATEGORY_STYLES: Record<string, string> = {
   Modern: "bg-blue-100 text-blue-800 border-blue-200",
   Classic: "bg-amber-100 text-amber-800 border-amber-200",
@@ -68,14 +62,22 @@ export default function VehicleCard({
   sold = false,
   priority = false,
 }: VehicleCardProps) {
+  const t = useTranslations("vehicleCard");
   const location =
     vehicle.city && vehicle.country ? `${vehicle.city}, ${vehicle.country}` : null;
   const categoryStyle = CATEGORY_STYLES[vehicle.category || ""] || CATEGORY_STYLES.Other;
+  const priceText = !vehicle.price
+    ? t("priceOnApplication")
+    : (() => {
+        const n = extractPrice(vehicle.price);
+        if (n === null) return vehicle.price === "POA" ? t("priceOnApplication") : vehicle.price;
+        return `$${n.toLocaleString()}`;
+      })();
 
   return (
     <Link
       href={`/vehicles/${vehicle.slug}`}
-      className="group block bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] overflow-hidden hover:shadow-lg hover:shadow-black/5 transition-shadow"
+      className="group block bg-[var(--color-surface)] rounded-[var(--radius-card)] border border-[var(--color-border)] overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-[var(--color-accent)]/50"
     >
       {/* Image */}
       <div className="relative aspect-[16/10] bg-[var(--color-surface-dark)] overflow-hidden">
@@ -87,23 +89,22 @@ export default function VehicleCard({
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-2">
-          {vehicle.isFeatured && (
-            <span className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full inline-flex items-center gap-1 shadow-sm">
-              <Star size={12} /> Featured
-            </span>
-          )}
-          {sold && (
+{/* Option C: one badge at most — Sold beats Featured beats category (ink/aria-contrast) */}
+        <div className="absolute top-3 start-3 z-10 flex flex-wrap gap-2">
+          {sold ? (
             <span className="bg-[var(--color-surface-dark)]/85 text-[var(--color-text-inverse)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full border border-[var(--color-text-inverse)]/20">
-              Sold
+              {t("sold")}
             </span>
-          )}
+          ) : vehicle.isFeatured ? (
+            <span className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full inline-flex items-center gap-1 shadow-sm">
+              <Star size={12} /> {t("featured")}
+            </span>
+          ) : vehicle.category ? (
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${categoryStyle}`}>
+              {vehicle.category}
+            </span>
+          ) : null}
         </div>
-        {vehicle.category && (
-          <span className={`absolute top-3 right-3 z-10 text-xs font-medium px-2.5 py-1 rounded-full border ${categoryStyle}`}>
-            {vehicle.category}
-          </span>
-        )}
       </div>
 
       {variant === "simple" ? (
@@ -123,9 +124,10 @@ export default function VehicleCard({
             <h3 className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors leading-tight">
               {vehicle.year} {vehicle.make} {vehicle.model}
             </h3>
+            {/* Price in ink, not gold — gold fails WCAG AA on white at text size (WS4); priceText localized (WS5) */}
             {vehicle.price && (
-              <span className="shrink-0 text-sm font-semibold text-[var(--color-accent)] text-right">
-                {formatPrice(vehicle.price)}
+              <span className="shrink-0 text-base font-bold text-[var(--color-text-primary)] text-right leading-tight">
+                {priceText}
               </span>
             )}
           </div>
@@ -140,7 +142,7 @@ export default function VehicleCard({
               <div className="flex items-center gap-1.5 text-[var(--color-text-secondary)]">
                 <Gauge size={14} className="text-[var(--color-accent)] shrink-0" />
                 <span>
-                  {vehicle.mileage.toLocaleString()} {vehicle.mileageUnit || "mi"}
+                  {vehicle.mileage.toLocaleString()} {vehicle.mileageUnit || t("mileageUnit")}
                 </span>
               </div>
             )}
@@ -174,9 +176,10 @@ export default function VehicleCard({
             </div>
           )}
 
-          <span className="inline-flex items-center mt-4 text-sm font-medium text-[var(--color-accent)]">
-            View Details
-            <span className="ml-1 transition-transform duration-200 group-hover:translate-x-1">→</span>
+{/* Ink label for contrast; gold arrow as decorative affordance (WS4); localized + RTL-aware (WS5) */}
+          <span className="inline-flex items-center mt-4 text-sm font-medium text-[var(--color-text-primary)]">
+            {t("viewDetails")}
+            <span className="ms-1 text-[var(--color-accent)] transition-transform duration-200 group-hover:translate-x-1 rtl:group-hover:-translate-x-1">→</span>
           </span>
         </div>
       )}

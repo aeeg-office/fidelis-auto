@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckSquare, Square } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCompareStore } from "@/lib/compare-store";
 import type { VehicleCardData } from "./VehicleCard";
 import VehicleCard from "./VehicleCard";
@@ -16,6 +17,7 @@ export default function CompareVehicleCard({
   sold?: boolean;
   priority?: boolean;
 }) {
+  const t = useTranslations("compare");
   const { slugs, toggleSlug } = useCompareStore();
   const isSelected = slugs.includes(vehicle.slug);
 
@@ -35,19 +37,19 @@ export default function CompareVehicleCard({
             e.stopPropagation();
             toggleSlug(vehicle.slug);
           }}
-          className={`absolute top-3 right-3 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+className={`absolute top-3 end-3 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-[var(--radius-control)] text-xs font-medium transition-colors ${
             isSelected
               ? "bg-[var(--color-accent)] text-[var(--color-surface-dark)]"
               : "bg-[var(--color-surface)]/90 text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-accent)]"
           }`}
-          aria-label={isSelected ? "Remove from compare" : "Add to compare"}
+          aria-label={isSelected ? t("removeFromCompare") : t("addToCompare")}
         >
           {isSelected ? (
             <CheckSquare size={14} />
           ) : (
             <Square size={14} />
           )}
-          <span>Compare</span>
+          <span>{t("addToCompare")}</span>
         </button>
       )}
     </div>

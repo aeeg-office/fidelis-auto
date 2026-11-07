@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Send } from "lucide-react";
 
 export default function ContactForm() {
+  const t = useTranslations("contact");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
@@ -38,10 +40,10 @@ export default function ContactForm() {
           <span className="text-2xl">✓</span>
         </div>
         <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] mb-2">
-          Thank You
+          {t("thankYou")}
         </h2>
         <p className="text-[var(--color-text-secondary)]">
-          We&apos;ll be in touch shortly.
+          {t("thankYouDesc")}
         </p>
       </div>
     );
@@ -61,7 +63,7 @@ export default function ContactForm() {
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            Name *
+            {t("name")} *
           </label>
           <input
             id="name"
@@ -72,7 +74,7 @@ export default function ContactForm() {
         </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-            Email *
+            {t("email")} *
           </label>
           <input
             id="email"
@@ -85,7 +87,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label htmlFor="phone" className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Phone
+          {t("phone")}
         </label>
         <input
           id="phone"
@@ -96,7 +98,7 @@ export default function ContactForm() {
       </div>
       <div>
         <label htmlFor="message" className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-          Message *
+          {t("message")} *
         </label>
         <textarea
           id="message"
@@ -109,9 +111,9 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-6 py-3 rounded-[var(--radius-control)] font-medium hover:bg-[var(--color-ink-hover)] transition-colors disabled:opacity-50"
       >
-        {loading ? "Sending..." : "Send Message"}
+        {loading ? t("sending") : t("sendMessage")}
         <Send size={16} />
       </button>
     </form>

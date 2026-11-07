@@ -40,7 +40,7 @@ export default async function HomePage() {
               className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
             >
               {tHero("cta")}
-              <ArrowRight size={18} />
+              <ArrowRight size={18} className="rtl:rotate-180" />
             </Link>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default async function HomePage() {
                   </h3>
                   <p className="text-xs opacity-80 leading-relaxed">{cat.desc}</p>
                   <span className="mt-3 text-xs font-medium inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {t("browse")} <ArrowRight size={12} />
+                    {t("browse")} <ArrowRight size={12} className="rtl:rotate-180" />
                   </span>
                 </Link>
               );
@@ -98,7 +98,7 @@ export default async function HomePage() {
           <div className="grid md:grid-cols-2 gap-8">
             {featuredVehicles.length === 0 ? (
               <p className="text-[var(--color-text-secondary)] col-span-full text-center">
-                No featured vehicles yet. New additions will appear here as they&apos;re published.
+                {t("noFeaturedEmpty")}
               </p>
             ) : (
               featuredVehicles.map((vehicle) => (
@@ -129,7 +129,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {recentVehicles.length === 0 ? (
               <p className="text-[var(--color-text-secondary)] col-span-full text-center">
-                No vehicles have been added yet. Check back soon.
+                {t("noRecentEmpty")}
               </p>
             ) : (
               recentVehicles.map((vehicle) => (
@@ -148,7 +148,7 @@ export default async function HomePage() {
               className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
             >
               {t("viewAllVehicles")}
-              <ArrowRight size={18} />
+              <ArrowRight size={18} className="rtl:rotate-180" />
             </Link>
           </div>
         </div>
@@ -183,7 +183,7 @@ export default async function HomePage() {
             className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
           >
             {t("contactUs")}
-            <ArrowRight size={18} />
+            <ArrowRight size={18} className="rtl:rotate-180" />
           </Link>
         </div>
       </section>

@@ -37,7 +37,7 @@ export default function ServiceListingForm() {
       </div>
       <label className="block text-sm">Description<textarea required name="description" rows={4} maxLength={2000} className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5" /></label>
       {message && <p role="status" className="text-sm text-[var(--color-text-secondary)]">{message}</p>}
-      <button disabled={loading} className="rounded-lg bg-[var(--color-accent)] px-5 py-2.5 font-medium text-[var(--color-surface-dark)] disabled:opacity-50">{loading ? "Submitting…" : "Submit service"}</button>
+      <button disabled={loading} className="rounded-[var(--radius-control)] bg-[var(--color-ink)] px-5 py-2.5 font-medium text-[var(--color-text-inverse)] hover:bg-[var(--color-ink-hover)] disabled:opacity-50">{loading ? "Submitting…" : "Submit service"}</button>
     </form>
   );
 }

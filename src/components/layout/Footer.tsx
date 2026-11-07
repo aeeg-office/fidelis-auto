@@ -3,6 +3,7 @@ import Link from "next/link";
 
 export default async function Footer() {
   const t = await getTranslations("footer");
+  const tn = await getTranslations("nav");
 
   const FOOTER_LINKS = {
     [t("explore")]: [
@@ -13,13 +14,13 @@ export default async function Footer() {
 
   const footerLinks: Record<string, { href: string; label: string }[]> = {
     [t("explore")]: [
-      { href: "/", label: "Home" },
-      { href: "/vehicles", label: "Vehicles" },
-      { href: "/journal", label: "Journal" },
-      { href: "/about", label: "About" },
+      { href: "/", label: tn("home") },
+      { href: "/vehicles", label: tn("vehicles") },
+      { href: "/journal", label: tn("journal") },
+      { href: "/about", label: tn("about") },
     ],
     [t("connect")]: [
-      { href: "/contact", label: t("email") },
+      { href: "/contact", label: tn("contact") },
       { href: "mailto:aeeg.education@gmail.com", label: t("email") },
     ],
     [t("legal")]: [
@@ -34,10 +35,12 @@ export default async function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-2 mb-4">
-              <span className="w-6 h-6 rounded-full border border-[var(--color-accent)] flex items-center justify-center">
-                <span className="w-2 h-2 bg-[var(--color-accent)] rounded-full" />
-              </span>
+            <Link href="/" className="inline-flex items-center gap-2 mb-4" aria-label="Fidelis Auto — home">
+              <svg viewBox="0 0 64 64" className="w-6 h-6 shrink-0" aria-hidden="true">
+                <circle cx="32" cy="32" r="30" className="fill-[var(--color-surface-dark)]" />
+                <circle cx="32" cy="32" r="29" className="fill-none stroke-[var(--color-accent)]" strokeWidth="4" />
+                <path d="M24 16h18v5H29v8h11v5H29v14h-5V16z" className="fill-[var(--color-accent)]" />
+              </svg>
               <span className="font-[family-name:var(--font-cormorant)] text-lg font-semibold">
                 Fidelis Auto
               </span>
