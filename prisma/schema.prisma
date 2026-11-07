@@ -328,6 +328,7 @@ model User {
   city         String?
   role         AccountRole @default(BUYER)
   verified     Boolean     @default(false)
+  isSuspended  Boolean     @default(false) // WS10 warning-only policy: admin can suspend scam/fake accounts
   verificationCode       String?
   verificationCodeExpiry DateTime?
   phoneVerified Boolean  @default(false)

@@ -37,6 +37,19 @@ export async function POST(request: Request) {
   // WS2 phone-verified gate (OFF by default until an Egyptian OTP e2e passes — see phone-gate.ts).
   // decidePhoneGate returns allowed:true with reason "gate-disabled" when the switch is off.
   const currentUser = await getCurrentUser();
+
+  // WS10 warning-only policy: a suspended account cannot contact sellers.
+  if (currentUser?.isSuspended) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Your account is suspended. Please contact support.",
+        errorAr: "تم تعليق حسابك. يرجى التواصل مع الدعم.",
+      },
+      { status: 403 }
+    );
+  }
+
   const gate = decidePhoneGate(currentUser ? { id: currentUser.id, phoneVerified: currentUser.phoneVerified } : null);
   if (!gate.allowed) {
     const msg = gate.reason === "phone-not-verified"

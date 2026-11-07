@@ -515,6 +515,21 @@
       "save": "Save",
       "saving": "Saving...",
       "cancel": "Cancel"
+    },
+    "dealers": "Dealers",
+    "services": "Services",
+    "usersTitle": "Users",
+    "users": {
+      "title": "Users",
+      "noUsers": "No users yet.",
+      "joined": "Joined",
+      "submissions": "submission(s)",
+      "verified": "Verified",
+      "notVerified": "Not verified",
+      "suspended": "Suspended",
+      "suspend": "Suspend",
+      "reinstate": "Reinstate",
+      "suspendError": "Unable to update suspension status."
     }
   },
   "affiliateLinks": {
