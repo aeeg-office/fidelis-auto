@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Heart } from "lucide-react";
 
 type FavoriteButtonProps = {
@@ -9,6 +10,7 @@ type FavoriteButtonProps = {
 };
 
 export default function FavoriteButton({ slug, className = "" }: FavoriteButtonProps) {
+  const t = useTranslations("favorites");
   const [favorited, setFavorited] = useState(false);
   const [loading, setLoading] = useState(false);
   const [promptLogin, setPromptLogin] = useState(false);
@@ -61,11 +63,11 @@ export default function FavoriteButton({ slug, className = "" }: FavoriteButtonP
         }`}
       >
         <Heart size={16} fill={favorited ? "currentColor" : "none"} />
-        {favorited ? "Saved to Favorites" : "Save to Favorites"}
+        {favorited ? t("savedToFavorites") : t("saveToFavorites")}
       </button>
       {promptLogin && (
         <p className="mt-2 text-xs text-[var(--color-accent)]">
-          Please log in to save favorites.
+          {t("pleaseLogIn")}
         </p>
       )}
     </div>

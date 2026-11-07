@@ -107,6 +107,7 @@ export default async function VehiclesPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const t = await getTranslations("vehicles");
+  const tc = await getTranslations("common");
   const params = await searchParams;
   const sort = (params.sort || "newest").toString();
   const page = Math.max(1, parseInt((params.page || "1").toString(), 10) || 1);
@@ -175,7 +176,7 @@ export default async function VehiclesPage({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <nav className="flex items-center justify-center gap-2 mt-12" aria-label="Pagination">
+          <nav className="flex items-center justify-center gap-2 mt-12" aria-label={tc("pagination")}>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
               const active = p === currentPage;
               return (

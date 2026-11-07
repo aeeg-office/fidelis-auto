@@ -12,7 +12,13 @@
     "signOut": "Logout",
     "register": "Register",
     "compare": "Compare",
-    "homeAlt": "Home"
+    "homeAlt": "Home",
+    "watchlist": "Watchlist",
+    "dashboard": "Dashboard",
+    "dealerPortal": "Dealer Portal",
+    "administration": "Administration",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "hero": {
     "title": "We Love Cars.",
@@ -42,7 +48,9 @@
       "vintageDesc": "Pre-1970s collector cars with history",
       "electric": "Electric",
       "electricDesc": "Modern electric and hybrid vehicles"
-    }
+    },
+    "noFeaturedEmpty": "No featured vehicles yet. New additions will appear here as they're published.",
+    "noRecentEmpty": "No vehicles have been added yet. Check back soon."
   },
   "footer": {
     "tagline": "For the love of cars. Every car has a story — we help you find yours.",
@@ -108,12 +116,17 @@
       "title": "Provenance Timeline",
       "manufactured": "Manufactured",
       "present": "Available at Fidelis Auto",
-      "contactForFile": "Contact us for the full provenance file."
+      "contactForFile": "Contact us for the full provenance file.",
+      "built": "{year} {make} {model} built",
+      "presentDate": "Present"
     },
     "relatedVehicles": "Related Vehicles",
     "notFound": "Vehicle Not Found",
     "notFoundDesc": "The vehicle you're looking for doesn't exist or has been removed.",
-    "notAvailable": "Not available"
+    "notAvailable": "Not available",
+    "mileageUnit": "mi",
+    "miles": "miles",
+    "recentlySold": "Recently Sold"
   },
   "filters": {
     "search": "Search vehicles...",
@@ -147,7 +160,8 @@
     "priceMax": "Max Price",
     "yearMin": "Min Year",
     "yearMax": "Max Year",
-    "newest": "Newest"
+    "newest": "Newest",
+    "other": "Other"
   },
   "contact": {
     "title": "Get in Touch",
@@ -161,7 +175,10 @@
     "submit": "Send",
     "sending": "Sending...",
     "sent": "Your message has been sent! We'll get back to you soon.",
-    "error": "Something went wrong. Please try again."
+    "error": "Something went wrong. Please try again.",
+    "sendMessage": "Send Message",
+    "thankYou": "Thank You",
+    "thankYouDesc": "We'll be in touch shortly."
   },
   "searchPage": {
     "title": "Search the Collection",
@@ -170,7 +187,8 @@
     "browseAll": "Browse all vehicles →",
     "noResults": "No vehicles match your search",
     "noResultsDesc": "Try a different make, model, or year, or browse the full collection.",
-    "browseCta": "Browse All Vehicles"
+    "browseCta": "Browse All Vehicles",
+    "searchLabel": "Search"
   },
   "privacy": {
     "title": "Privacy Policy",
@@ -222,12 +240,19 @@
     "noArticles": "No articles yet.",
     "latestArticles": "Latest Articles",
     "publishedOn": "Published on",
-    "by": "by"
+    "by": "by",
+    "browseByCategory": "Browse by Category",
+    "allEntries": "All Entries",
+    "viewAllEntries": "View all entries",
+    "noEntriesIn": "No journal entries in \"{cat}\" yet.",
+    "backToJournal": "Back to Journal",
+    "byAuthor": "By {author}",
+    "notFound": "Journal Entry Not Found"
   },
   "sellYourCar": {
     "title": "Sell Your Vehicle",
     "welcome": "Welcome",
-    "description": "Fill in the details below and our team will review your submission.",
+    "description": "Description",
     "metaTitle": "Sell Your Car",
     "yourContact": "Your Contact",
     "fullName": "Full Name",
@@ -251,7 +276,6 @@
     "selectCountry": "Select country",
     "enterCountry": "Enter Country",
     "zipCode": "ZIP / Postal Code",
-    "description": "Description",
     "descriptionPlaceholder": "Tell us about your vehicle's history, condition, and anything special...",
     "photos": "Photos",
     "photosMin6": "— min 6 required",
@@ -273,8 +297,18 @@
       "makeSelectRequired": "Make is required.",
       "countryRequired": "Country is required.",
       "photosMin6": "At least 6 photos required ({count} selected).",
-      "photosMax30": "Maximum 30 photos."
-    }
+      "photosMax30": "Maximum 30 photos.",
+      "uploadNoUrl": "{file}: upload succeeded but returned no URL.",
+      "uploadFailed": "{file}: upload failed (HTTP {status}).",
+      "noUploads": "No photos were uploaded successfully — please try again."
+    },
+    "email": "Email",
+    "selectDefault": "Select",
+    "selectColor": "Select color",
+    "welcomeLine": "Welcome, {name}. Fill in the details below and our team will review your submission.",
+    "year": "Year",
+    "make": "Make",
+    "model": "Model"
   },
   "auth": {
     "signIn": "Sign In",
@@ -299,7 +333,23 @@
     "signInHere": "Sign in here",
     "passwordMismatch": "Passwords do not match",
     "registrationSuccess": "Account created successfully! Please check your email to verify.",
-    "signInToSubmit": "Sign in to submit your vehicle"
+    "signInToSubmit": "Sign in to submit your vehicle",
+    "createAccount": "Create Account",
+    "registerSubtitle": "Register to submit your vehicle for review.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "mobileNumber": "Mobile Number",
+    "mobileHint": "Required for seller and enquiry follow-up. Verification is not required yet.",
+    "country": "Country",
+    "city": "City",
+    "passwordReqLength": "At least 8 characters",
+    "passwordReqUpper": "One uppercase letter",
+    "passwordReqNumber": "One number",
+    "passwordReqSymbol": "One symbol (!@#$%^&*)",
+    "passwordMustHave": "Password must have: {requirement}",
+    "passwordsMatch": "Passwords match",
+    "creatingAccount": "Creating Account...",
+    "signInLink": "Sign in"
   },
   "common": {
     "fidelisAuto": "Fidelis Auto",
@@ -331,7 +381,16 @@
     "filter": "Filter",
     "sort": "Sort",
     "optional": "Optional",
-    "required": "Required"
+    "required": "Required",
+    "pagination": "Pagination",
+    "fullScreen": "Full screen",
+    "prevPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "closeFullScreen": "Close full screen",
+    "installTitle": "Install Fidelis Auto",
+    "installDesc": "Add to your home screen for the best experience",
+    "install": "Install",
+    "notNow": "Not now"
   },
   "brand": {
     "name": "Fidelis Auto",
@@ -526,7 +585,12 @@
     "errorSending": "Failed to send message",
     "errorNoSeller": "No seller account available",
     "errorFindSeller": "Could not find seller",
-    "defaultMessage": "Hi, I'm interested in the {vehicle}. Is it still available?"
+    "defaultMessage": "Hi, I'm interested in the {vehicle}. Is it still available?",
+    "whatsapp": "WhatsApp the Seller",
+    "whatsappAria": "WhatsApp the seller about {vehicle}",
+    "emailSeller": "Email the seller",
+    "emailSubject": "Inquiry about {vehicle}",
+    "emailBody": "Hi, I'm interested in the {vehicle} ({url})."
   },
   "vehicleCard": {
     "compare": "Compare",
@@ -534,6 +598,67 @@
     "removeFromCompare": "Remove from Compare",
     "sold": "Sold",
     "priceOnApplication": "Price on Application",
-    "noImage": "No image"
+    "noImage": "No image",
+    "featured": "Featured",
+    "viewDetails": "View Details",
+    "mileageUnit": "mi"
+  },
+  "verify": {
+    "title": "Verify Your Email",
+    "description": "Enter the 6-digit code sent to your email to activate your account.",
+    "codeLabel": "Verification Code",
+    "codeSentTo": "Code sent to",
+    "verifying": "Verifying...",
+    "verifyButton": "Verify Email",
+    "resendIn": "Resend code in {seconds}s",
+    "resend": "Resend code",
+    "wrongCode": "Wrong code",
+    "failedToResend": "Failed to resend"
+  },
+  "offline": {
+    "title": "You're Offline",
+    "description": "It looks like you've lost your connection. Don't worry — once you're back online, you can continue browsing our collection of exceptional vehicles.",
+    "tryAgain": "Try Again",
+    "tagline": "Fidelis Auto — For the love of cars. Every car has a story."
+  },
+  "services": {
+    "networkLabel": "Fidelis network",
+    "title": "Specialist Services",
+    "description": "A curated directory for the practical work behind exceptional ownership: restoration, maintenance, inspection, transport, storage, and more — arranged across six trusted specialties.",
+    "submitYourService": "Submit Your Service",
+    "emptyTitle": "The specialist directory is being curated.",
+    "emptyDesc": "Check back soon for verified service partners.",
+    "website": "Website",
+    "contact": "Contact",
+    "submitTitle": "Submit Your Service",
+    "submitDescription": "Join the Fidelis Auto directory of verified specialist services for collector and enthusiast vehicles. Your listing appears after a quick review by our team.",
+    "metaTitle": "Submit a Service",
+    "metaDescription": "List your specialist service on Fidelis Auto — inspections, restoration, maintenance, and more.",
+    "form": {
+      "businessName": "Business name *",
+      "specialty": "Specialty *",
+      "selectSpecialty": "Select a specialty",
+      "description": "Description *",
+      "phone": "Phone",
+      "website": "Website",
+      "city": "City",
+      "country": "Country",
+      "submit": "Submit for Review",
+      "submitting": "Submitting...",
+      "successTitle": "Thank you — submission received.",
+      "successDesc": "Our team will review and publish it shortly.",
+      "error": "Unable to submit your service."
+    }
+  },
+  "watchlist": {
+    "title": "My Watchlist",
+    "description": "Vehicles you have saved for later. Check availability and compare before you decide.",
+    "metaTitle": "My Watchlist",
+    "metaDescription": "Vehicles you have saved to your Fidelis Auto watchlist.",
+    "emptyTitle": "Your watchlist is empty",
+    "emptyDesc": "Save vehicles you are interested in and they will appear here so you can compare and decide with confidence.",
+    "browse": "Browse the Collection",
+    "view": "View",
+    "noPhoto": "No photo"
   }
 }

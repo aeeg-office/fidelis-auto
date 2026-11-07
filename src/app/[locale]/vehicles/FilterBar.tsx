@@ -12,18 +12,19 @@ interface FilterBarProps {
   categories?: string[];
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  Modern: "Modern",
-  Classic: "Classic",
-  Vintage: "Vintage",
-  EV: "Electric",
-  Other: "Other",
-};
-
 export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations("filters");
+  const th = useTranslations("homepage");
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    Modern: th("categories.modern"),
+    Classic: th("categories.classic"),
+    Vintage: th("categories.vintage"),
+    EV: th("categories.electric"),
+    Other: t("other"),
+  };
 
   // Initialize state from URL params
   const [q, setQ] = useState(searchParams.get("q") || "");
@@ -97,14 +98,14 @@ export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps
     <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-4 md:p-6 space-y-4">
       {/* Search Row */}
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
+        <Search size={16} className="absolute start-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
         <input
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && applyFilters()}
           placeholder={t("search")}
-          className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
+          className="w-full ps-9 pe-3 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
         />
       </div>
 
@@ -181,11 +182,11 @@ export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps
               <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
             )) : (
               <>
-                <option value="Modern">Modern</option>
-                <option value="Classic">Classic</option>
-                <option value="Vintage">Vintage</option>
-                <option value="EV">Electric</option>
-                <option value="Other">Other</option>
+                <option value="Modern">{th("categories.modern")}</option>
+                <option value="Classic">{th("categories.classic")}</option>
+                <option value="Vintage">{th("categories.vintage")}</option>
+                <option value="EV">{th("categories.electric")}</option>
+                <option value="Other">{t("other")}</option>
               </>
             )}
           </select>

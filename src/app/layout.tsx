@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fidelisauto.com"),
@@ -42,10 +44,11 @@ export const viewport: Viewport = {
   themeColor: "#c9a84c",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  const messages = await getMessages();
+  return <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>;
 }

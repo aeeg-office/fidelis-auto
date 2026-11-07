@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import JsonLd from "@/components/JsonLd";
 import SocialShare from "@/components/SocialShare";
@@ -47,9 +48,9 @@ async function getEntry(slug: string): Promise<EntryData | null> {
   return null;
 }
 
-function formatDate(date: Date | null): string {
+function formatDate(date: Date | null, locale: string): string {
   if (!date) return "";
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -61,11 +62,12 @@ function formatDate(date: Date | null): string {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "journal" });
   const entry = await getEntry(slug);
-  if (!entry) return { title: "Journal Entry Not Found" };
+  if (!entry) return { title: t("notFound") };
 
   const url = `https://fidelisauto.com/journal/${slug}`;
 
@@ -89,9 +91,10 @@ export async function generateMetadata({
 export default async function JournalEntryPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "journal" });
   const entry = await getEntry(slug);
   if (!entry) notFound();
 
@@ -157,8 +160,8 @@ export default async function JournalEntryPage({
                 href="/journal"
                 className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors mb-8"
               >
-                <ArrowLeft size={16} />
-                Back to Journal
+                <ArrowLeft size={16} className="rtl:rotate-180" />
+                {t("backToJournal")}
               </Link>
 
               {entry.coverImage && (
@@ -175,7 +178,7 @@ export default async function JournalEntryPage({
               )}
 
               <p className="text-xs text-[var(--color-accent)] font-medium mb-2">
-                {formatDate(entry.publishedAt)}
+                {formatDate(entry.publishedAt, locale)}
               </p>
 
               {entry.category && (
@@ -192,7 +195,7 @@ export default async function JournalEntryPage({
               </h1>
 
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-                By {entry.author}
+                {t("byAuthor", { author: entry.author })}
               </p>
 
               <SocialShare url={url} title={entry.title} className="mb-8" />

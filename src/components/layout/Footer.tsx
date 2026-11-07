@@ -3,6 +3,7 @@ import Link from "next/link";
 
 export default async function Footer() {
   const t = await getTranslations("footer");
+  const tn = await getTranslations("nav");
 
   const FOOTER_LINKS = {
     [t("explore")]: [
@@ -13,13 +14,13 @@ export default async function Footer() {
 
   const footerLinks: Record<string, { href: string; label: string }[]> = {
     [t("explore")]: [
-      { href: "/", label: "Home" },
-      { href: "/vehicles", label: "Vehicles" },
-      { href: "/journal", label: "Journal" },
-      { href: "/about", label: "About" },
+      { href: "/", label: tn("home") },
+      { href: "/vehicles", label: tn("vehicles") },
+      { href: "/journal", label: tn("journal") },
+      { href: "/about", label: tn("about") },
     ],
     [t("connect")]: [
-      { href: "/contact", label: t("email") },
+      { href: "/contact", label: tn("contact") },
       { href: "mailto:aeeg.education@gmail.com", label: t("email") },
     ],
     [t("legal")]: [

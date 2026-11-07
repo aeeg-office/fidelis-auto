@@ -86,7 +86,7 @@ export default function Header() {
               className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
             >
               <Heart size={16} />
-              <span>Watchlist</span>
+              <span>{t("watchlist")}</span>
             </Link>
           )}
 
@@ -96,7 +96,7 @@ export default function Header() {
               className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
             >
               {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
-              <span>{user.role === "DEALER" ? "Dealer Portal" : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? "Administration" : "Dashboard"}</span>
+              <span>{user.role === "DEALER" ? t("dealerPortal") : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? t("administration") : t("dashboard")}</span>
             </Link>
           )}
 
@@ -137,7 +137,7 @@ export default function Header() {
 
           <button onClick={() => setMobileOpen(!mobileOpen)}
             className="p-2 text-[var(--color-text-primary)]"
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}>
+            aria-label={mobileOpen ? t("closeMenu") : t("openMenu")}>
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -171,7 +171,7 @@ export default function Header() {
                 className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
               >
                 {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
-                {user.role === "DEALER" ? "Dealer Portal" : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? "Administration" : "Dashboard"}
+                {user.role === "DEALER" ? t("dealerPortal") : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? t("administration") : t("dashboard")}
               </Link>
             )}
 

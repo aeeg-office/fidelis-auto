@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 import VehicleImage from "./VehicleImage";
 
@@ -35,6 +36,7 @@ export default function VehicleGallery({
   title = "Vehicle",
   fallbackSrc,
 }: VehicleGalleryProps) {
+  const t = useTranslations("common");
   const images = useMemo(
     () =>
       Array.isArray(propImages)
@@ -146,8 +148,8 @@ export default function VehicleGallery({
             {index + 1} / {total}
           </span>
           {/* Zoom affordance */}
-          <span className="absolute bottom-3 right-3 z-10 bg-black/50 text-white text-xs px-2.5 py-1 rounded-full inline-flex items-center gap-1">
-            <ZoomIn size={12} /> Full screen
+          <span className="absolute bottom-3 end-3 z-10 bg-black/50 text-white text-xs px-2.5 py-1 rounded-full inline-flex items-center gap-1">
+            <ZoomIn size={12} /> {t("fullScreen")}
           </span>
 
           {/* Prev / Next controls */}
@@ -155,25 +157,25 @@ export default function VehicleGallery({
             <>
               <button
                 type="button"
-                aria-label="Previous photo"
+                aria-label={t("prevPhoto")}
                 onClick={(e) => {
                   e.stopPropagation();
                   prev();
                 }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/85 text-white rounded-full p-2 transition-colors"
+                className="absolute start-3 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/85 text-white rounded-full p-2 transition-colors"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={20} className="rtl:rotate-180" />
               </button>
               <button
                 type="button"
-                aria-label="Next photo"
+                aria-label={t("nextPhoto")}
                 onClick={(e) => {
                   e.stopPropagation();
                   next();
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/85 text-white rounded-full p-2 transition-colors"
+                className="absolute end-3 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/85 text-white rounded-full p-2 transition-colors"
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={20} className="rtl:rotate-180" />
               </button>
             </>
           )}
@@ -190,7 +192,7 @@ export default function VehicleGallery({
                 key={img.src + i}
                 ref={i === index ? activeThumbRef : undefined}
                 type="button"
-                aria-label={`View photo ${i + 1}`}
+                aria-label={`${i + 1}`}
                 aria-current={i === index}
                 onClick={() => goTo(i)}
                 className={`relative w-24 h-16 shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
@@ -224,9 +226,9 @@ export default function VehicleGallery({
         >
           <button
             type="button"
-            aria-label="Close full screen"
+            aria-label={t("closeFullScreen")}
             onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2"
+            className="absolute top-4 end-4 z-10 text-white/80 hover:text-white p-2"
           >
             <X size={28} />
           </button>
@@ -238,11 +240,11 @@ export default function VehicleGallery({
             {total > 1 && (
               <button
                 type="button"
-                aria-label="Previous photo"
+                aria-label={t("prevPhoto")}
                 onClick={prev}
-                className="absolute -left-2 z-10 bg-black/40 hover:bg-black/70 text-white rounded-full p-3 transition-colors"
+                className="absolute -start-2 z-10 bg-black/40 hover:bg-black/70 text-white rounded-full p-3 transition-colors"
               >
-                <ChevronLeft size={28} />
+                <ChevronLeft size={28} className="rtl:rotate-180" />
               </button>
             )}
             <VehicleImage
@@ -254,11 +256,11 @@ export default function VehicleGallery({
             {total > 1 && (
               <button
                 type="button"
-                aria-label="Next photo"
+                aria-label={t("nextPhoto")}
                 onClick={next}
-                className="absolute -right-2 z-10 bg-black/40 hover:bg-black/70 text-white rounded-full p-3 transition-colors"
+                className="absolute -end-2 z-10 bg-black/40 hover:bg-black/70 text-white rounded-full p-3 transition-colors"
               >
-                <ChevronRight size={28} />
+                <ChevronRight size={28} className="rtl:rotate-180" />
               </button>
             )}
           </div>
