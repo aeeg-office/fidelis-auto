@@ -51,7 +51,7 @@ export default function CookieConsent() {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={accept}
-              className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+              className="bg-[var(--color-text-inverse)] text-[var(--color-surface-dark)] px-4 py-2 rounded-[var(--radius-control)] text-sm font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors"
             >
               Accept
             </button>

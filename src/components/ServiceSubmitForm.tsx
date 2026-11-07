@@ -87,7 +87,7 @@ export default function ServiceSubmitForm() {
         </div>
       </div>
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-      <button type="submit" disabled={busy} className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-md font-medium disabled:opacity-50">
+      <button type="submit" disabled={busy} className="bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-[var(--radius-control)] font-medium hover:bg-[var(--color-ink-hover)] disabled:opacity-50">
         {busy ? "Submitting..." : "Submit for Review"}
       </button>
     </form>

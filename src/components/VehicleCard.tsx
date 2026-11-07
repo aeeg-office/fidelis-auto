@@ -75,7 +75,7 @@ export default function VehicleCard({
   return (
     <Link
       href={`/vehicles/${vehicle.slug}`}
-      className="group block bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] overflow-hidden hover:shadow-lg hover:shadow-black/5 transition-shadow"
+      className="group block bg-[var(--color-surface)] rounded-[var(--radius-card)] border border-[var(--color-border)] overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-[var(--color-accent)]/50"
     >
       {/* Image */}
       <div className="relative aspect-[16/10] bg-[var(--color-surface-dark)] overflow-hidden">
@@ -87,23 +87,22 @@ export default function VehicleCard({
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        {/* Option C: one badge at most — Sold beats Featured beats category */}
         <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-2">
-          {vehicle.isFeatured && (
-            <span className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full inline-flex items-center gap-1 shadow-sm">
-              <Star size={12} /> Featured
-            </span>
-          )}
-          {sold && (
+          {sold ? (
             <span className="bg-[var(--color-surface-dark)]/85 text-[var(--color-text-inverse)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full border border-[var(--color-text-inverse)]/20">
               Sold
             </span>
-          )}
+          ) : vehicle.isFeatured ? (
+            <span className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full inline-flex items-center gap-1 shadow-sm">
+              <Star size={12} /> Featured
+            </span>
+          ) : vehicle.category ? (
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${categoryStyle}`}>
+              {vehicle.category}
+            </span>
+          ) : null}
         </div>
-        {vehicle.category && (
-          <span className={`absolute top-3 right-3 z-10 text-xs font-medium px-2.5 py-1 rounded-full border ${categoryStyle}`}>
-            {vehicle.category}
-          </span>
-        )}
       </div>
 
       {variant === "simple" ? (
@@ -124,7 +123,8 @@ export default function VehicleCard({
               {vehicle.year} {vehicle.make} {vehicle.model}
             </h3>
             {vehicle.price && (
-              <span className="shrink-0 text-sm font-semibold text-[var(--color-accent)] text-right">
+              /* Price in ink, not gold — gold fails WCAG AA on white at text size */
+              <span className="shrink-0 text-base font-bold text-[var(--color-text-primary)] text-right leading-tight">
                 {formatPrice(vehicle.price)}
               </span>
             )}
@@ -174,9 +174,10 @@ export default function VehicleCard({
             </div>
           )}
 
-          <span className="inline-flex items-center mt-4 text-sm font-medium text-[var(--color-accent)]">
+          {/* Gold only as the decorative arrow (thumb affordance); label in ink for contrast */}
+          <span className="inline-flex items-center mt-4 text-sm font-medium text-[var(--color-text-primary)]">
             View Details
-            <span className="ml-1 transition-transform duration-200 group-hover:translate-x-1">→</span>
+            <span className="ml-1 text-[var(--color-accent)] transition-transform duration-200 group-hover:translate-x-1">→</span>
           </span>
         </div>
       )}

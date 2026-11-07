@@ -39,14 +39,15 @@ export default function ContactSellerButton({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`WhatsApp the seller about ${vehicleTitle}`}
-          className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#1eb959] transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-[var(--color-whatsapp)] text-white px-6 py-3 rounded-[var(--radius-control)] font-medium shadow-cta hover:bg-[var(--color-whatsapp-hover)] transition-colors"
         >
           <MessageCircle size={18} /> WhatsApp the Seller
         </a>
       )}
+      {/* Ink button — Option C: gold is reserved for badges/rules, never buttons */}
       <Link
         href={`/contact?vehicle=${encodeURIComponent(vehicleTitle)}&vehicleSlug=${encodeURIComponent(vehicleSlug)}`}
-        className="w-full flex items-center justify-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+        className="w-full flex items-center justify-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-6 py-3 rounded-[var(--radius-control)] font-medium hover:bg-[var(--color-ink-hover)] transition-colors"
       >
         <Send size={18} /> Contact Seller
       </Link>

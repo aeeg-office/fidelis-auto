@@ -81,7 +81,7 @@ export default function PwaInstallPrompt() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleInstall}
-            className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--color-accent-hover)] transition-colors whitespace-nowrap"
+            className="bg-[var(--color-text-inverse)] text-[var(--color-surface-dark)] px-4 py-2 rounded-[var(--radius-control)] text-sm font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors whitespace-nowrap"
           >
             Install
           </button>

@@ -72,7 +72,7 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="w-full bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded text-sm font-medium hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-60"
+                className="w-full bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-[var(--radius-control)] text-sm font-medium hover:bg-[var(--color-ink-hover)] transition-colors disabled:opacity-60"
               >
                 {status === "loading" ? "Subscribing…" : "Subscribe"}
               </button>
@@ -118,7 +118,7 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
             <button
               type="submit"
               disabled={status === "loading"}
-              className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded font-medium hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-60"
+              className="bg-[var(--color-text-inverse)] text-[var(--color-surface-dark)] px-6 py-3 rounded-[var(--radius-control)] font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors disabled:opacity-60"
             >
               {status === "loading" ? "Subscribing…" : "Subscribe"}
             </button>

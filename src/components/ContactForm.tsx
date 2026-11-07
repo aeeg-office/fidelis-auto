@@ -109,7 +109,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-6 py-3 rounded-[var(--radius-control)] font-medium hover:bg-[var(--color-ink-hover)] transition-colors disabled:opacity-50"
       >
         {loading ? "Sending..." : "Send Message"}
         <Send size={16} />
