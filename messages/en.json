@@ -161,7 +161,38 @@
     "yearMin": "Min Year",
     "yearMax": "Max Year",
     "newest": "Newest",
-    "other": "Other"
+    "other": "Other",
+    "fuelType": "Fuel Type",
+    "maxMileage": "Max Mileage",
+    "allFuelTypes": "All Fuel Types",
+    "allTransmissions": "All Transmissions",
+    "allYears": "All Years",
+    "bodyTypes": {
+      "SEDAN": "Sedan",
+      "HATCHBACK": "Hatchback",
+      "SUV": "SUV",
+      "PICKUP": "Pickup",
+      "VAN": "Van",
+      "COUPE": "Coupe",
+      "CONVERTIBLE": "Convertible",
+      "WAGON": "Wagon",
+      "MPV": "MPV",
+      "OTHER": "Other"
+    },
+    "fuelTypes": {
+      "PETROL": "Petrol",
+      "DIESEL": "Diesel",
+      "ELECTRIC": "Electric",
+      "HYBRID": "Hybrid",
+      "LPG": "LPG",
+      "CNG": "CNG",
+      "OTHER": "Other"
+    },
+    "transmissions": {
+      "Manual": "Manual",
+      "Automatic": "Automatic",
+      "Other": "Other"
+    }
   },
   "contact": {
     "title": "Get in Touch",
@@ -182,13 +213,15 @@
   },
   "searchPage": {
     "title": "Search the Collection",
-    "description": "Search by make, model, year, or category. Every vehicle is documented and verified.",
+    "description": "Search by make, model, year, body type, fuel type, or transmission. Every vehicle is documented and verified.",
     "resultsFor": "Results for",
     "browseAll": "Browse all vehicles →",
     "noResults": "No vehicles match your search",
-    "noResultsDesc": "Try a different make, model, or year, or browse the full collection.",
+    "noResultsDesc": "Try a different make, model, body type, or year, or browse the full collection.",
     "browseCta": "Browse All Vehicles",
-    "searchLabel": "Search"
+    "searchLabel": "Search",
+    "filtersTitle": "Smart Search & Filters",
+    "searchPlaceholder": "Search make, model, body type, fuel..."
   },
   "privacy": {
     "title": "Privacy Policy",
@@ -515,6 +548,21 @@
       "save": "Save",
       "saving": "Saving...",
       "cancel": "Cancel"
+    },
+    "dealers": "Dealers",
+    "services": "Services",
+    "usersTitle": "Users",
+    "users": {
+      "title": "Users",
+      "noUsers": "No users yet.",
+      "joined": "Joined",
+      "submissions": "submission(s)",
+      "verified": "Verified",
+      "notVerified": "Not verified",
+      "suspended": "Suspended",
+      "suspend": "Suspend",
+      "reinstate": "Reinstate",
+      "suspendError": "Unable to update suspension status."
     }
   },
   "affiliateLinks": {
@@ -630,6 +678,9 @@
     "emptyDesc": "Check back soon for verified service partners.",
     "website": "Website",
     "contact": "Contact",
+    "languages": "Languages",
+    "whatsapp": "WhatsApp",
+    "selectLanguage": "Select languages spoken",
     "submitTitle": "Submit Your Service",
     "submitDescription": "Join the Fidelis Auto directory of verified specialist services for collector and enthusiast vehicles. Your listing appears after a quick review by our team.",
     "metaTitle": "Submit a Service",
@@ -639,6 +690,15 @@
       "specialty": "Specialty *",
       "selectSpecialty": "Select a specialty",
       "description": "Description *",
+      "specialistTags": "Specialist tags",
+      "specialistTagsHint": "Select all that apply — makes, eras, and skills, e.g. Porsche, Classic, Restoration.",
+      "languages": "Languages spoken",
+      "languageArabic": "Arabic",
+      "languageArabicEnglish": "Arabic + English",
+      "coverageArea": "Coverage area",
+      "coverageAreaPlaceholder": "e.g. Throughout UAE / Riyadh & Eastern Province",
+      "whatsapp": "WhatsApp number",
+      "photosNote": "Photos of your work can be added to your profile after it is published.",
       "phone": "Phone",
       "website": "Website",
       "city": "City",

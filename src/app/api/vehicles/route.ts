@@ -12,6 +12,13 @@ import { prisma } from "@/lib/prisma";
  *   city      string                      (matches the linked City.nameEn/nameAr)
  *   sort      newest | price_low | price_high              (default newest)
  *
+ * WS9 extended filters (all optional, additive, enum-guarded like `type`):
+ *   year            int                       (exact Vehicle.year)
+ *   maxMileage      int                       (Vehicle.mileage <= value)
+ *   bodyType        SEDAN | HATCHBACK | SUV | PICKUP | VAN | COUPE | CONVERTIBLE | WAGON | MPV | OTHER
+ *   fuelType        PETROL | DIESEL | ELECTRIC | HYBRID | LPG | CNG | OTHER
+ *   transmission    string                    (Vehicle.transmission text, case-insensitive)
+ *
  * Uses the WS1 launch index (countryId, vehicleType, isPublished, priceAmount). Empty results are
  * never fabricated (FID-010).
  */
@@ -20,6 +27,17 @@ const VALID_SORTS = new Set(["newest", "price_low", "price_high"]);
 
 /** Valid VehicleType enum values (from prisma schema) — guards the Prisma enum from garbage. */
 const VALID_VEHICLE_TYPES = new Set(["CAR", "MOTORCYCLE"]);
+
+/** Valid BodyType enum values (from prisma schema) — guards the Prisma enum from garbage. */
+const VALID_BODY_TYPES = new Set([
+  "SEDAN", "HATCHBACK", "SUV", "PICKUP", "VAN", "COUPE",
+  "CONVERTIBLE", "WAGON", "MPV", "OTHER",
+]);
+
+/** Valid FuelType enum values (from prisma schema) — guards the Prisma enum from garbage. */
+const VALID_FUEL_TYPES = new Set([
+  "PETROL", "DIESEL", "ELECTRIC", "HYBRID", "LPG", "CNG", "OTHER",
+]);
 
 function asText(v: string | null): string | null {
   return v && v.trim() ? v.trim() : null;
@@ -42,6 +60,14 @@ export async function GET(request: Request) {
     const city = asText(url.searchParams.get("city"));
     const priceMinLbs = asInt(url.searchParams.get("priceMin"));
     const priceMaxLbs = asInt(url.searchParams.get("priceMax"));
+    const year = asInt(url.searchParams.get("year"));
+    const maxMileage = asInt(url.searchParams.get("maxMileage"));
+    // Same enum-guarding as `type`: garbage bodyType/fuelType must never reach the Prisma query.
+    const bodyType = asText(url.searchParams.get("bodyType"));
+    const bodyTypeSafe = bodyType && VALID_BODY_TYPES.has(bodyType as never) ? bodyType : null;
+    const fuelType = asText(url.searchParams.get("fuelType"));
+    const fuelTypeSafe = fuelType && VALID_FUEL_TYPES.has(fuelType as never) ? fuelType : null;
+    const transmission = asText(url.searchParams.get("transmission"));
     const sortRaw = url.searchParams.get("sort");
     const sort = sortRaw && VALID_SORTS.has(sortRaw) ? sortRaw : "newest";
 
@@ -77,6 +103,12 @@ export async function GET(request: Request) {
         },
       };
     }
+    // WS9 extended filters — additive; each behaves like no filter when absent.
+    if (year !== null) where.year = year;
+    if (maxMileage !== null) where.mileage = { lte: maxMileage };
+    if (bodyTypeSafe) where.bodyType = bodyTypeSafe;
+    if (fuelTypeSafe) where.fuelType = fuelTypeSafe;
+    if (transmission) where.transmission = { contains: transmission, mode: "insensitive" };
 
     let orderBy: Record<string, string>[] = [{ order: "asc" }];
     if (sort === "newest") orderBy = [{ createdAt: "desc" }];

@@ -328,6 +328,7 @@ model User {
   city         String?
   role         AccountRole @default(BUYER)
   verified     Boolean     @default(false)
+  isSuspended  Boolean     @default(false) // WS10 warning-only policy: admin can suspend scam/fake accounts
   verificationCode       String?
   verificationCodeExpiry DateTime?
   phoneVerified Boolean  @default(false)
@@ -419,6 +420,11 @@ model ServiceListing {
   website     String?
   city        String?
   country     String?
+  // WS11 Services L+ — specialist provider profile (additive)
+  specialties String?  @db.Text // JSON array of specialist tags (make / era / skill)
+  languages   String?  // spoken languages, e.g. "Arabic" | "Arabic + English"
+  coverageArea String? // geographic coverage area
+  whatsapp    String?  // WhatsApp contact number
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

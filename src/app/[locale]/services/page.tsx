@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { parseSpecialties } from "@/lib/service-listing";
 import { prisma } from "@/lib/prisma";
-import { Wrench, MapPin, Globe, Phone, Plus } from "lucide-react";
+import { Wrench, MapPin, Globe, Phone, Plus, Languages, Tag } from "lucide-react";
 import Link from "next/link";
 import { SERVICE_CATEGORIES } from "@/lib/fidelisTaxonomy";
 
@@ -25,13 +26,17 @@ type ServiceRow = {
   website: string | null;
   city: string | null;
   country: string | null;
+  specialties: string | null;
+  languages: string | null;
+  coverageArea: string | null;
+  whatsapp: string | null;
 };
 
 export default async function ServicesPage() {
   const t = await getTranslations("services");
   const services = (await prisma.serviceListing.findMany({
     where: { isPublished: true },
-    select: { id: true, businessName: true, category: true, description: true, phone: true, website: true, city: true, country: true },
+    select: { id: true, businessName: true, category: true, description: true, phone: true, website: true, city: true, country: true, specialties: true, languages: true, coverageArea: true, whatsapp: true },
     orderBy: [{ category: "asc" }, { businessName: "asc" }],
   })) as unknown as ServiceRow[];
 
@@ -81,10 +86,23 @@ export default async function ServicesPage() {
                     <article key={service.id} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
                       <h3 className="text-lg font-semibold">{service.businessName}</h3>
                       <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">{service.description}</p>
-                      {(service.city || service.country) && (
+                      {(service.city || service.country || service.coverageArea) && (
                         <p className="mt-4 flex items-center gap-2 text-sm">
-                          <MapPin size={15} /> {[service.city, service.country].filter(Boolean).join(", ")}
+                          <MapPin size={15} /> {[service.coverageArea || service.city, service.country].filter(Boolean).join(", ")}
                         </p>
+                      )}
+                      {service.languages && (
+                        <p className="mt-2 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+                          <Languages size={15} /> {t("languages")}: {service.languages}
+                        </p>
+                      )}
+                      {service.specialties && (
+                        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                          <Tag size={14} className="text-[var(--color-text-secondary)]" />
+                          {(parseSpecialties(service.specialties)).map((tag) => (
+                            <span key={tag} className="rounded-full bg-[var(--color-surface-soft)] border border-[var(--color-border)] px-2.5 py-0.5 text-xs">{tag}</span>
+                          ))}
+                        </div>
                       )}
                       <div className="mt-4 flex flex-wrap gap-4 text-sm text-[var(--color-accent)]">
                         {service.website && (
@@ -92,9 +110,9 @@ export default async function ServicesPage() {
                             <Globe size={15} /> {t("website")}
                           </a>
                         )}
-                        {service.phone && (
-                          <a className="inline-flex items-center gap-1 hover:underline" href={`tel:${service.phone}`}>
-                            <Phone size={15} /> {t("contact")}
+                        {(service.phone || service.whatsapp) && (
+                          <a className="inline-flex items-center gap-1 hover:underline" href={`tel:${service.whatsapp || service.phone}`}>
+                            <Phone size={15} /> {service.whatsapp ? t("whatsapp") : t("contact")}
                           </a>
                         )}
                       </div>
@@ -118,8 +136,24 @@ export default async function ServicesPage() {
                     <article key={service.id} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
                       <h3 className="text-lg font-semibold">{service.businessName}</h3>
                       <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">{service.description}</p>
-                      {(service.city || service.country) && (
-                        <p className="mt-4 flex items-center gap-2 text-sm"><MapPin size={15} /> {[service.city, service.country].filter(Boolean).join(", ")}</p>
+                      {(service.city || service.country || service.coverageArea) && (
+                        <p className="mt-4 flex items-center gap-2 text-sm"><MapPin size={15} /> {[service.coverageArea || service.city, service.country].filter(Boolean).join(", ")}</p>
+                      )}
+                      {service.languages && (
+                        <p className="mt-2 flex items-center gap-2 text-sm text-[var(--color-text-secondary)]"><Languages size={15} /> {t("languages")}: {service.languages}</p>
+                      )}
+                      {service.specialties && (
+                        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                          <Tag size={14} className="text-[var(--color-text-secondary)]" />
+                          {(parseSpecialties(service.specialties)).map((tag) => (
+                            <span key={tag} className="rounded-full bg-[var(--color-surface-soft)] border border-[var(--color-border)] px-2.5 py-0.5 text-xs">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                      {(service.phone || service.whatsapp) && (
+                        <a className="mt-4 inline-flex items-center gap-1 text-sm text-[var(--color-accent)] hover:underline" href={`tel:${service.whatsapp || service.phone}`}>
+                          <Phone size={15} /> {service.whatsapp ? t("whatsapp") : t("contact")}
+                        </a>
                       )}
                     </article>
                   ))}

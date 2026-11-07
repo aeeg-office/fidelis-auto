@@ -15,6 +15,53 @@ const UNIT_LABEL: Record<"image" | "video", string> = {
   video: "Videos",
 };
 
+/**
+ * Cap for the persisted original raster, in pixels on the longest side.
+ *
+ * Spec L ("Automatic compression to WebP sizes ... plus a capped original copy
+ * (about 2,560 px)"): the stored original must never exceed this bound so a
+ * huge full-resolution master is never served or kept. A raster larger on its
+ * longest side than MAX_ORIGINAL_DIM is scaled down (aspect preserved, never
+ * enlarged) to a WebP copy named `<base>-2560.webp` stored alongside the
+ * original; images already at or below the cap are left untouched.
+ */
+export const MAX_ORIGINAL_DIM = 2560;
+
+/**
+ * Compute the capped-original copy's filename for a given upload filename.
+ *
+ * Given an original such as `abc123.jpg`, returns `abc123-2560.webp` — the
+ * WebP variant capped to MAX_ORIGINAL_DIM px on its longest side. Used by the
+ * upload pipeline and the WebP backfill so new and existing uploads converge on
+ * the same naming scheme.
+ */
+export function cappedOriginalFilename(filename: string, maxDim: number = MAX_ORIGINAL_DIM): string {
+  const base = filename.replace(/\.[^.]+$/, "");
+  return `${base}-${maxDim}.webp`;
+}
+
+/**
+ * Scale a raster's (width, height) to fit within `maxDim` px on the longest
+ * side, preserving aspect ratio and never upscaling. Images already within the
+ * cap are returned unchanged. Dimensions are rounded to whole pixels (>= 1).
+ */
+export function capOriginalDimensions(
+  width: number,
+  height: number,
+  maxDim: number = MAX_ORIGINAL_DIM
+): { width: number; height: number } {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return { width, height };
+  }
+  const longest = Math.max(width, height);
+  if (longest <= maxDim) return { width, height };
+  const scale = maxDim / longest;
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+}
+
 export function validateUpload(file: UploadDescriptor): UploadValidation {
   const definition = MIME_TYPES[file.type];
   if (!definition) {

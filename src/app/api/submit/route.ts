@@ -13,6 +13,16 @@ export async function POST(request: Request) {
   if (!can(user.role as AccountRole, "listing:create")) {
     return NextResponse.json({ error: "Your account is not permitted to submit listings." }, { status: 403 });
   }
+  // WS10 warning-only policy: a suspended account cannot submit listings.
+  if (user.isSuspended) {
+    return NextResponse.json(
+      {
+        error: "Your account is suspended. Please contact support.",
+        errorAr: "تم تعليق حسابك. يرجى التواصل مع الدعم.",
+      },
+      { status: 403 }
+    );
+  }
 
   try {
     const body: unknown = await request.json();
