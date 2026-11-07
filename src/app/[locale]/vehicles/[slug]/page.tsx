@@ -32,6 +32,22 @@ function buildDescription(title: string, descriptionEn: string | null | undefine
   return raw.length > 158 ? `${raw.slice(0, 155).trimEnd()}…` : raw;
 }
 
+/**
+ * Decode the Vehicle.videoUrls JSON array of approved /uploads/video-* paths.
+ * Fails safe: null/empty/malformed → empty list (nothing renders).
+ */
+function getVehicleVideos(json: string | null | undefined): string[] {
+  if (!json) return [];
+  try {
+    const parsed: unknown = JSON.parse(json);
+    return Array.isArray(parsed)
+      ? parsed.filter((u): u is string => typeof u === "string" && /^\/uploads\/(?:video-)?[0-9a-f-]{36}\.(?:mp4|webm)$/i.test(u))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Structured-data price: parse the string price; omit when not parseable. */
 function parsePrice(price: string | null | undefined): number | null {
   if (!price) return null;
@@ -54,6 +70,10 @@ type VehicleData = {
   images: GalleryImage[];
   /** Cover image == first of the ordered images (primary or first available). */
   coverImage: string | null;
+  /** WS15 P2 media: walkaround video clip paths (JSON array, first used as the player src). */
+  videos: string[];
+  /** WS15 P2 media: single engine sound clip path. */
+  audioUrl: string | null;
   /**
    * Seller contact. Public email renders ONLY from the per-listing
    * contactEmail override — the raw owner account email is never exposed.
@@ -78,6 +98,7 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
     if (vehicle) {
       const images = (vehicle as { images: { src: string; alt?: string | null }[] }).images ?? [];
       const cover = images[0]?.src ?? null;
+      const videos = getVehicleVideos(vehicle.videoUrls);
       return {
         slug: vehicle.slug,
         title: vehicle.title,
@@ -99,6 +120,8 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         cityName: vehicle.city?.nameEn || vehicle.city?.nameAr || null,
         images: images.map((i) => ({ src: i.src, alt: i.alt })),
         coverImage: cover,
+        videos,
+        audioUrl: vehicle.audioUrl ?? null,
         ownerEmail: vehicle.contactEmail ?? null, // never fall back to owner account email
         ownerPhone: vehicle.contactPhone ?? vehicle.owner?.phone ?? null,
         dealerPhone: vehicle.owner?.dealerProfile?.phone ?? null,
@@ -230,6 +253,35 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
             fallbackSrc={imagePath}
           />
         </div>
+
+        {/* WS15 P2 media: walkaround video (first clip) + engine sound clip. */}
+        {(vehicle.videos.length > 0 || vehicle.audioUrl) && (
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            {vehicle.videos.length > 0 && (
+              <div>
+                <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 uppercase tracking-wider">{t("mediaVideo")}</h2>
+                <video
+                  key={vehicle.videos[0]}
+                  controls
+                  preload="metadata"
+                  playsInline
+                  className="w-full rounded-lg bg-black aspect-video"
+                  src={vehicle.videos[0]}
+                />
+              </div>
+            )}
+            {vehicle.audioUrl && (
+              <div>
+                <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 uppercase tracking-wider">{t("mediaEngineSound")}</h2>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
+                  <audio controls preload="metadata" className="w-full min-w-0" src={vehicle.audioUrl}>
+                    <a href={vehicle.audioUrl} className="text-[var(--color-accent)]">{t("mediaEngineSound")}</a>
+                  </audio>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="container-page pb-16">

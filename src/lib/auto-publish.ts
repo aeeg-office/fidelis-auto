@@ -65,6 +65,7 @@ export async function autoPublish(
     description?: string | null;
     photoUrls?: string | null;
     videoUrls?: string | null;
+    audioUrl?: string | null;
   },
   listingId: string,
 ): Promise<AutoPublishResult> {
@@ -92,6 +93,10 @@ export async function autoPublish(
       engine: submission.engine ?? null,
       transmission: submission.transmission ?? null,
       descriptionEn: submission.description ?? null,
+      // WS15 P2 media: carry approved walkaround video(s) + engine sound clip
+      // through to the published vehicle verbatim.
+      videoUrls: submission.videoUrls ?? null,
+      audioUrl: submission.audioUrl ?? null,
       // No explicit price provided by a submission yet — default status available.
       price: "", // filled by owner via edit flow; placeholder to satisfy required field
       status: "available",

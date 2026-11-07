@@ -81,14 +81,20 @@ export async function POST(request: Request) {
       : path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadDir, { recursive: true });
 
-    const filename = `${crypto.randomUUID()}.${validation.extension}`;
+    // Kind-prefixed filename: photos keep the legacy flat `<uuid>.<ext>` scheme
+    // (unchanged contract), videos and sound clips carry a `video-` / `audio-`
+    // prefix so the media type is identifiable from the stored path alone
+    // (Spec P2 VehicleMedia kind photo/video/sound). The prefix is derived
+    // from the validated MIME type, never from caller input.
+    const prefix = validation.kind === "image" ? "" : validation.kind === "video" ? "video-" : "audio-";
+    const filename = `${prefix}${crypto.randomUUID()}.${validation.extension}`;
     await writeFile(path.join(uploadDir, filename), buffer, { flag: "wx" });
 
     // Media opt: emit the capped original copy (-2560.webp, Spec L) plus
     // -thumb.webp / -800.webp / -1600.webp for raster uploads. A media-opt
     // failure must NOT fail the upload — the original is preserved and the
     // caller still gets the original url (contract unchanged).
-    if (RASTER_TYPES.has(candidate.type)) {
+    if (validation.kind === "image" && RASTER_TYPES.has(candidate.type)) {
       try {
         await generateMediaOpts(buffer, uploadDir, filename);
       } catch (error) {

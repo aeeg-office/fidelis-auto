@@ -141,6 +141,8 @@
     "mileageUnit": "ميل",
     "miles": "ميل",
     "recentlySold": "بيع حديثاً",
+    "mediaVideo": "فيديو التجوّل",
+    "mediaEngineSound": "تسجيل صوت المحرك",
     "nearbySpecialists": "متخصصون قريبون في {city}"
   },
   "filters": {
@@ -333,6 +335,13 @@
     "videosOptional": "— اختياري",
     "uploadVideos": "رفع فيديو (حد أقصى 3)",
     "addMoreVideos": "أضف المزيد من الفيديوهات",
+    "videoHint": "MP4 أو WebM بحجم يصل إلى 30 ميجابايت — يُفضَّل مقطع تجوّل مدته 60 ثانية بدقة 720p.",
+    "engineSound": "صوت المحرك",
+    "engineSoundOptional": "— اختياري، مقطع واحد",
+    "chooseEngineSound": "اختر تسجيل صوت المحرك",
+    "replaceEngineSound": "استبدال تسجيل صوت المحرك",
+    "removeEngineSound": "إزالة تسجيل صوت المحرك",
+    "engineSoundHint": "MP3 أو WAV أو OGG بحجم يصل إلى 10 ميجابايت.",
     "submitVehicle": "إرسال المركبة",
     "submitting": "جارٍ الإرسال...",
     "submissionReceived": "تم استلام الطلب!",
