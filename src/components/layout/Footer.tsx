@@ -34,10 +34,12 @@ export default async function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-2 mb-4">
-              <span className="w-6 h-6 rounded-full border border-[var(--color-accent)] flex items-center justify-center">
-                <span className="w-2 h-2 bg-[var(--color-accent)] rounded-full" />
-              </span>
+            <Link href="/" className="inline-flex items-center gap-2 mb-4" aria-label="Fidelis Auto — home">
+              <svg viewBox="0 0 64 64" className="w-6 h-6 shrink-0" aria-hidden="true">
+                <circle cx="32" cy="32" r="30" className="fill-[var(--color-surface-dark)]" />
+                <circle cx="32" cy="32" r="29" className="fill-none stroke-[var(--color-accent)]" strokeWidth="4" />
+                <path d="M24 16h18v5H29v8h11v5H29v14h-5V16z" className="fill-[var(--color-accent)]" />
+              </svg>
               <span className="font-[family-name:var(--font-cormorant)] text-lg font-semibold">
                 Fidelis Auto
               </span>

@@ -52,10 +52,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-sm">
       <div className="container-page flex items-center justify-between h-16 md:h-20">
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="w-10 h-10 rounded-full border-2 border-[var(--color-accent)] flex items-center justify-center">
-            <span className="w-4 h-4 bg-[var(--color-accent)] rounded-full" />
-          </span>
+        <Link href="/" className="flex items-center gap-2 group" aria-label="Fidelis Auto — home">
+          <svg viewBox="0 0 64 64" className="w-10 h-10 shrink-0" aria-hidden="true">
+            <circle cx="32" cy="32" r="30" className="fill-[var(--color-surface-dark)]" />
+            <circle cx="32" cy="32" r="29" className="fill-none stroke-[var(--color-accent)]" strokeWidth="2.5" />
+            <path d="M24 16h18v5H29v8h11v5H29v14h-5V16z" className="fill-[var(--color-accent)]" />
+          </svg>
           <span className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-bold tracking-wider text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors uppercase">
             Fidelis Auto
           </span>
