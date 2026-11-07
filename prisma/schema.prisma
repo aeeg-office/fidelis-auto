@@ -209,6 +209,10 @@ model Vehicle {
   order         Int      @default(0)
   contactEmail  String?
   contactPhone  String?  // Per-listing public contact override; public email hidden unless set
+  // WS15 P2 media: walkaround video clip(s) (JSON array of uploaded video paths)
+  // and one engine sound clip. Additive — null for listings published before WS15.
+  videoUrls     String?  @db.Text // JSON array of uploaded video paths
+  audioUrl      String?  @db.Text // engine sound clip path
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -465,6 +469,7 @@ model ListingRequest {
   description   String?  @db.Text
   photoUrls     String?  @db.Text // JSON array of uploaded photo/video paths
   videoUrls     String?  @db.Text // JSON array of uploaded video paths
+  audioUrl      String?  @db.Text // engine sound clip path (WS15 P2 media)
   city          String?
   state         String?
   country       String?
