@@ -22,6 +22,8 @@ const notoKufiArabic = Noto_Kufi_Arabic({
   variable: "--font-arabic",
   subsets: ["arabic"],
   weight: ["400", "500", "600", "700"],
+  // Latin fallback handled in globals.css: Arabic copy mixes in Inter
+  // for Latin runs; Kufi has no reliable Latin glyphs of its own.
   display: "swap",
 });
 
@@ -52,7 +54,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html
       lang={isRtl ? "ar-EG" : "en"}
       dir={isRtl ? "rtl" : "ltr"}
-      className={`${inter.variable} ${cormorant.variable} ${isRtl ? notoKufiArabic.variable : ""}`}
+      className={`${inter.variable} ${cormorant.variable} ${notoKufiArabic.variable}`}
     >
       <body className="min-h-screen flex flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>

@@ -1,41 +1,86 @@
 @import "tailwindcss";
 
 /* ============================================================
-   Fidelis Auto — Design Tokens
+   Fidelis Auto — Option C Design Tokens
+   Light showroom base, dark showroom moments, restrained gold.
    ============================================================ */
 
 :root {
-  /* Brand Colors */
-  --color-bg: #f5f3ef;
-  --color-surface: #ffffff;
-  --color-surface-dark: #1a1a2e;
-  --color-text-primary: #1a1a2e;
-  --color-text-secondary: #4a4a5a;
+  /* Brand palette (Option C) */
+  --color-bg: #f5f3ef;            /* warm ivory base */
+  --color-surface: #ffffff;       /* white cards on ivory */
+  --color-surface-dark: #1a1a2e;  /* deep ink showroom moments */
+
+  /* Ink text */
+  --color-ink: #1a1a2e;           /* primary ink (WCAG AA on ivory/white) */
+  --color-ink-hover: #10101c;     /* pressed / hover ink */
+  --color-text-primary: var(--color-ink);
+  --color-text-secondary: #4a4a5a;/* meets WCAG AA (4.6:1) on ivory/white */
   --color-text-inverse: #ffffff;
+
+  /* Gold #c9a84c — premium/verified badges + thin rules ONLY, never buttons
+     or small text (contrast ~1.9:1 on ivory is too low for those uses). */
   --color-accent: #c9a84c;
   --color-accent-hover: #b8953a;
+  --color-accent-soft: rgba(201, 168, 76, 0.12); /* badge tint washes */
+
+  /* Trust / verification green #2d5a27 */
+  --color-green: #2d5a27;
+  --color-green-hover: #23491f;
+  --color-verified: var(--color-green); /* alias used by registration flows */
+
   --color-border: #e0ddd6;
-  --color-verified: #2d5a27;
   --color-error: #8b2252;
+
+  /* WhatsApp brand green — the universally recognised contact affordance */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-hover: #1eb959;
 }
 
 @theme inline {
   --color-bg: var(--color-bg);
   --color-surface: var(--color-surface);
   --color-surface-dark: var(--color-surface-dark);
+  --color-ink: var(--color-ink);
+  --color-ink-hover: var(--color-ink-hover);
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
   --color-text-inverse: var(--color-text-inverse);
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
-  --color-border: var(--color-border);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-green: var(--color-green);
+  --color-green-hover: var(--color-green-hover);
   --color-verified: var(--color-verified);
+  --color-whatsapp: var(--color-whatsapp);
+  --color-whatsapp-hover: var(--color-whatsapp-hover);
+  --color-border: var(--color-border);
   --color-error: var(--color-error);
-  --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Dark Mode */
+/* Radius scale — consistent card/control geometry across pages */
+@theme {
+  --radius-card: 1rem;        /* 16px — cards, panels, result tiles */
+  --radius-control: 0.625rem; /* 10px — inputs, buttons, chips */
+  --radius-pill: 9999px;      /* badges, featured markers */
+}
+
+/* Shadow scale — quiet showroom elevation */
+@theme {
+  --shadow-card:
+    0 1px 2px rgb(26 26 46 / 0.04),
+    0 4px 16px rgb(26 26 46 / 0.06);
+  --shadow-card-hover:
+    0 2px 4px rgb(26 26 46 / 0.06),
+    0 12px 28px rgb(26 26 46 / 0.12);
+  --shadow-cta:
+    0 4px 14px rgb(45 90 39 / 0.22);
+}
+
+/* Dark Mode (deferred per Option C, tokens structured so it can be added later) */
 .dark {
   --color-bg: #0d0d14;
   --color-surface: #1a1a2e;
@@ -47,20 +92,49 @@
 /* ============================================================
    Base Styles
    ============================================================ */
+html {
+  /* next/font exposes these variables on <html>; core web vitals
+     recommends setting the font by CSS rather than inline styles. */
+  font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text-primary);
-  font-family: var(--font-sans);
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* ============================================================
-   RTL Support
+   RTL Support — Arabic typography
+   Noto Kufi Arabic is the interface + display face for Arabic
+   (Cormorant Garamond has no Arabic glyphs). Latin runs inside
+   Arabic copy fall back to Inter.
    ============================================================ */
 
-/* Arabic font family override */
 [dir="rtl"] body,
 [dir="rtl"] {
-  font-family: var(--font-arabic, "Noto Kufi Arabic", system-ui, sans-serif);
+  font-family: var(--font-arabic), var(--font-inter), ui-sans-serif,
+    system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Kufi glyphs have tall ascenders/descenders — lead generously. */
+  line-height: 1.7;
+  letter-spacing: 0; /* Arabic script is cursive; no optical letter-spacing */
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
+
+/* Arabic display: replace Cormorant (latin-only) with Noto Kufi for
+   headings so mixed Latin/Arabic headlines render consistently. */
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] [class*="font-cormorant"],
+[dir="rtl"] [class*="font-display"] {
+  font-family: var(--font-arabic), var(--font-inter), Georgia, serif !important;
+  line-height: 1.5;
+  letter-spacing: 0;
 }
 
 /* Flip arrows and directional icons in RTL */
@@ -151,13 +225,37 @@ body {
   animation: shimmer 1.5s infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-shimmer {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
 /* ============================================================
-   Focus Styles
+   Focus Styles — WCAG 2.2 (visible 2px ring, 3:1+ against bg)
+   Ink ring on the light showroom base (>14:1). In dark mode the
+   gold ring reads at ~8:1 against near-black.
    ============================================================ */
-*:focus-visible {
-  outline: 2px solid var(--color-accent);
+:focus-visible {
+  outline: 2px solid var(--color-ink);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+.dark :focus-visible {
+  outline-color: var(--color-accent);
+}
+
+/* Mouse users never see the ring */
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* ============================================================
