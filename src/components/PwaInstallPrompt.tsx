@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
 const STORAGE_KEY = "fidelis-pwa-dismissed";
@@ -11,6 +12,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function PwaInstallPrompt() {
+  const t = useTranslations("pwa");
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
@@ -31,10 +33,19 @@ export default function PwaInstallPrompt() {
         });
       }, 2000);
     };
+    const installedHandler = () => {
+      setAnimate(false);
+      setTimeout(() => setVisible(false), 300);
+      setDeferredPrompt(null);
+    };
 
     window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
 
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
   }, []);
 
   async function handleInstall() {
@@ -71,10 +82,10 @@ export default function PwaInstallPrompt() {
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-[var(--color-text-inverse)]">
-            Install Fidelis Auto
+            {t("title")}
           </p>
           <p className="text-xs text-[var(--color-text-inverse)]/60 truncate">
-            Add to your home screen for the best experience
+            {t("subtitle")}
           </p>
         </div>
 
@@ -83,12 +94,12 @@ export default function PwaInstallPrompt() {
             onClick={handleInstall}
             className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--color-accent-hover)] transition-colors whitespace-nowrap"
           >
-            Install
+            {t("button")}
           </button>
           <button
             onClick={dismiss}
             className="p-1.5 text-[var(--color-text-inverse)]/40 hover:text-[var(--color-text-inverse)] transition-colors"
-            aria-label="Not now"
+            aria-label={t("dismiss")}
           >
             <X size={16} />
           </button>

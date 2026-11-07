@@ -70,3 +70,43 @@ jobs:
         run: npx prisma db push
       - name: Build
         run: DATABASE_URL="${{ env.DATABASE_URL }}" npm run build
+
+  playwright-smoke:
+    name: Playwright E2E smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fidelis_e2e
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fidelis_e2e
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Prisma generate
+        run: npx prisma generate
+      - name: Baseline schema (empty DB)
+        run: npx prisma db push
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+      - name: Build (webServer runs `next start`)
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: E2E smoke tests (homepage / vehicles / AR rtl)
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}

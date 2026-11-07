@@ -535,5 +535,11 @@
     "sold": "Sold",
     "priceOnApplication": "Price on Application",
     "noImage": "No image"
+  },
+  "pwa": {
+    "title": "Install Fidelis Auto",
+    "subtitle": "Add to your home screen for the best experience",
+    "button": "Install",
+    "dismiss": "Not now"
   }
 }
