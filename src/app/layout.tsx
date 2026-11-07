@@ -31,17 +31,22 @@ export const metadata: Metadata = {
     locale: "en_US",
     siteName: "Fidelis Auto",
   },
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
+  applicationName: "Fidelis Auto",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
       { url: "/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
-  other: {
-    "apple-mobile-web-app-capable": "yes",
+  appleWebApp: {
+    capable: true,
+    title: "Fidelis Auto",
+    statusBarStyle: "default",
   },
 };
 

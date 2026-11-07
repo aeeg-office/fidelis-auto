@@ -660,5 +660,11 @@
     "browse": "Browse the Collection",
     "view": "View",
     "noPhoto": "No photo"
+  },
+  "pwa": {
+    "title": "Install Fidelis Auto",
+    "subtitle": "Add to your home screen for the best experience",
+    "button": "Install",
+    "dismiss": "Not now"
   }
 }

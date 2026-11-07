@@ -12,7 +12,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function PwaInstallPrompt() {
-  const t = useTranslations("common");
+  const t = useTranslations("pwa");
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
@@ -33,10 +33,19 @@ export default function PwaInstallPrompt() {
         });
       }, 2000);
     };
+    const installedHandler = () => {
+      setAnimate(false);
+      setTimeout(() => setVisible(false), 300);
+      setDeferredPrompt(null);
+    };
 
     window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
 
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
   }, []);
 
   async function handleInstall() {
@@ -73,10 +82,10 @@ export default function PwaInstallPrompt() {
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-[var(--color-text-inverse)]">
-            {t("installTitle")}
+            {t("title")}
           </p>
           <p className="text-xs text-[var(--color-text-inverse)]/60 truncate">
-            {t("installDesc")}
+            {t("subtitle")}
           </p>
         </div>
 
@@ -85,12 +94,12 @@ export default function PwaInstallPrompt() {
             onClick={handleInstall}
             className="bg-[var(--color-text-inverse)] text-[var(--color-surface-dark)] px-4 py-2 rounded-[var(--radius-control)] text-sm font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors whitespace-nowrap"
           >
-            {t("install")}
+{t("button")}
           </button>
           <button
             onClick={dismiss}
             className="p-1.5 text-[var(--color-text-inverse)]/40 hover:text-[var(--color-text-inverse)] transition-colors"
-            aria-label={t("notNow")}
+aria-label={t("dismiss")}
           >
             <X size={16} />
           </button>
