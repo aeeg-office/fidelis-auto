@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
 const STORAGE_KEY = "fidelis-pwa-dismissed";
@@ -11,6 +12,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function PwaInstallPrompt() {
+  const t = useTranslations("common");
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
@@ -59,7 +61,7 @@ export default function PwaInstallPrompt() {
 
   return (
     <div
-      className={`fixed bottom-4 left-4 right-4 z-50 max-w-md mx-auto transition-all duration-300 ${
+      className={`fixed bottom-4 start-4 end-4 z-50 max-w-md mx-auto transition-all duration-300 ${
         animate ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
       }`}
     >
@@ -71,10 +73,10 @@ export default function PwaInstallPrompt() {
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-[var(--color-text-inverse)]">
-            Install Fidelis Auto
+            {t("installTitle")}
           </p>
           <p className="text-xs text-[var(--color-text-inverse)]/60 truncate">
-            Add to your home screen for the best experience
+            {t("installDesc")}
           </p>
         </div>
 
@@ -83,12 +85,12 @@ export default function PwaInstallPrompt() {
             onClick={handleInstall}
             className="bg-[var(--color-text-inverse)] text-[var(--color-surface-dark)] px-4 py-2 rounded-[var(--radius-control)] text-sm font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors whitespace-nowrap"
           >
-            Install
+            {t("install")}
           </button>
           <button
             onClick={dismiss}
             className="p-1.5 text-[var(--color-text-inverse)]/40 hover:text-[var(--color-text-inverse)] transition-colors"
-            aria-label="Not now"
+            aria-label={t("notNow")}
           >
             <X size={16} />
           </button>

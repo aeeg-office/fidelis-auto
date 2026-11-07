@@ -154,9 +154,9 @@ async function getCategoryCounts(): Promise<Record<string, number>> {
   }
 }
 
-function formatDate(date: Date | null): string {
+function formatDate(date: Date | null, locale: string): string {
   if (!date) return "";
-  return new Date(date).toLocaleDateString("en-US", {
+  return new Date(date).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -196,12 +196,12 @@ export default async function JournalPage({
               <div className="text-center py-16 text-[var(--color-text-secondary)]">
                 <p>
                   {activeCat
-                    ? `No journal entries in "${activeCat}" yet.`
+                    ? t("noEntriesIn", { cat: activeCat })
                     : t("comingSoon")}
                 </p>
                 {activeCat && (
                   <Link href="/journal" className="mt-4 inline-block text-sm text-[var(--color-accent)] hover:underline">
-                    View all entries
+                    {t("viewAllEntries")}
                   </Link>
                 )}
               </div>
@@ -233,7 +233,7 @@ export default async function JournalPage({
                       </div>
                       <div className="flex items-center gap-3 mb-2">
                         <p className="text-xs text-[var(--color-accent)] font-medium">
-                          {formatDate(entry.publishedAt)}
+                          {formatDate(entry.publishedAt, locale)}
                         </p>
                         {entry.category && (
                           <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)]">
@@ -248,7 +248,7 @@ export default async function JournalPage({
                         {entry.excerpt}
                       </p>
                       <span className="inline-flex items-center gap-1 text-sm text-[var(--color-accent)] mt-3 transition-colors">
-                        {t("readMore")} <ArrowRight size={14} />
+                        {t("readMore")} <ArrowRight size={14} className="rtl:rotate-180" />
                       </span>
                     </article>
                   </Link>
@@ -262,7 +262,7 @@ export default async function JournalPage({
             <div className="lg:sticky lg:top-24 space-y-8">
               <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-4">
-                  Browse by Category
+                  {t("browseByCategory")}
                 </h3>
                 <ul className="space-y-1">
                   <li>
@@ -274,7 +274,7 @@ export default async function JournalPage({
                           : "text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]"
                       }`}
                     >
-                      All Entries
+                      {t("allEntries")}
                     </Link>
                   </li>
                   {BLOG_CATEGORIES.map((c) => (

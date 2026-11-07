@@ -109,9 +109,10 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
 // ─── Metadata ───────────────────────────────────
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; locale: string }> }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  const t = await getTranslations({ locale, namespace: "vehicles" });
   const vehicle = await getVehicle(slug);
-  if (!vehicle) return { title: "Vehicle Not Found" };
+  if (!vehicle) return { title: t("notFound") };
 
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ""}`;
   const canonical = `https://fidelisauto.com/vehicles/${slug}`;
@@ -162,7 +163,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
   const specs = [
     { label: t("specs.year"), value: vehicle.year, icon: Calendar },
-    { label: t("specs.mileage"), value: vehicle.mileage ? `${vehicle.mileage.toLocaleString()} mi` : "—", icon: Gauge },
+    { label: t("specs.mileage"), value: vehicle.mileage ? `${vehicle.mileage.toLocaleString()} ${t("mileageUnit")}` : "—", icon: Gauge },
     { label: t("specs.engine"), value: vehicle.engine || "—", icon: Wrench },
     { label: t("specs.exterior"), value: vehicle.exteriorColor || "—", icon: Palette },
   ];
@@ -212,7 +213,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
       <div className="container-page py-6">
         <Link href="/vehicles" className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
-          <ArrowLeft size={16} /> {t("backToVehicles")}
+          <ArrowLeft size={16} className="rtl:rotate-180" /> {t("backToVehicles")}
         </Link>
       </div>
 
@@ -233,7 +234,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
               {vehicle.title}
             </h1>
             <p className="text-lg text-[var(--color-text-secondary)] mb-6">
-              {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} miles` : ""}
+              {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} ${t("miles")}` : ""}
             </p>
             {(vehicle.descriptionEn || vehicle.description) && (
               <div className="prose prose-lg max-w-none text-[var(--color-text-secondary)]">
@@ -286,8 +287,8 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-semibold text-[var(--color-text-primary)] mb-8">{pT("title")}</h2>
           <div className="space-y-6">
             {[
-              { date: String(vehicle.year), title: pT("manufactured"), desc: `${vehicle.year} ${vehicle.make} ${vehicle.model} built` },
-              { date: "Present", title: pT("present"), desc: pT("contactForFile") },
+              { date: String(vehicle.year), title: pT("manufactured"), desc: pT("built", { year: vehicle.year, make: vehicle.make, model: vehicle.model }) },
+              { date: pT("presentDate"), title: pT("present"), desc: pT("contactForFile") },
             ].map((milestone, i) => (
               <div key={i} className="flex gap-4">
                 <div className="flex flex-col items-center">

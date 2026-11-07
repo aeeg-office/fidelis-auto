@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -159,6 +160,7 @@ function VehicleSelector({
   onRemove: () => void;
   showRemove: boolean;
 }) {
+  const t = useTranslations("compare");
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -183,13 +185,13 @@ function VehicleSelector({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-[var(--color-text-secondary)] text-sm">No image</span>
+              <span className="text-[var(--color-text-secondary)] text-sm">{t("noImage")}</span>
             )}
             {showRemove && (
               <button
                 onClick={onRemove}
                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
-                aria-label="Remove vehicle"
+                aria-label={t("removeVehicle")}
               >
                 <X size={14} />
               </button>
@@ -233,7 +235,7 @@ function VehicleSelector({
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search vehicles..."
+                  placeholder={t("searchVehicles")}
                   className="w-full pl-9 pr-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
                   autoFocus
                 />
@@ -242,7 +244,7 @@ function VehicleSelector({
             <div className="overflow-y-auto flex-1">
               {filtered.length === 0 ? (
                 <p className="text-center text-sm text-[var(--color-text-secondary)] py-8">
-                  No vehicles found
+                  {t("noVehiclesFound")}
                 </p>
               ) : (
                 filtered.map((o) => (
@@ -279,14 +281,16 @@ function VehicleSelector({
 // ─── Main Page ──────────────────────────────────
 
 export default function ComparePage() {
+  const t = useTranslations("compare");
   return (
-    <Suspense fallback={<div className="container-page py-16 text-center text-[var(--color-text-secondary)]">Loading comparison...</div>}>
+    <Suspense fallback={<div className="container-page py-16 text-center text-[var(--color-text-secondary)]">{t("loading")}</div>}>
       <CompareContent />
     </Suspense>
   );
 }
 
 function CompareContent() {
+  const t = useTranslations("compare");
   const searchParams = useSearchParams();
   const router = useRouter();
   const [vehicles, setVehicles] = useState<CompareVehicle[]>([]);
@@ -372,17 +376,17 @@ function CompareContent() {
         href="/vehicles"
         className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors mb-6"
       >
-        <ArrowLeft size={16} /> Back to Vehicles
+        <ArrowLeft size={16} className="rtl:rotate-180" /> {t("backToVehicles")}
       </Link>
 
       {/* Page Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)]">
-            Compare Vehicles
+            {t("title")}
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-            Select up to 3 vehicles to compare side by side
+            {t("description")}
           </p>
         </div>
         {vehicles.length > 0 && (
@@ -393,7 +397,7 @@ function CompareContent() {
             }}
             className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-error)] transition-colors"
           >
-            <X size={16} /> Clear All
+            <X size={16} /> {t("clearAll")}
           </button>
         )}
       </div>
@@ -427,10 +431,10 @@ function CompareContent() {
         <div className="text-center py-20 border border-dashed border-[var(--color-border)] rounded-lg">
           <Shuffle size={48} className="mx-auto text-[var(--color-text-secondary)] mb-4" />
           <h3 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] mb-2">
-            Select at least 2 vehicles
+            {t("selectAtLeast2")}
           </h3>
           <p className="text-[var(--color-text-secondary)] max-w-md mx-auto">
-            Use the selectors above to choose 2 or 3 vehicles and see a detailed comparison.
+            {t("selectAtLeast2Desc")}
           </p>
         </div>
       ) : (
@@ -440,7 +444,7 @@ function CompareContent() {
               <tr>
                 <th className="text-left pb-4 pr-4 w-40">
                   <span className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
-                    Specification
+                    {t("specification")}
                   </span>
                 </th>
                 {vehicles.map((v, i) => (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Upload, Check, Video } from "lucide-react";
 import Link from "next/link";
 import { YEARS, EXTERIOR_COLORS, INTERIOR_COLORS, TRANSMISSIONS, COUNTRIES } from "@/lib/car-data";
@@ -8,6 +9,7 @@ import PhoneInput from "@/components/PhoneInput";
 import type { MakeEntry } from "@/lib/car-data";
 
 export default function SubmitForm() {
+  const t = useTranslations("sellYourCar");
   const [step, setStep] = useState<"form" | "success">("form");
   const [loading, setLoading] = useState(false);
   const [photos, setPhotos] = useState<File[]>([]);
@@ -34,13 +36,13 @@ export default function SubmitForm() {
 
   function validate(): string[] {
     const errs: string[] = [];
-    if (!phone) errs.push("Phone number is required.");
-    if (!selectedYear) errs.push("Year is required.");
-    if (selectedMake === "Other" && !customMake) errs.push("Please enter the make.");
-    else if (!selectedMake) errs.push("Make is required.");
-    if (!selectedCountry && !customCountry) errs.push("Country is required.");
-    if (photos.length < 6) errs.push(`At least 6 photos required (${photos.length} selected).`);
-    if (photos.length > 30) errs.push("Maximum 30 photos.");
+    if (!phone) errs.push(t("errors.phoneRequired"));
+    if (!selectedYear) errs.push(t("errors.yearRequired"));
+    if (selectedMake === "Other" && !customMake) errs.push(t("errors.makeRequired"));
+    else if (!selectedMake) errs.push(t("errors.makeSelectRequired"));
+    if (!selectedCountry && !customCountry) errs.push(t("errors.countryRequired"));
+    if (photos.length < 6) errs.push(t("errors.photosMin6", { count: photos.length }));
+    if (photos.length > 30) errs.push(t("errors.photosMax30"));
     return errs;
   }
 
@@ -61,12 +63,12 @@ export default function SubmitForm() {
       if (res.ok) {
         const { url } = await res.json();
         if (url) photoUrls.push(url);
-        else uploadErrors.push(`${file.name}: upload succeeded but returned no URL.`);
+        else uploadErrors.push(t("errors.uploadNoUrl", { file: file.name }));
       } else {
-        uploadErrors.push(`${file.name}: upload failed (HTTP ${res.status}).`);
+        uploadErrors.push(t("errors.uploadFailed", { file: file.name, status: res.status }));
       }
     }
-    if (photoUrls.length === 0) uploadErrors.push("No photos were uploaded successfully — please try again.");
+    if (photoUrls.length === 0) uploadErrors.push(t("errors.noUploads"));
 
     const videoUrls: string[] = [];
     for (const file of videos) {
@@ -109,9 +111,9 @@ export default function SubmitForm() {
         <div className="w-16 h-16 rounded-full bg-[var(--color-verified)]/10 flex items-center justify-center mx-auto mb-6">
           <Check size={32} className="text-[var(--color-verified)]" />
         </div>
-        <h2 className="font-[family-name:var(--font-cormorant)] text-3xl font-semibold mb-3">Submission Received</h2>
-        <p className="text-[var(--color-text-secondary)] mb-6">Our team will review your vehicle and get back to you within 48 hours.</p>
-        <Link href="/" className="text-[var(--color-accent)] hover:underline">Return Home</Link>
+        <h2 className="font-[family-name:var(--font-cormorant)] text-3xl font-semibold mb-3">{t("submissionReceived")}</h2>
+        <p className="text-[var(--color-text-secondary)] mb-6">{t("submissionReceivedDesc")}</p>
+        <Link href="/" className="text-[var(--color-accent)] hover:underline">{t("returnHome")}</Link>
       </div>
     );
   }
@@ -120,12 +122,12 @@ export default function SubmitForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Contact */}
       <fieldset>
-        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">Your Contact</legend>
+        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">{t("yourContact")}</legend>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input name="name" label="Full Name *" required />
-          <Input name="email" label="Email *" type="email" required />
+          <Input name="name" label={`${t("fullName")} *`} required />
+          <Input name="email" label={`${t("email")} *`} type="email" required />
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-1">Phone *</label>
+            <label className="block text-sm font-medium mb-1">{t("phone")} *</label>
             <PhoneInput value={phone} onChange={setPhone} />
           </div>
         </div>
@@ -133,74 +135,74 @@ export default function SubmitForm() {
 
       {/* Vehicle Details */}
       <fieldset>
-        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">Vehicle Details</legend>
+        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">{t("vehicleDetails")}</legend>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Select label="Year *" value={selectedYear} onChange={setSelectedYear} required>
-            <option value="">Select year</option>
+          <Select label={`${t("year")} *`} value={selectedYear} onChange={setSelectedYear} required>
+            <option value="">{t("selectYear")}</option>
             {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
           </Select>
-          <Select label="Make *" value={selectedMake} onChange={(v) => { setSelectedMake(v); setCustomMake(""); }}>
-            <option value="">Select make</option>
+          <Select label={`${t("make")} *`} value={selectedMake} onChange={(v) => { setSelectedMake(v); setCustomMake(""); }}>
+            <option value="">{t("selectMake")}</option>
             {makes.map(m => <option key={m.make} value={m.make}>{m.make}</option>)}
-            <option value="Other">Other</option>
+            <option value="Other">{t("other")}</option>
           </Select>
           {selectedMake === "Other" ? (
-            <Input name="customMake" label="Enter Make *" value={customMake} onChange={setCustomMake} required />
+            <Input name="customMake" label={`${t("enterMake")} *`} value={customMake} onChange={setCustomMake} required />
           ) : selectedMake ? (
-            <Select label="Model *" name="model" required>
-              <option value="">Select model</option>
+            <Select label={`${t("model")} *`} name="model" required>
+              <option value="">{t("selectModel")}</option>
               {models.map(m => <option key={m} value={m}>{m}</option>)}
-              <option value="Other">Other</option>
+              <option value="Other">{t("other")}</option>
             </Select>
           ) : <div />}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <Input name="trim" label="Trim" />
-          <Input name="mileage" label="Mileage" type="number" />
-          <Select label="Transmission *" name="transmission" required>
-            <option value="">Select</option>
+          <Input name="trim" label={t("trim")} />
+          <Input name="mileage" label={t("mileage")} type="number" />
+          <Select label={`${t("transmission")} *`} name="transmission" required>
+            <option value="">{t("selectDefault")}</option>
             {TRANSMISSIONS.map(t => <option key={t} value={t}>{t}</option>)}
           </Select>
-          <Select label="Exterior Color *" name="exteriorColor" required>
-            <option value="">Select color</option>
+          <Select label={`${t("exteriorColor")} *`} name="exteriorColor" required>
+            <option value="">{t("selectColor")}</option>
             {EXTERIOR_COLORS.map(c => <option key={c} value={c}>{c}</option>)}
           </Select>
-          <Select label="Interior Color" name="interiorColor">
-            <option value="">Select color</option>
+          <Select label={t("interiorColor")} name="interiorColor">
+            <option value="">{t("selectColor")}</option>
             {INTERIOR_COLORS.map(c => <option key={c} value={c}>{c}</option>)}
           </Select>
-          <Input name="engine" label="Engine (optional)" />
+          <Input name="engine" label={t("engineOptional")} />
         </div>
       </fieldset>
 
       {/* Location */}
       <fieldset>
-        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">Vehicle Location</legend>
+        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">{t("vehicleLocation")}</legend>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Input name="city" label="City *" required />
-          <Input name="state" label="State / Province" />
-          <Select label="Country *" value={selectedCountry} onChange={setSelectedCountry}>
-            <option value="">Select country</option>
+          <Input name="city" label={`${t("city")} *`} required />
+          <Input name="state" label={t("state")} />
+          <Select label={`${t("country")} *`} value={selectedCountry} onChange={setSelectedCountry}>
+            <option value="">{t("selectCountry")}</option>
             {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
           </Select>
           {selectedCountry === "Other" && (
-            <Input name="customCountry" label="Enter Country *" value={customCountry} onChange={setCustomCountry} required />
+            <Input name="customCountry" label={`${t("enterCountry")} *`} value={customCountry} onChange={setCustomCountry} required />
           )}
-          <Input name="zipCode" label="ZIP / Postal Code" />
+          <Input name="zipCode" label={t("zipCode")} />
         </div>
       </fieldset>
 
       {/* Description */}
       <fieldset>
-        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">Description</legend>
-        <textarea name="description" rows={5} placeholder="Tell us about your vehicle's history, condition, and anything special..."
+        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">{t("description")}</legend>
+        <textarea name="description" rows={5} placeholder={t("descriptionPlaceholder")}
           className="w-full px-4 py-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] resize-none" />
       </fieldset>
 
       {/* Photos */}
       <fieldset>
         <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">
-          Photos ({photos.length}/30) <span className="text-[var(--color-text-secondary)] font-normal">— min 6 required</span>
+          {t("photos")} ({photos.length}/30) <span className="text-[var(--color-text-secondary)] font-normal">{t("photosMin6")}</span>
         </legend>
         {photos.length > 0 && (
           <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
@@ -208,14 +210,14 @@ export default function SubmitForm() {
               <div key={i} className="aspect-square rounded-lg bg-[var(--color-surface-dark)] overflow-hidden relative">
                 <img src={URL.createObjectURL(f)} alt="" className="w-full h-full object-cover" />
                 <button type="button" onClick={() => setPhotos(photos.filter((_, j) => j !== i))}
-                  className="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full text-xs flex items-center justify-center">×</button>
+                  className="absolute top-1 end-1 w-5 h-5 bg-black/60 text-white rounded-full text-xs flex items-center justify-center">×</button>
               </div>
             ))}
           </div>
         )}
         <label className="flex items-center gap-3 px-4 py-3 border border-dashed border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-accent)] transition-colors">
           <Upload size={20} className="text-[var(--color-accent)]" />
-          <span className="text-sm text-[var(--color-text-secondary)]">{photos.length > 0 ? "Add more photos" : "Choose photos"}</span>
+          <span className="text-sm text-[var(--color-text-secondary)]">{photos.length > 0 ? t("addMorePhotos") : t("choosePhotos")}</span>
           <input type="file" accept="image/*" multiple className="hidden"
             onChange={(e) => setPhotos(prev => [...prev, ...Array.from(e.target.files || [])].slice(0, 30))} />
         </label>
@@ -224,21 +226,21 @@ export default function SubmitForm() {
       {/* Videos */}
       <fieldset>
         <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">
-          Videos ({videos.length}/3) <span className="text-[var(--color-text-secondary)] font-normal">— optional</span>
+          {t("videos")} ({videos.length}/3) <span className="text-[var(--color-text-secondary)] font-normal">{t("videosOptional")}</span>
         </legend>
         {videos.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {videos.map((f, i) => (
               <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-surface-dark)] rounded-lg text-sm text-[var(--color-text-inverse)]">
                 <Video size={14} /> {f.name}
-                <button type="button" onClick={() => setVideos(videos.filter((_, j) => j !== i))} className="text-[var(--color-error)] ml-1">×</button>
+                <button type="button" onClick={() => setVideos(videos.filter((_, j) => j !== i))} className="text-[var(--color-error)] ms-1">×</button>
               </div>
             ))}
           </div>
         )}
         <label className="flex items-center gap-3 px-4 py-3 border border-dashed border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-accent)] transition-colors">
           <Video size={20} className="text-[var(--color-accent)]" />
-          <span className="text-sm text-[var(--color-text-secondary)]">{videos.length > 0 ? "Add more videos" : "Upload videos (max 3)"}</span>
+          <span className="text-sm text-[var(--color-text-secondary)]">{videos.length > 0 ? t("addMoreVideos") : t("uploadVideos")}</span>
           <input type="file" accept="video/*" multiple className="hidden"
             onChange={(e) => setVideos(prev => [...prev, ...Array.from(e.target.files || [])].slice(0, 3))} />
         </label>
@@ -253,7 +255,7 @@ export default function SubmitForm() {
 
       <button type="submit" disabled={loading}
         className="w-full bg-[var(--color-accent)] text-[var(--color-surface-dark)] py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] disabled:opacity-50 text-base">
-        {loading ? "Submitting..." : "Submit Vehicle"}
+        {loading ? t("submitting") : t("submitVehicle")}
       </button>
     </form>
   );

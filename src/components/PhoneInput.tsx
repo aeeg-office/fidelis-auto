@@ -83,7 +83,7 @@ export default function PhoneInput({ value, onChange }: PhoneInputProps) {
       {/* Country selector */}
       <div className="relative">
         <button type="button" onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 px-3 py-2.5 rounded-l-lg border border-r-0 border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-bg)] transition-colors whitespace-nowrap min-w-[100px]">
+          className="flex items-center gap-2 px-3 py-2.5 rounded-s-lg border border-e-0 border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-bg)] transition-colors whitespace-nowrap min-w-[100px]">
           <span className="text-lg">{selected.flag}</span>
           <span className="text-sm font-medium">{selected.dial}</span>
           <span className="text-xs opacity-50">{open ? "▲" : "▼"}</span>
@@ -110,7 +110,7 @@ export default function PhoneInput({ value, onChange }: PhoneInputProps) {
       <input type="tel" inputMode="numeric" value={localNum} required
         onChange={(e) => handleLocalChange(e.target.value)}
         placeholder="123456789"
-        className="flex-1 px-4 py-2.5 rounded-r-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
+        className="flex-1 px-4 py-2.5 rounded-e-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]" />
     </div>
   );
 }

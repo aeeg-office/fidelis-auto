@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import ServiceSubmitForm from "@/components/ServiceSubmitForm";
 
-export const metadata: Metadata = {
-  title: "Submit a Service",
-  description: "List your specialist service on Fidelis Auto — inspections, restoration, maintenance, and more.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "services" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
-export default function ServiceSubmitPage() {
+export default async function ServiceSubmitPage() {
+  const t = await getTranslations("services");
   return (
     <div className="container-page py-16 md:py-24">
       <div className="max-w-2xl mx-auto">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">Fidelis network</p>
-        <h1 className="mt-3 font-[family-name:var(--font-cormorant)] text-4xl font-semibold text-[var(--color-text-primary)]">Submit Your Service</h1>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">{t("networkLabel")}</p>
+        <h1 className="mt-3 font-[family-name:var(--font-cormorant)] text-4xl font-semibold text-[var(--color-text-primary)]">{t("submitTitle")}</h1>
         <p className="mt-4 text-[var(--color-text-secondary)] mb-10">
-          Join the Fidelis Auto directory of verified specialist services for collector and enthusiast vehicles.
-          Your listing appears after a quick review by our team.
+          {t("submitDescription")}
         </p>
         <ServiceSubmitForm />
       </div>

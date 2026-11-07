@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Mail, Check } from "lucide-react";
 
 type NewsletterSignupProps = {
@@ -9,6 +10,7 @@ type NewsletterSignupProps = {
 };
 
 export default function NewsletterSignup({ compact = false }: NewsletterSignupProps) {
+  const t = useTranslations("newsletter");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -27,19 +29,17 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
         body: JSON.stringify({ email: email.trim() }),
       });
 
-      const data = await res.json().catch(() => ({}));
-
       if (res.ok) {
         setStatus("success");
-        setMessage(data.message || "Thanks for subscribing!");
+        setMessage(t("success"));
         setEmail("");
       } else {
         setStatus("error");
-        setMessage(data.error || "Something went wrong. Please try again.");
+        setMessage(t("error"));
       }
     } catch {
       setStatus("error");
-      setMessage("Something went wrong. Please try again.");
+      setMessage(t("error"));
     }
   }
 
@@ -48,11 +48,10 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6 text-center">
         <Mail className="mx-auto mb-3 text-[var(--color-accent)]" size={24} />
         <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-          Stay in the Loop
+          {t("compactTitle")}
         </h3>
         <p className="text-sm text-[var(--color-text-secondary)] mb-4">
-          New arrivals, guides, and stories from the world of cars — straight to
-          your inbox.
+          {t("compactDescription")}
         </p>
         {status === "success" ? (
           <p className="flex items-center justify-center gap-2 text-sm text-[var(--color-accent)]">
@@ -66,7 +65,7 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t("placeholder")}
                 className="w-full px-3 py-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-accent)]"
               />
               <button
@@ -74,7 +73,7 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
                 disabled={status === "loading"}
                 className="w-full bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-[var(--radius-control)] text-sm font-medium hover:bg-[var(--color-ink-hover)] transition-colors disabled:opacity-60"
               >
-                {status === "loading" ? "Subscribing…" : "Subscribe"}
+                {status === "loading" ? t("subscribing") : t("subscribe")}
               </button>
             </form>
             {status === "error" && (
@@ -91,11 +90,10 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
       <div className="container-page max-w-2xl text-center">
         <Mail className="mx-auto mb-4 text-[var(--color-accent)]" size={28} />
         <h2 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold mb-3">
-          Stay in the Loop
+          {t("title")}
         </h2>
         <p className="text-[var(--color-text-inverse)]/70 mb-8 max-w-xl mx-auto">
-          New arrivals, buying guides, and stories from the world of cars. Join
-          the Fidelis Auto newsletter — no spam, just good cars.
+          {t("description")}
         </p>
 
         {status === "success" ? (
@@ -112,7 +110,7 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder={t("placeholder")}
               className="flex-1 px-4 py-3 rounded border border-white/10 bg-white/5 text-[var(--color-text-inverse)] placeholder:text-[var(--color-text-inverse)]/50 focus:outline-none focus:border-[var(--color-accent)]"
             />
             <button
@@ -120,7 +118,7 @@ export default function NewsletterSignup({ compact = false }: NewsletterSignupPr
               disabled={status === "loading"}
               className="bg-[var(--color-text-inverse)] text-[var(--color-surface-dark)] px-6 py-3 rounded-[var(--radius-control)] font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors disabled:opacity-60"
             >
-              {status === "loading" ? "Subscribing…" : "Subscribe"}
+              {status === "loading" ? t("subscribing") : t("subscribe")}
             </button>
           </form>
         )}

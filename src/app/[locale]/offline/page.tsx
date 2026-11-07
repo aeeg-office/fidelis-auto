@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-export default function OfflinePage() {
+export default async function OfflinePage() {
+  const t = await getTranslations("offline");
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
       {/* Brand mark */}
@@ -9,13 +11,11 @@ export default function OfflinePage() {
       </div>
 
       <h1 className="text-3xl md:text-4xl font-[family-name:var(--font-cormorant)] font-bold text-[var(--color-text-primary)] mb-3">
-        You&apos;re Offline
+        {t("title")}
       </h1>
 
       <p className="text-[var(--color-text-secondary)] max-w-md mb-8">
-        It looks like you&apos;ve lost your connection. Don&apos;t worry — once
-        you&apos;re back online, you can continue browsing our collection of
-        exceptional vehicles.
+        {t("description")}
       </p>
 
       <div className="w-16 h-px bg-[var(--color-accent)] mb-8" />
@@ -24,11 +24,11 @@ export default function OfflinePage() {
         href="/"
         className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg text-sm font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
       >
-        Try Again
+        {t("tryAgain")}
       </Link>
 
       <p className="mt-6 text-xs text-[var(--color-text-secondary)]/60">
-        Fidelis Auto &mdash; For the love of cars. Every car has a story.
+        {t("tagline")}
       </p>
     </div>
   );
