@@ -209,6 +209,7 @@ model Vehicle {
   milestones     ProvenanceMilestone[]
   journalEntries JournalEntry[]
   favorites      Favorite[]
+  collectionLinks CollectionVehicle[]
 
   owner   User?     @relation("VehicleOwner", fields: [ownerId], references: [id])
   country Country?  @relation(fields: [countryId], references: [id])
@@ -511,4 +512,39 @@ model Message {
   sender       User         @relation(name: "messageSender", fields: [senderId], references: [id])
   receiver     User         @relation(name: "messageReceiver", fields: [receiverId], references: [id])
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+// ── Curated Collections (WS12) ─────────────────────
+// Admin-curated groups of published vehicle listings (Classics, First cars,
+// Family SUVs, Electric, Motorcycles, ...). Bilingual titles/descriptions.
+model Collection {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  titleEn       String
+  titleAr       String?
+  descriptionEn String?  @db.Text
+  descriptionAr String?  @db.Text
+  coverImage    String?
+  isVisible     Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  vehicles CollectionVehicle[]
+
+  @@index([isVisible, sortOrder])
+}
+
+// Join table: which published vehicles belong to a collection, in admin sort order.
+model CollectionVehicle {
+  collectionId String
+  vehicleId    String
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  vehicle    Vehicle    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, vehicleId])
+  @@index([vehicleId])
 }

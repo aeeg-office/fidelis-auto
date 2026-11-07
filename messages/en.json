@@ -50,7 +50,21 @@
       "electricDesc": "Modern electric and hybrid vehicles"
     },
     "noFeaturedEmpty": "No featured vehicles yet. New additions will appear here as they're published.",
-    "noRecentEmpty": "No vehicles have been added yet. Check back soon."
+    "noRecentEmpty": "No vehicles have been added yet. Check back soon.",
+    "curatedCollections": "Curated Collections",
+    "curatedSubtitle": "Hand-picked groups of vehicles — from timeless classics to modern electrics and everything between.",
+    "viewAllCollections": "View All Collections",
+    "collectionsEmpty": "Collections are being curated. Check back soon."
+  },
+  "collections": {
+    "title": "Curated Collections",
+    "description": "Hand-picked groups of vehicles — each one documented and verified by the Fidelis Auto team.",
+    "viewCollection": "View Collection",
+    "empty": "No collections published yet. Check back soon.",
+    "vehicleCount": "{count} vehicles",
+    "backToCollections": "Back to all collections",
+    "noVehicles": "No vehicles in this collection yet.",
+    "coverAlt": "Cover image for {title}"
   },
   "footer": {
     "tagline": "For the love of cars. Every car has a story — we help you find yours.",
