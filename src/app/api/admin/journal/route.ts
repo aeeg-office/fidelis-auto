@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { requireAdminApi } from "@/lib/auth";
 import { can } from "@/lib/authorization";
 import { getCurrentUser } from "@/lib/user-auth";
 
@@ -13,11 +13,11 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-// GET /api/admin/journal — list all journal entries (guard: admin session)
+// GET /api/admin/journal — list all journal entries (guard: admin session; non-admins get 403)
 export async function GET() {
-  if (!(await verifySession())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdminApi();
+  if (guard.response) return guard.response;
+
   const entries = await prisma.journalEntry.findMany({
     orderBy: { createdAt: "desc" },
   });

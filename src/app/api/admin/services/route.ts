@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { requireAdminApi } from "@/lib/auth";
 
-// GET /api/admin/services — list service listings (guard: admin session)
+// GET /api/admin/services — list service listings (guard: service:manage; non-admins get 403)
 export async function GET() {
-  if (!(await verifySession())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdminApi("service:manage");
+  if (guard.response) return guard.response;
 
   const services = await prisma.serviceListing.findMany({
     include: {

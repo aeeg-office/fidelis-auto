@@ -1,33 +1,66 @@
 import { redirect } from "next/navigation";
+import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
 import { Car, FileText, MessageSquare, Plus, Eye, Star, Store, Users, Wrench } from "lucide-react";
 import AdminSubmissionActions from "@/components/AdminSubmissionActions";
 
+type AdminStats = {
+  verifiedUsers: number;
+  listings: number;
+  pendingSubmissions: number;
+  approved: number;
+  rejected: number;
+  inquiries: number;
+  dealers: number;
+};
+
+const EMPTY_STATS: AdminStats = {
+  verifiedUsers: 0,
+  listings: 0,
+  pendingSubmissions: 0,
+  approved: 0,
+  rejected: 0,
+  inquiries: 0,
+  dealers: 0,
+};
+
+// Pulls the report counts from GET /api/admin/stats so the dashboard renders
+// the same numbers the admin report API serves (verified users + listing volume).
+async function fetchAdminStats(): Promise<AdminStats> {
+  try {
+    const h = await headers();
+    const host = h.get("host") ?? "localhost:3000";
+    const proto = h.get("x-forwarded-proto") ?? "http";
+    const res = await fetch(`${proto}://${host}/api/admin/stats`, {
+      headers: { cookie: (await cookies()).toString() },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`stats API responded ${res.status}`);
+    return (await res.json()) as AdminStats;
+  } catch {
+    return EMPTY_STATS;
+  }
+}
+
 export default async function AdminDashboard() {
   const isAuth = await verifySession();
   if (!isAuth) redirect("/admin/login");
 
-  const [pendingSubmissions, totalVehicles, totalInquiries, totalApproved, totalRejected] = await Promise.all([
-    prisma.listingRequest.count({ where: { status: "pending" } }),
-    prisma.vehicle.count(),
-    prisma.inquiry.count(),
-    prisma.listingRequest.count({ where: { status: "approved" } }),
-    prisma.listingRequest.count({ where: { status: "rejected" } }),
+  const [stats, submissions, featuredVehicles] = await Promise.all([
+    fetchAdminStats(),
+    prisma.listingRequest.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    }),
+    prisma.vehicle.findMany({
+      where: { isFeatured: true },
+      select: { id: true, year: true, make: true, model: true, slug: true, isFeatured: true },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+    }),
   ]);
-
-  const submissions = await prisma.listingRequest.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 10,
-  });
-
-  const featuredVehicles = await prisma.vehicle.findMany({
-    where: { isFeatured: true },
-    select: { id: true, year: true, make: true, model: true, slug: true, isFeatured: true },
-    orderBy: { updatedAt: "desc" },
-    take: 5,
-  });
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
@@ -74,27 +107,31 @@ export default async function AdminDashboard() {
           </Link>
         </div>
 
-        {/* Stats */}
-        <div className="grid md:grid-cols-5 gap-6 mb-10">
+        {/* Stats (from /api/admin/stats) */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
+            <p className="text-sm text-[var(--color-text-secondary)] mb-1">Verified Users</p>
+            <p className="text-3xl font-semibold text-[var(--color-text-primary)]">{stats.verifiedUsers}</p>
+          </div>
+          <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
+            <p className="text-sm text-[var(--color-text-secondary)] mb-1">Listings</p>
+            <p className="text-3xl font-semibold text-[var(--color-text-primary)]">{stats.listings}</p>
+          </div>
           <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
             <p className="text-sm text-[var(--color-text-secondary)] mb-1">Pending Submissions</p>
-            <p className="text-3xl font-semibold text-yellow-600">{pendingSubmissions}</p>
+            <p className="text-3xl font-semibold text-yellow-600">{stats.pendingSubmissions}</p>
           </div>
           <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
             <p className="text-sm text-[var(--color-text-secondary)] mb-1">Approved</p>
-            <p className="text-3xl font-semibold text-green-600">{totalApproved}</p>
+            <p className="text-3xl font-semibold text-green-600">{stats.approved}</p>
           </div>
           <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
             <p className="text-sm text-[var(--color-text-secondary)] mb-1">Rejected</p>
-            <p className="text-3xl font-semibold text-red-600">{totalRejected}</p>
-          </div>
-          <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
-            <p className="text-sm text-[var(--color-text-secondary)] mb-1">Live Vehicles</p>
-            <p className="text-3xl font-semibold text-[var(--color-text-primary)]">{totalVehicles}</p>
+            <p className="text-3xl font-semibold text-red-600">{stats.rejected}</p>
           </div>
           <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6">
             <p className="text-sm text-[var(--color-text-secondary)] mb-1">Inquiries</p>
-            <p className="text-3xl font-semibold text-[var(--color-text-primary)]">{totalInquiries}</p>
+            <p className="text-3xl font-semibold text-[var(--color-text-primary)]">{stats.inquiries}</p>
           </div>
         </div>
 

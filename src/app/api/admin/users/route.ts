@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { requireAdminApi } from "@/lib/auth";
 
+// GET /api/admin/users — list users with listing counts (guard: user:manage; non-admins get 403)
 export async function GET() {
-  if (!(await verifySession())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdminApi("user:manage");
+  if (guard.response) return guard.response;
 
   const users = await prisma.user.findMany({
     select: {
