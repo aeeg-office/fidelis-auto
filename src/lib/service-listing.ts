@@ -65,3 +65,18 @@ export function normalizeServiceListing(payload: ServicePayload): { ok: true; va
 }
 
 export const serviceCategories = [...SERVICE_CATEGORIES];
+
+/**
+ * Safely parse the stored `specialties` JSON string into a string array.
+ * Returns [] on any malformed/null/non-array value so a bad DB row can never
+ * throw and crash the whole services page. (WS11 hardening)
+ */
+export function parseSpecialties(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v.filter((t): t is string => typeof t === "string") : [];
+  } catch {
+    return [];
+  }
+}

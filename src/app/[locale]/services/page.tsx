@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { parseSpecialties } from "@/lib/service-listing";
 import { prisma } from "@/lib/prisma";
 import { Wrench, MapPin, Globe, Phone, Plus, Languages, Tag } from "lucide-react";
 import Link from "next/link";
@@ -98,7 +99,7 @@ export default async function ServicesPage() {
                       {service.specialties && (
                         <div className="mt-3 flex flex-wrap items-center gap-1.5">
                           <Tag size={14} className="text-[var(--color-text-secondary)]" />
-                          {(JSON.parse(service.specialties) as string[]).map((tag) => (
+                          {(parseSpecialties(service.specialties)).map((tag) => (
                             <span key={tag} className="rounded-full bg-[var(--color-surface-soft)] border border-[var(--color-border)] px-2.5 py-0.5 text-xs">{tag}</span>
                           ))}
                         </div>
@@ -144,7 +145,7 @@ export default async function ServicesPage() {
                       {service.specialties && (
                         <div className="mt-3 flex flex-wrap items-center gap-1.5">
                           <Tag size={14} className="text-[var(--color-text-secondary)]" />
-                          {(JSON.parse(service.specialties) as string[]).map((tag) => (
+                          {(parseSpecialties(service.specialties)).map((tag) => (
                             <span key={tag} className="rounded-full bg-[var(--color-surface-soft)] border border-[var(--color-border)] px-2.5 py-0.5 text-xs">{tag}</span>
                           ))}
                         </div>
