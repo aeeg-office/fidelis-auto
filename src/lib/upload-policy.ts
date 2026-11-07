@@ -1,18 +1,41 @@
 type UploadDescriptor = { type: string; size: number };
-type UploadValidation = { ok: true; extension: string } | { ok: false; error: string };
+type UploadKind = "image" | "video" | "sound";
+type UploadValidation =
+  | { ok: true; extension: string; kind: UploadKind }
+  | { ok: false; error: string };
 
-const MIME_TYPES: Record<string, { extension: string; maximumSize: number; kind: "image" | "video" }> = {
+/**
+ * Strict MIME allow-list. Each entry maps a MIME type to its on-disk
+ * extension, a bounded maximum size, and the media kind. The kind is the
+ * source of truth for file naming and downstream handling — a client cannot
+ * request that audio be stored as a video because validation derives the kind
+ * from the MIME type itself (never from a caller-supplied field).
+ *
+ * Spec P2 free-listing media:
+ *  - one video  (MP4/WebM, ~60s @ 720p, bounded at 30 MB)
+ *  - one engine sound clip (MP3/WAV/OGG, bounded at 10 MB)
+ */
+const MIME_TYPES: Record<string, { extension: string; maximumSize: number; kind: UploadKind }> = {
+  // Images — sharp still processes these downstream.
   "image/jpeg": { extension: "jpg", maximumSize: 10_000_000, kind: "image" },
   "image/png": { extension: "png", maximumSize: 10_000_000, kind: "image" },
   "image/webp": { extension: "webp", maximumSize: 10_000_000, kind: "image" },
   "image/avif": { extension: "avif", maximumSize: 10_000_000, kind: "image" },
-  "video/mp4": { extension: "mp4", maximumSize: 100_000_000, kind: "video" },
-  "video/webm": { extension: "webm", maximumSize: 100_000_000, kind: "video" },
+  // Videos — bounded at 30 MB (60s 720p walkaround clips).
+  "video/mp4": { extension: "mp4", maximumSize: 30_000_000, kind: "video" },
+  "video/webm": { extension: "webm", maximumSize: 30_000_000, kind: "video" },
+  // Engine sound clips — bounded at 10 MB. WAV/OGG aliases guarded to the same allow-list.
+  "audio/mpeg": { extension: "mp3", maximumSize: 10_000_000, kind: "sound" },
+  "audio/mp3": { extension: "mp3", maximumSize: 10_000_000, kind: "sound" },
+  "audio/wav": { extension: "wav", maximumSize: 10_000_000, kind: "sound" },
+  "audio/x-wav": { extension: "wav", maximumSize: 10_000_000, kind: "sound" },
+  "audio/ogg": { extension: "ogg", maximumSize: 10_000_000, kind: "sound" },
 };
 
-const UNIT_LABEL: Record<"image" | "video", string> = {
+const UNIT_LABEL: Record<UploadKind, string> = {
   image: "Images",
   video: "Videos",
+  sound: "Sound clips",
 };
 
 /**
@@ -65,7 +88,10 @@ export function capOriginalDimensions(
 export function validateUpload(file: UploadDescriptor): UploadValidation {
   const definition = MIME_TYPES[file.type];
   if (!definition) {
-    return { ok: false, error: "Only JPEG, PNG, WebP, AVIF, MP4, and WebM uploads are allowed." };
+    return {
+      ok: false,
+      error: "Only JPEG, PNG, WebP, AVIF, MP4, WebM, and MP3/WAV/OGG uploads are allowed.",
+    };
   }
   if (!Number.isFinite(file.size) || file.size <= 0) {
     return { ok: false, error: "The uploaded file is empty or invalid." };
@@ -78,5 +104,5 @@ export function validateUpload(file: UploadDescriptor): UploadValidation {
       error: `${UNIT_LABEL[definition.kind]} must be ${limitMb} MB or smaller. Received ${receivedMb} MB.`,
     };
   }
-  return { ok: true, extension: definition.extension };
+  return { ok: true, extension: definition.extension, kind: definition.kind };
 }

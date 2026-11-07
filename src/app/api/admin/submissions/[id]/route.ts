@@ -38,6 +38,7 @@ export async function PATCH(
     description: submission.description,
     photoUrls: submission.photoUrls,
     videoUrls: submission.videoUrls,
+    audioUrl: submission.audioUrl,
   };
 
   if (decision.status === "approved") {

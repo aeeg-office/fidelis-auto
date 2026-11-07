@@ -12,7 +12,8 @@ describe("listing submission normalization", () => {
     model: "911",
     mileage: "1200",
     photoUrls: ["/uploads/00000000-0000-4000-8000-000000000001.jpg"],
-    videoUrls: ["/uploads/00000000-0000-4000-8000-000000000002.mp4"],
+    videoUrls: ["/uploads/video-00000000-0000-4000-8000-000000000002.mp4"],
+    audioUrl: "/uploads/audio-00000000-0000-4000-8000-000000000003.mp3",
     city: "Dubai",
     country: "United Arab Emirates",
   };
@@ -43,6 +44,41 @@ describe("listing submission normalization", () => {
     expect(normalizeListingSubmission({ ...validPayload, photoUrls: ["https://example.invalid/untrusted.jpg"] }, "owner")).toEqual({
       ok: false,
       error: "Photo URLs must reference approved uploaded media.",
+    });
+  });
+
+  it("rejects unapproved or malformed audio (engine sound) URLs", () => {
+    expect(normalizeListingSubmission({ ...validPayload, audioUrl: "https://example.invalid/untrusted.mp3" }, "owner")).toEqual({
+      ok: false,
+      error: "Engine sound must reference approved uploaded media.",
+    });
+    expect(normalizeListingSubmission({ ...validPayload, audioUrl: "/uploads/somecarp.ogg" }, "owner")).toEqual({
+      ok: false,
+      error: "Engine sound must reference approved uploaded media.",
+    });
+    // audioUrl is a single string — arrays/objects are rejected.
+    expect(normalizeListingSubmission({ ...validPayload, audioUrl: ["/uploads/audio-00000000-0000-4000-8000-000000000003.mp3"] }, "owner")).toEqual({
+      ok: false,
+      error: "Engine sound must reference approved uploaded media.",
+    });
+  });
+
+  it("still accepts legacy unprefixed video URLs", () => {
+    const result = normalizeListingSubmission(
+      { ...validPayload, videoUrls: ["/uploads/00000000-0000-4000-8000-000000000002.mp4"] },
+      "owner",
+    );
+    expect(result).toMatchObject({ ok: true });
+  });
+
+  it("carries the engine sound path through normalization", () => {
+    const result = normalizeListingSubmission(validPayload, "owner");
+    expect(result).toMatchObject({
+      ok: true,
+      value: {
+        audioUrl: "/uploads/audio-00000000-0000-4000-8000-000000000003.mp3",
+        videoUrls: JSON.stringify(["/uploads/video-00000000-0000-4000-8000-000000000002.mp4"]),
+      },
     });
   });
 });

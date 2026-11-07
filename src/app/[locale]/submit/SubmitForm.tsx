@@ -2,7 +2,7 @@
 
 import { useState, FormEvent, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Upload, Check, Video } from "lucide-react";
+import { Upload, Check, Video, Volume2 } from "lucide-react";
 import Link from "next/link";
 import { YEARS, EXTERIOR_COLORS, INTERIOR_COLORS, TRANSMISSIONS, COUNTRIES } from "@/lib/car-data";
 import PhoneInput from "@/components/PhoneInput";
@@ -14,6 +14,8 @@ export default function SubmitForm() {
   const [loading, setLoading] = useState(false);
   const [photos, setPhotos] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
+  /** Single engine sound clip (Spec P2 free-listing media). */
+  const [sound, setSound] = useState<File | null>(null);
   const [phone, setPhone] = useState("");
   const [selectedMake, setSelectedMake] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
@@ -80,6 +82,21 @@ export default function SubmitForm() {
       }
     }
 
+    // Single engine sound clip — uploaded exactly like photos/videos; the
+    // upload API derives the kind from the MIME type (audio/* → audio-* path).
+    let audioUrl: string | null = null;
+    if (sound) {
+      const fd = new FormData(); fd.append("file", sound);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (res.ok) {
+        const { url } = await res.json();
+        if (url) audioUrl = url;
+        else uploadErrors.push(t("errors.uploadNoUrl", { file: sound.name }));
+      } else {
+        uploadErrors.push(t("errors.uploadFailed", { file: sound.name, status: res.status }));
+      }
+    }
+
     if (uploadErrors.length > 0) {
       setLoading(false);
       setErrors([...errors, ...uploadErrors]);
@@ -96,7 +113,7 @@ export default function SubmitForm() {
       trim: form.get("trim"), mileage: form.get("mileage") ? parseInt(form.get("mileage") as string) : null,
       exteriorColor: form.get("exteriorColor"), interiorColor: form.get("interiorColor"),
       engine: form.get("engine"), transmission: form.get("transmission"),
-      description: form.get("description"), photoUrls, videoUrls,
+      description: form.get("description"), photoUrls, videoUrls, audioUrl,
       city: form.get("city"), state: form.get("state"), country: finalCountry, zipCode: form.get("zipCode"),
     };
 
@@ -223,7 +240,7 @@ export default function SubmitForm() {
         </label>
       </fieldset>
 
-      {/* Videos */}
+      {/* Videos (Spec P2: one ~60s 720p walkaround clip) */}
       <fieldset>
         <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">
           {t("videos")} ({videos.length}/3) <span className="text-[var(--color-text-secondary)] font-normal">{t("videosOptional")}</span>
@@ -241,9 +258,30 @@ export default function SubmitForm() {
         <label className="flex items-center gap-3 px-4 py-3 border border-dashed border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-accent)] transition-colors">
           <Video size={20} className="text-[var(--color-accent)]" />
           <span className="text-sm text-[var(--color-text-secondary)]">{videos.length > 0 ? t("addMoreVideos") : t("uploadVideos")}</span>
-          <input type="file" accept="video/*" multiple className="hidden"
+          <input type="file" accept="video/mp4,video/webm" multiple className="hidden"
             onChange={(e) => setVideos(prev => [...prev, ...Array.from(e.target.files || [])].slice(0, 3))} />
         </label>
+        <p className="mt-2 text-xs text-[var(--color-text-secondary)]">{t("videoHint")}</p>
+      </fieldset>
+
+      {/* Engine sound clip (Spec P2 free-listing media) */}
+      <fieldset>
+        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">
+          {t("engineSound")} <span className="text-[var(--color-text-secondary)] font-normal">{t("engineSoundOptional")}</span>
+        </legend>
+        {sound && (
+          <div className="flex items-center gap-2 px-3 py-1.5 mb-4 bg-[var(--color-surface-dark)] rounded-lg text-sm text-[var(--color-text-inverse)] w-fit">
+            <Volume2 size={14} /> {sound.name}
+            <button type="button" onClick={() => setSound(null)} className="text-[var(--color-error)] ms-1" aria-label={t("removeEngineSound")}>×</button>
+          </div>
+        )}
+        <label className="flex items-center gap-3 px-4 py-3 border border-dashed border-[var(--color-border)] rounded-lg cursor-pointer hover:border-[var(--color-accent)] transition-colors">
+          <Volume2 size={20} className="text-[var(--color-accent)]" />
+          <span className="text-sm text-[var(--color-text-secondary)]">{sound ? t("replaceEngineSound") : t("chooseEngineSound")}</span>
+          <input type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/ogg" className="hidden"
+            onChange={(e) => setSound(e.target.files?.[0] ?? sound)} />
+        </label>
+        <p className="mt-2 text-xs text-[var(--color-text-secondary)]">{t("engineSoundHint")}</p>
       </fieldset>
 
       {/* Errors */}

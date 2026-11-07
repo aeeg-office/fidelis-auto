@@ -33,6 +33,7 @@ type ListingSubmission = {
   description: string | null;
   photoUrls: string | null;
   videoUrls: string | null;
+  audioUrl: string | null; // engine sound clip (single approved /uploads/audio-* path)
   city: string | null;
   state: string | null;
   country: string | null;
@@ -41,19 +42,36 @@ type ListingSubmission = {
 
 type SubmissionResult = { ok: true; value: ListingSubmission } | { ok: false; error: string };
 type UrlListResult = { ok: true; value: string | null } | { ok: false; error: string };
+type AudioUrlResult = { ok: true; value: string | null } | { ok: false; error: string };
 
 const asText = (value: unknown): string => typeof value === "string" ? value.trim() : "";
 const asOptionalText = (value: unknown): string | null => asText(value) || null;
 
+// Approved upload path shapes (WS15): photos use the legacy flat
+// `/uploads/<uuid>.<ext>` scheme; videos may carry an optional `video-` prefix
+// (new uploads always do, legacy `/uploads/<uuid>.mp4` still accepted); sound
+// clips always carry an `audio-` prefix. Only server-owned /uploads paths that
+// match these exact shapes are trusted — absolute/external URLs are rejected.
+const PHOTO_UPLOAD_URL = /^\/uploads\/[0-9a-f-]{36}\.(?:jpg|png|webp|avif)$/i;
+const VIDEO_UPLOAD_URL = /^\/uploads\/(?:video-)?[0-9a-f-]{36}\.(?:mp4|webm)$/i;
+const SOUND_UPLOAD_URL = /^\/uploads\/audio-[0-9a-f-]{36}\.(?:mp3|wav|ogg)$/i;
+
 function serializeUrlList(value: unknown, field: "Photo" | "Video"): UrlListResult {
   if (value == null) return { ok: true, value: null };
   const maximum = field === "Photo" ? 30 : 3;
-  const allowedExtensions = field === "Photo" ? "(?:jpg|png|webp|avif)" : "(?:mp4|webm)";
-  const uploadUrl = new RegExp(`^/uploads/[0-9a-f-]{36}\\.${allowedExtensions}$`, "i");
+  const uploadUrl = field === "Photo" ? PHOTO_UPLOAD_URL : VIDEO_UPLOAD_URL;
   if (!Array.isArray(value) || value.length > maximum || !value.every((item) => typeof item === "string" && uploadUrl.test(item))) {
     return { ok: false, error: `${field} URLs must reference approved uploaded media.` };
   }
   return { ok: true, value: value.length ? JSON.stringify(value) : null };
+}
+
+function serializeAudioUrl(value: unknown): AudioUrlResult {
+  if (value == null) return { ok: true, value: null };
+  if (typeof value !== "string" || !SOUND_UPLOAD_URL.test(value)) {
+    return { ok: false, error: "Engine sound must reference approved uploaded media." };
+  }
+  return { ok: true, value };
 }
 
 export function normalizeListingSubmission(payload: ListingPayload, authenticatedUserId: string): SubmissionResult {
@@ -98,6 +116,8 @@ export function normalizeListingSubmission(payload: ListingPayload, authenticate
   if (!photoUrls.ok) return photoUrls;
   const videoUrls = serializeUrlList(payload.videoUrls, "Video");
   if (!videoUrls.ok) return videoUrls;
+  const audioUrl = serializeAudioUrl(payload.audioUrl);
+  if (!audioUrl.ok) return audioUrl;
 
   return {
     ok: true,
@@ -130,6 +150,7 @@ export function normalizeListingSubmission(payload: ListingPayload, authenticate
       description: asOptionalText(payload.description),
       photoUrls: photoUrls.value,
       videoUrls: videoUrls.value,
+      audioUrl: audioUrl.value,
       city: asOptionalText(payload.city),
       state: asOptionalText(payload.state),
       country: asOptionalText(payload.country),

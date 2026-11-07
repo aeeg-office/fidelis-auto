@@ -2,15 +2,20 @@ import { describe, expect, it } from "vitest";
 import { validateUpload, cappedOriginalFilename, capOriginalDimensions, MAX_ORIGINAL_DIM } from "./upload-policy";
 
 describe("upload policy", () => {
-  it("accepts bounded image and video uploads", () => {
-    expect(validateUpload({ type: "image/jpeg", size: 2_000_000 })).toEqual({ ok: true, extension: "jpg" });
-    expect(validateUpload({ type: "video/mp4", size: 80_000_000 })).toEqual({ ok: true, extension: "mp4" });
+  it("accepts bounded image, video, and sound uploads", () => {
+    expect(validateUpload({ type: "image/jpeg", size: 2_000_000 })).toEqual({ ok: true, extension: "jpg", kind: "image" });
+    expect(validateUpload({ type: "video/mp4", size: 25_000_000 })).toEqual({ ok: true, extension: "mp4", kind: "video" });
+    expect(validateUpload({ type: "video/webm", size: 30_000_000 })).toEqual({ ok: true, extension: "webm", kind: "video" });
+    expect(validateUpload({ type: "audio/mpeg", size: 9_000_000 })).toEqual({ ok: true, extension: "mp3", kind: "sound" });
+    expect(validateUpload({ type: "audio/wav", size: 10_000_000 })).toEqual({ ok: true, extension: "wav", kind: "sound" });
+    expect(validateUpload({ type: "audio/ogg", size: 500_000 })).toEqual({ ok: true, extension: "ogg", kind: "sound" });
   });
 
   it("rejects unknown MIME types and oversized files", () => {
-    expect(validateUpload({ type: "application/pdf", size: 10 })).toEqual({ ok: false, error: "Only JPEG, PNG, WebP, AVIF, MP4, and WebM uploads are allowed." });
+    expect(validateUpload({ type: "application/pdf", size: 10 })).toEqual({ ok: false, error: "Only JPEG, PNG, WebP, AVIF, MP4, WebM, and MP3/WAV/OGG uploads are allowed." });
     expect(validateUpload({ type: "image/png", size: 10_000_001 })).toEqual({ ok: false, error: "Images must be 10 MB or smaller. Received 10.0 MB." });
-    expect(validateUpload({ type: "video/mp4", size: 100_000_001 })).toEqual({ ok: false, error: "Videos must be 100 MB or smaller. Received 100.0 MB." });
+    expect(validateUpload({ type: "video/mp4", size: 30_000_001 })).toEqual({ ok: false, error: "Videos must be 30 MB or smaller. Received 30.0 MB." });
+    expect(validateUpload({ type: "audio/mpeg", size: 10_000_001 })).toEqual({ ok: false, error: "Sound clips must be 10 MB or smaller. Received 10.0 MB." });
   });
 });
 

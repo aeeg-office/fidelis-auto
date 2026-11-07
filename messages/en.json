@@ -141,6 +141,8 @@
     "mileageUnit": "mi",
     "miles": "miles",
     "recentlySold": "Recently Sold",
+    "mediaVideo": "Walkaround Video",
+    "mediaEngineSound": "Engine Sound Clip",
     "nearbySpecialists": "Nearby specialists in {city}"
   },
   "filters": {
@@ -333,6 +335,13 @@
     "videosOptional": "— optional",
     "uploadVideos": "Upload videos (max 3)",
     "addMoreVideos": "Add more videos",
+    "videoHint": "MP4 or WebM, up to 30 MB — a 60-second, 720p walkaround clip is best.",
+    "engineSound": "Engine Sound",
+    "engineSoundOptional": "— optional, one clip",
+    "chooseEngineSound": "Choose engine sound",
+    "replaceEngineSound": "Replace engine sound",
+    "removeEngineSound": "Remove engine sound",
+    "engineSoundHint": "MP3, WAV, or OGG, up to 10 MB.",
     "submitVehicle": "Submit Vehicle",
     "submitting": "Submitting...",
     "submissionReceived": "Submission Received!",
