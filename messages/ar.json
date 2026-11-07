@@ -126,7 +126,8 @@
     "notAvailable": "غير متوفر",
     "mileageUnit": "ميل",
     "miles": "ميل",
-    "recentlySold": "بيع حديثاً"
+    "recentlySold": "بيع حديثاً",
+    "nearbySpecialists": "متخصصون قريبون في {city}"
   },
   "filters": {
     "search": "ابحث عن مركبات...",
@@ -673,6 +674,11 @@
     "networkLabel": "شبكة فيديليس",
     "title": "خدمات متخصصة",
     "description": "دليل منسّق للأعمال العملية وراء امتلاك استثنائي: الترميم، الصيانة، الفحص، النقل، التخزين، والمزيد — مرتبة في ست تخصصات موثوقة.",
+    "locationSearchPlaceholder": "ابحث حسب المدينة أو المنطقة",
+    "locationSearchClear": "مسح الموقع",
+    "locationSearchHint": "اعثر على متخصص قريب منك.",
+    "locationEmptyTitle": "لا يوجد متخصصون بعد في هذا الموقع",
+    "locationEmptyDesc": "جرّب مدينة أخرى أو أزل فلتر الموقع لتصفح الدليل الكامل.",
     "submitYourService": "قدّم خدمتك",
     "emptyTitle": "جارٍ إعداد دليل المتخصصين.",
     "emptyDesc": "عد قريباً لمصادر الخدمات الموثوقة.",

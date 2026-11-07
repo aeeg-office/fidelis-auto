@@ -4,6 +4,57 @@ import { getCurrentUser } from "@/lib/user-auth";
 import { SERVICE_CATEGORIES } from "@/lib/fidelisTaxonomy";
 import { SPECIALIST_TAGS, SERVICE_LANGUAGES } from "@/lib/service-listing";
 
+/**
+ * GET /api/services — public directory of published specialist service listings.
+ *
+ * Query params (all optional, additive — absent = full listing):
+ *   city      string   matches the service city OR coverageArea (case-insensitive contains)
+ *   coverage  string   same semantics — coverageArea or city contains
+ *
+ * WS13 location search ("VW specialist near Maadi"): a single term filters rows whose
+ * city and/or coverage area overlaps the searched location.
+ */
+export async function GET(request: Request) {
+  try {
+    const url = new URL(request.url);
+    const city = url.searchParams.get("city")?.trim() || null;
+    const coverage = url.searchParams.get("coverage")?.trim() || null;
+    // A single location term — the basic L+ semantics equate city and coverage matches.
+    const location = city || coverage;
+
+    const where: Record<string, unknown> = { isPublished: true };
+    if (location) {
+      where.OR = [
+        { city: { contains: location, mode: "insensitive" } },
+        { coverageArea: { contains: location, mode: "insensitive" } },
+      ];
+    }
+
+    const services = await prisma.serviceListing.findMany({
+      where,
+      select: {
+        id: true,
+        businessName: true,
+        category: true,
+        description: true,
+        phone: true,
+        website: true,
+        city: true,
+        country: true,
+        specialties: true,
+        languages: true,
+        coverageArea: true,
+        whatsapp: true,
+      },
+      orderBy: [{ category: "asc" }, { businessName: "asc" }],
+    });
+    return NextResponse.json(services);
+  } catch {
+    // DB unreachable — return empty, never fabricated inventory (FID-010).
+    return NextResponse.json([]);
+  }
+}
+
 // POST /api/services — submit a specialist service listing.
 // Gate (WS11 L+): ANY verified user (email-verified, `user.verified`) may post a
 // provider profile; new listings start unpublished and are approved by an admin
