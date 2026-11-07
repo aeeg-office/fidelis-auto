@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getClientIp } from "@/lib/request-ip";
+import { decidePhoneGate } from "@/lib/phone-gate";
+import { getCurrentUser } from "@/lib/user-auth";
 
 // Anti-spam configuration
 const HONEYPOT_FIELD = "website";
@@ -9,12 +12,6 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Per-IP sliding-window rate limiting (in-process Map; resets on server restart).
 const ipHits = new Map<string, number[]>();
-
-function getClientIp(request: Request): string {
-  const fwd = request.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return request.headers.get("x-real-ip") || "unknown";
-}
 
 // Returns true if the IP has exceeded the limit; otherwise records the hit.
 function isRateLimited(ip: string): boolean {
@@ -37,6 +34,17 @@ const stripControl = (s: string): string => s.replace(/[\u0000-\u001F\u007F]/g, 
 // no vehicle/owner is associated. Reply-To points back at the inquirer. The
 // delivery outcome is recorded on the Inquiry row (emailStatus/emailError).
 export async function POST(request: Request) {
+  // WS2 phone-verified gate (OFF by default until an Egyptian OTP e2e passes — see phone-gate.ts).
+  // decidePhoneGate returns allowed:true with reason "gate-disabled" when the switch is off.
+  const currentUser = await getCurrentUser();
+  const gate = decidePhoneGate(currentUser ? { id: currentUser.id, phoneVerified: currentUser.phoneVerified } : null);
+  if (!gate.allowed) {
+    const msg = gate.reason === "phone-not-verified"
+      ? "Please verify your phone number to contact sellers."
+      : "You must be signed in to contact sellers.";
+    return NextResponse.json({ ok: false, error: msg }, { status: gate.status });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();

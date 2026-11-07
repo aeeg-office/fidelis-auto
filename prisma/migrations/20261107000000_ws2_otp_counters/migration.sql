@@ -1,0 +1,25 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "phoneOtpAttempts" INTEGER NOT NULL DEFAULT 0;
+
+-- CreateTable
+CREATE TABLE "OtpIpCounter" (
+    "ip" TEXT NOT NULL,
+    "windowStart" TIMESTAMP(3) NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "OtpIpCounter_pkey" PRIMARY KEY ("ip")
+);
+
+-- CreateTable
+CREATE TABLE "OtpPhoneDaily" (
+    "phone" TEXT NOT NULL,
+    "day" TEXT NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "OtpPhoneDaily_pkey" PRIMARY KEY ("phone","day")
+);
+
+-- CreateIndex
+CREATE INDEX "OtpIpCounter_windowStart_idx" ON "OtpIpCounter"("windowStart");
+
