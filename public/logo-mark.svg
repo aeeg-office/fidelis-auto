@@ -1,5 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <circle cx="32" cy="32" r="30" fill="#1a1a2e"/>
-  <circle cx="32" cy="32" r="29" fill="none" stroke="#c9a84c" stroke-width="2.5"/>
-  <path d="M24 16h18v5H29v8h11v5H29v14h-5V16z" fill="#c9a84c"/>
+  <!-- Fidelis Auto emblem. Light/ivory surface variant:
+       ink shield badge + gold thin accent rule + gold F monogram.
+       Gold sits only on ink: 7.46:1 contrast. Used on the ivory header. -->
+  <path
+    d="M32 4.5 L57.5 12 V32 C57.5 46.75 46.75 57.25 32 60.5 C17.25 57.25 6.5 46.75 6.5 32 V12 Z"
+    fill="#1a1a2e"
+  />
+  <path
+    d="M32 8.75 L52.25 15.5 V32 C52.25 44.4 44.4 52.5 32 55.5 C19.6 52.5 11.75 44.4 11.75 32 V15.5 Z"
+    fill="none"
+    stroke="#c9a84c"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M28 20 H37 V23.5 H31.5 V29.5 H36 V33 H31.5 V44 H28 Z"
+    fill="#c9a84c"
+  />
 </svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Fidelis Auto emblem. Dark/ink surface variant (footer, photo heroes):
+       gold linework + translucent ink veil. Badges over photos; reads as
+       pure gold line on solid ink. Gold vs ink = 7.46:1. -->
+  <path
+    d="M32 4.5 L57.5 12 V32 C57.5 46.75 46.75 57.25 32 60.5 C17.25 57.25 6.5 46.75 6.5 32 V12 Z"
+    fill="#1a1a2e"
+    fill-opacity="0.85"
+    stroke="#c9a84c"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M28 20 H37 V23.5 H31.5 V29.5 H36 V33 H31.5 V44 H28 Z"
+    fill="#c9a84c"
+  />
+</svg>
