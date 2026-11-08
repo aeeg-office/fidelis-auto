@@ -15,7 +15,8 @@ const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: /.*\.e2e\.ts/,
+  testMatch: /(?<!prod-regression)\.e2e\.ts/,
+  // prod-regression.e2e.ts is a manual live-site runner (see playwright.prod.config.ts)
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
