@@ -23,7 +23,7 @@ ALTER COLUMN "mileageUnit" SET DEFAULT 'km';
 
 -- AlterTable
 ALTER TABLE "User" ADD COLUMN     "countryId" TEXT,
-ADD COLUMN     "preferredLanguage" TEXT NOT NULL DEFAULT 'en';
+ADD COLUMN IF NOT EXISTS "preferredLanguage" TEXT NOT NULL DEFAULT 'en';
 
 -- CreateTable
 CREATE TABLE "Country" (
