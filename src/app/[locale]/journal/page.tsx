@@ -26,6 +26,7 @@ type JournalEntry = {
   excerpt: string | null;
   author: string;
   publishedAt: Date | null;
+  editorialDate?: Date | null;
   coverImage: string | null;
   category: string | null;
 };
@@ -120,13 +121,14 @@ async function getJournalEntries(cat?: string): Promise<JournalEntry[]> {
     if (cat) where.category = cat;
     const entries = await prisma.journalEntry.findMany({
       where,
-      orderBy: { publishedAt: "desc" },
+      orderBy: { editorialDate: "desc" },
       select: {
         slug: true,
         title: true,
         excerpt: true,
         author: true,
         publishedAt: true,
+        editorialDate: true,
         coverImage: true,
         category: true,
       },
@@ -237,7 +239,7 @@ export default async function JournalPage({
                       </div>
                       <div className="flex items-center gap-3 mb-2">
                         <p className="text-xs text-[var(--color-accent)] font-medium">
-                          {formatDate(entry.publishedAt, locale)}
+                          {formatDate(entry.editorialDate || entry.publishedAt, locale)}
                         </p>
                         {entry.category && (
                           <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)]">

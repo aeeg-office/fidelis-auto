@@ -18,9 +18,11 @@ type EntryData = {
   slug: string;
   title: string;
   contentEn: string | null;
+  contentAr: string | null;
   excerpt: string | null;
   author: string;
   publishedAt: Date | null;
+  editorialDate: Date | null;
   coverImage: string | null;
   category?: string | null;
 };
@@ -35,9 +37,11 @@ async function getEntry(slug: string): Promise<EntryData | null> {
         slug: true,
         title: true,
         contentEn: true,
+        contentAr: true,
         excerpt: true,
         author: true,
         publishedAt: true,
+        editorialDate: true,
         coverImage: true,
         category: true,
       },
@@ -98,6 +102,8 @@ export default async function JournalEntryPage({
   const t = await getTranslations({ locale, namespace: "journal" });
   const entry = await getEntry(slug);
   if (!entry) notFound();
+
+  const body = (locale === "ar" && entry.contentAr) ? entry.contentAr : entry.contentEn;
 
   const url = `https://fidelisauto.com/journal/${slug}`;
 
@@ -179,7 +185,7 @@ export default async function JournalEntryPage({
               )}
 
               <p className="text-xs text-[var(--color-text-secondary)] font-medium mb-2">
-                {formatDate(entry.publishedAt, locale)}
+                {formatDate(entry.editorialDate || entry.publishedAt, locale)}
               </p>
 
               {entry.category && (
@@ -202,7 +208,7 @@ export default async function JournalEntryPage({
               <SocialShare url={url} title={entry.title} className="mb-8" />
 
               <div className="prose prose-lg max-w-none text-[var(--color-text-secondary)] whitespace-pre-line leading-relaxed">
-                {entry.contentEn}
+                {body}
               </div>
 
               {/* WS16: single leaderboard after the article body — one slot per page. */}
