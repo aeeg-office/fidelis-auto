@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -15,6 +16,7 @@ export default function Header() {
   const compareSlugs = useCompareStore((s) => s.slugs);
   const t = useTranslations("nav");
   const tc = useTranslations("common");
+  const tb = useTranslations("brand");
   const pathname = usePathname();
 
   useEffect(() => {
@@ -52,14 +54,37 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-sm">
       <div className="container-page flex items-center justify-between h-16 md:h-20">
-        <Link href="/" className="flex items-center gap-2 group" aria-label="Fidelis Auto — home">
-          <svg viewBox="0 0 64 64" className="w-10 h-10 shrink-0" aria-hidden="true">
-            <circle cx="32" cy="32" r="30" className="fill-[var(--color-surface-dark)]" />
-            <circle cx="32" cy="32" r="29" className="fill-none stroke-[var(--color-accent)]" strokeWidth="2.5" />
-            <path d="M24 16h18v5H29v8h11v5H29v14h-5V16z" className="fill-[var(--color-accent)]" />
-          </svg>
-          <span className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-bold tracking-wider text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors uppercase">
-            Fidelis Auto
+        <Link href="/" className="flex items-center gap-2.5 group" aria-label="Fidelis Auto — home">
+          {/* Ink + gold emblem on the ivory header surface */}
+          <Image
+            src="/logo-mark.svg"
+            alt={tb("logoAlt")}
+            width={40}
+            height={40}
+            className="w-10 h-10 shrink-0"
+            unoptimized
+            priority
+          />
+          <span className="flex flex-col leading-tight">
+            {currentLocale === "ar" ? (
+              <>
+                <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] font-bold text-xl md:text-2xl text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
+                  {tb("wordmarkAr")}
+                </span>
+                <span className="font-[family-name:var(--font-cormorant)] text-xs tracking-[0.22em] uppercase font-semibold text-[var(--color-text-secondary)]">
+                  {tb("name")}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-bold tracking-wider text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors uppercase">
+                  {tb("name")}
+                </span>
+                <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] text-xs font-medium text-[var(--color-text-secondary)]">
+                  {tb("wordmarkAr")}
+                </span>
+              </>
+            )}
           </span>
         </Link>
 

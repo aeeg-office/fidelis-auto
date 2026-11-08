@@ -1,9 +1,13 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import Image from "next/image";
 import Link from "next/link";
 
 export default async function Footer() {
   const t = await getTranslations("footer");
   const tn = await getTranslations("nav");
+  const tb = await getTranslations("brand");
+  const locale = await getLocale();
+  const isAr = locale === "ar";
 
   const FOOTER_LINKS = {
     [t("explore")]: [
@@ -36,13 +40,35 @@ export default async function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2 mb-4" aria-label="Fidelis Auto — home">
-              <svg viewBox="0 0 64 64" className="w-6 h-6 shrink-0" aria-hidden="true">
-                <circle cx="32" cy="32" r="30" className="fill-[var(--color-surface-dark)]" />
-                <circle cx="32" cy="32" r="29" className="fill-none stroke-[var(--color-accent)]" strokeWidth="4" />
-                <path d="M24 16h18v5H29v8h11v5H29v14h-5V16z" className="fill-[var(--color-accent)]" />
-              </svg>
-              <span className="font-[family-name:var(--font-cormorant)] text-lg font-semibold">
-                Fidelis Auto
+              {/* Gold line emblem for the ink footer surface */}
+              <Image
+                src="/logo-mark-light.svg"
+                alt={tb("logoAlt")}
+                width={32}
+                height={32}
+                className="w-8 h-8 shrink-0"
+                unoptimized
+              />
+              <span className="flex flex-col leading-tight">
+                {isAr ? (
+                  <>
+                    <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] font-semibold text-lg text-[var(--color-text-inverse)]">
+                      {tb("wordmarkAr")}
+                    </span>
+                    <span className="font-[family-name:var(--font-cormorant)] text-[0.65rem] uppercase tracking-[0.22em] text-[var(--color-text-inverse)]/70">
+                      {tb("name")}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-[family-name:var(--font-cormorant)] text-lg font-semibold text-[var(--color-text-inverse)]">
+                      {tb("name")}
+                    </span>
+                    <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] text-[0.7rem] font-medium text-[var(--color-text-inverse)]/70">
+                      {tb("wordmarkAr")}
+                    </span>
+                  </>
+                )}
               </span>
             </Link>
             <p className="text-sm text-[var(--color-text-secondary)] max-w-xs">
