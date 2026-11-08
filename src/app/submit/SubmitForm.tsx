@@ -296,7 +296,7 @@ export default function SubmitForm() {
       )}
 
       <button type="submit" disabled={loading}
-        className="w-full bg-[var(--color-accent)] text-[var(--color-surface-dark)] py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] disabled:opacity-50 text-base">
+        className="w-full bg-[var(--color-ink)] text-[var(--color-text-inverse)] py-3 rounded-lg font-medium hover:bg-[var(--color-ink-hover)] disabled:opacity-50 text-base">
         {loading ? "Submitting..." : "Submit Vehicle"}
       </button>
     </form>

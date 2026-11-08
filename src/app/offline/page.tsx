@@ -22,7 +22,7 @@ export default function OfflinePage() {
 
       <Link
         href="/"
-        className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg text-sm font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+        className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-6 py-3 rounded-lg text-sm font-medium hover:bg-[var(--color-ink-hover)] transition-colors"
       >
         Try Again
       </Link>

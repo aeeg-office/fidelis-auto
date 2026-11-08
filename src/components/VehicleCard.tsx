@@ -53,11 +53,11 @@ function extractPrice(value?: string | null): number | null {
 }
 
 const CATEGORY_STYLES: Record<string, string> = {
-  Modern: "bg-blue-100 text-blue-800 border-blue-200",
-  Classic: "bg-amber-100 text-amber-800 border-amber-200",
-  Vintage: "bg-purple-100 text-purple-800 border-purple-200",
-  EV: "bg-green-100 text-green-800 border-green-200",
-  Other: "bg-gray-100 text-gray-800 border-gray-200",
+  Modern: "bg-[var(--color-surface)]/90 text-[var(--color-ink)] border-[var(--color-border)]",
+  Classic: "bg-[var(--color-surface)]/90 text-[var(--color-ink)] border-[var(--color-border)]",
+  Vintage: "bg-[var(--color-surface)]/90 text-[var(--color-ink)] border-[var(--color-border)]",
+  EV: "bg-[var(--color-surface)]/90 text-[var(--color-ink)] border-[var(--color-border)]",
+  Other: "bg-[var(--color-surface)]/90 text-[var(--color-ink)] border-[var(--color-border)]",
 };
 
 export default function VehicleCard({

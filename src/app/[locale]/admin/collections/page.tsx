@@ -25,7 +25,7 @@ export default async function AdminCollectionsPage() {
         </div>
         <Link
           href="/admin/collections/new"
-          className="flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--color-accent-hover)]"
+          className="flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--color-ink-hover)]"
         >
           <Plus size={16} /> New Collection
         </Link>

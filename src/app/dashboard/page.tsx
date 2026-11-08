@@ -58,7 +58,7 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/submit"
-            className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+            className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--color-ink-hover)] transition-colors"
           >
             <Plus size={18} /> Submit a Vehicle
           </Link>
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-5">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+              <div className="p-2 rounded-lg bg-[var(--color-ink)]/10 text-[var(--color-ink)]">
                 <Car size={18} />
               </div>
             </div>
@@ -121,7 +121,7 @@ export default async function DashboardPage() {
               </p>
               <Link
                 href="/submit"
-                className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+                className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--color-ink-hover)] transition-colors"
               >
                 <Plus size={18} /> Submit a Vehicle
               </Link>

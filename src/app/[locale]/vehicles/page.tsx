@@ -185,8 +185,8 @@ export default async function VehiclesPage({
                   href={pageHref(p)}
                   className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                     active
-                      ? "bg-[var(--color-accent)] text-[var(--color-surface-dark)]"
-                      : "border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                      ? "bg-[var(--color-ink)] text-[var(--color-text-inverse)]"
+                      : "border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]"
                   }`}
                   aria-current={active ? "page" : undefined}
                 >
@@ -217,7 +217,7 @@ async function EmptyState() {
       </p>
       <Link
         href="/vehicles"
-        className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+        className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--color-ink-hover)] transition-colors"
       >
         {t("clearFilters")}
       </Link>

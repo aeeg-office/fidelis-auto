@@ -68,7 +68,7 @@ export default function JournalNewForm() {
         <textarea id="contentAr" name="contentAr" rows={10} dir="rtl" lang="ar" className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]" />
       </div>
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-      <button type="submit" disabled={busy} className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-md font-medium disabled:opacity-50">
+      <button type="submit" disabled={busy} className="bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md font-medium disabled:opacity-50">
         {busy ? "Creating..." : "Create Draft"}
       </button>
     </form>

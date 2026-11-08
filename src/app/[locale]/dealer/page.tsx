@@ -14,7 +14,7 @@ export default async function DealerPortalPage() {
       <div className="container-page py-16 md:py-24">
         <h1 className="font-[family-name:var(--font-cormorant)] text-4xl font-semibold">Dealer Portal</h1>
         <p className="mt-3 text-[var(--color-text-secondary)]">Register your business to request dealership access.</p>
-        <Link href="/dealer/register" className="mt-6 inline-block rounded-lg bg-[var(--color-accent)] px-5 py-2.5 font-medium text-[var(--color-surface-dark)]">Register a Dealership</Link>
+        <Link href="/dealer/register" className="mt-6 inline-block rounded-lg bg-[var(--color-verified)] px-5 py-2.5 font-medium text-[var(--color-text-inverse)]">Register a Dealership</Link>
       </div>
     );
   }

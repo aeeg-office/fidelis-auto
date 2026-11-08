@@ -19,7 +19,7 @@ export default async function AdminJournalPage() {
         {published} published · {entries.length} total
       </p>
       <div className="mb-6">
-        <Link href="/admin/journal/new" className="inline-flex items-center gap-2 text-sm bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-3 py-2 rounded-md font-medium">
+        <Link href="/admin/journal/new" className="inline-flex items-center gap-2 text-sm bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-3 py-2 rounded-md font-medium">
           <Plus size={15} /> New Entry
         </Link>
       </div>

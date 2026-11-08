@@ -52,7 +52,7 @@ export default function AdminVehicleImageManager({
           type="button"
           disabled={saving}
           onClick={save}
-          className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-2 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+          className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-6 py-2 rounded-lg font-medium hover:bg-[var(--color-ink-hover)] disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save image order & cover"}
         </button>

@@ -55,7 +55,7 @@ export default function LoginPage() {
             {t("verificationSent")} <strong>{verifyEmail}</strong>.
           </p>
           <Link href={`/verify?email=${encodeURIComponent(verifyEmail)}`}
-            className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)]">
+            className="bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-6 py-2.5 rounded-lg font-medium hover:bg-[var(--color-ink-hover)]">
             {t("enterCode")}
           </Link>
         </div>
@@ -86,7 +86,7 @@ export default function LoginPage() {
             </div>
           </div>
           {error && <p className="text-sm text-[var(--color-error)]">{error}</p>}
-          <button type="submit" disabled={loading} className="w-full bg-[var(--color-accent)] text-[var(--color-surface-dark)] py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] disabled:opacity-50">
+          <button type="submit" disabled={loading} className="w-full bg-[var(--color-verified)] text-[var(--color-text-inverse)] py-2.5 rounded-lg font-medium hover:bg-[var(--color-green-hover)] disabled:opacity-50">
             {loading ? t("signingIn") : t("signIn")}
           </button>
         </form>

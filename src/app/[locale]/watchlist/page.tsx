@@ -66,7 +66,7 @@ export default async function WatchlistPage() {
             </p>
             <Link
               href="/vehicles"
-              className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+              className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-5 py-2.5 rounded-lg font-medium hover:bg-[var(--color-ink-hover)] transition-colors"
             >
               {t("browse")} <ArrowRight size={16} className="rtl:rotate-180" />
             </Link>

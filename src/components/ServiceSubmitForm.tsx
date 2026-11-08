@@ -93,7 +93,7 @@ export default function ServiceSubmitForm() {
               aria-pressed={tags.includes(tag)}
               className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
                 tags.includes(tag)
-                  ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-surface-dark)]"
+                  ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-text-inverse)]"
                   : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)]"
               }`}
             >

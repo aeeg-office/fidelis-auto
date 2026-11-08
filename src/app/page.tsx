@@ -8,10 +8,10 @@ import { getFeaturedVehicles, getRecentVehicles } from "@/lib/vehicle-data";
 import { getVisibleCollections } from "@/lib/collections-data";
 
 const CATEGORIES = [
-  { key: "Modern", label: "Modern", icon: Car, desc: "Late-model performance and luxury vehicles", color: "bg-blue-50 text-blue-700 border-blue-200" },
-  { key: "Classic", label: "Classic", icon: Car, desc: "Timeless automobiles from 1970s–1990s", color: "bg-amber-50 text-amber-700 border-amber-200" },
-  { key: "Vintage", label: "Vintage", icon: CableCar, desc: "Pre-1970s collector cars with history", color: "bg-purple-50 text-purple-700 border-purple-200" },
-  { key: "EV", label: "Electric", icon: Zap, desc: "Modern electric and hybrid vehicles", color: "bg-green-50 text-green-700 border-green-200" },
+  { key: "Modern", label: "Modern", icon: Car, desc: "Late-model performance and luxury vehicles", color: "bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-border)] border-t-2 border-t-[var(--color-accent)]" },
+  { key: "Classic", label: "Classic", icon: Car, desc: "Timeless automobiles from 1970s–1990s", color: "bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-border)] border-t-2 border-t-[var(--color-accent)]" },
+  { key: "Vintage", label: "Vintage", icon: CableCar, desc: "Pre-1970s collector cars with history", color: "bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-border)] border-t-2 border-t-[var(--color-accent)]" },
+  { key: "EV", label: "Electric", icon: Zap, desc: "Modern electric and hybrid vehicles", color: "bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-border)] border-t-2 border-t-[var(--color-accent)]" },
 ];
 
 export default async function HomePage() {
@@ -36,7 +36,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/vehicles"
-              className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+              className="inline-flex items-center gap-2 bg-[var(--color-text-inverse)] text-[var(--color-ink)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors"
             >
               Explore Vehicles
               <ArrowRight size={18} />
@@ -137,7 +137,7 @@ export default async function HomePage() {
           <div className="text-center mt-10">
             <Link
               href="/collections"
-              className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+              className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
             >
               View All Collections
               <ArrowRight size={18} />
@@ -209,7 +209,7 @@ export default async function HomePage() {
           <div className="text-center mt-10">
             <Link
               href="/vehicles"
-              className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+              className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
             >
               View All Vehicles
               <ArrowRight size={18} />
@@ -248,7 +248,7 @@ export default async function HomePage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+            className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
           >
             Contact Us
             <ArrowRight size={18} />

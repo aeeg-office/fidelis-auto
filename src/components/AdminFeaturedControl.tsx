@@ -51,7 +51,7 @@ export default function AdminFeaturedControl({
       </div>
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
       <button type="button" onClick={save} disabled={busy}
-        className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-md font-medium disabled:opacity-50">
+        className="bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md font-medium disabled:opacity-50">
         {busy ? "Saving..." : "Save Featured"}
       </button>
     </div>
