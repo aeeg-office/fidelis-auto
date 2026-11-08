@@ -11,6 +11,7 @@ import ContactSellerButton from "@/components/ContactSellerButton";
 import VehicleGallery, { type GalleryImage } from "@/components/VehicleGallery";
 import RelatedVehicles from "@/components/RelatedVehicles";
 import VehicleReviews from "@/components/VehicleReviews";
+import AdSlot from "@/components/AdSlot";
 import { decidePhoneGate } from "@/lib/phone-gate";
 import { getCurrentUser } from "@/lib/user-auth";
 
@@ -298,6 +299,11 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
                 <p className="whitespace-pre-line">{vehicle.descriptionEn || vehicle.description}</p>
               </div>
             )}
+
+            {/* WS16: one bounded rectangle below the description — width-capped and
+                clear of the gallery (above) and the contact CTAs (right column), so
+                it never crowds them. Renders nothing unless AdSense is configured. */}
+            <AdSlot format="rectangle" slotId="vehicle-detail" className="mt-10" />
           </div>
 
           <div className="lg:col-span-1 min-w-0">

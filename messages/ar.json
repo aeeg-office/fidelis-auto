@@ -606,8 +606,7 @@
     }
   },
   "adSlots": {
-    "advertisement": "إعلان",
-    "configureAdSense": "قم بتكوين AdSense في ad-slot.tsx"
+    "advertisement": "إعلان"
   },
   "cookieConsent": {
     "message": "نستخدم ملفات تعريف الارتباط لتحسين تجربتك. باستخدام هذا الموقع، فإنك توافق على استخدامنا لملفات تعريف الارتباط.",

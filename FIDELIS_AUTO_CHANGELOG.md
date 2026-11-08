@@ -1,5 +1,21 @@
 # Fidelis Auto Changelog
 
+## 2026-11-08 — WS16: AdSense L+ integration (env-gated, dark by default)
+
+### Added
+- `src/lib/adsense.ts` — shared env gate: `NEXT_PUBLIC_ADSENSE_CLIENT` (ca-pub id) validated at module top level (also inlined into client bundles by Next); `ADSENSE_ENABLED` + one-time `ADSENSE_LOADER_URL` exports.
+- `AdSlot` (`src/components/AdSlot.tsx`) reworked from broken placeholder to a functional, env-gated slot: renders the `ins.adsbygoogle` unit + bilingual "Advertisement" label when a ca-pub id is configured; pushes once via `(window.adsbygoogle || []).push({})` (queue-safe, StrictMode-guarded). With no id it renders `null` — zero DOM, zero network, no "configure me" chrome ever.
+- Root layout (`src/app/[locale]/layout.tsx`) emits the adsbygoogle loader `<Script>` (afterInteractive) only when `ADSENSE_LOADER_URL` is non-empty.
+- Slots mounted (one per page, capped): Journal list + detail (leaderboard), Search results (in-feed mid-grid, only when ≥4 results), Vehicle detail (bounded 300px rectangle below description, clear of gallery/contact CTAs). `data-ad-slot` uses stable placement tokens (`journal-list`, `journal-detail`, `search-results`, `vehicle-detail`) to be swapped for real numeric unit ids when publisher config exists.
+- Bilingual label keys already present under `adSlots` (`Advertisement` / `إعلان`); removed the now-dead `configureAdSense` key. `.env.example` documents the new var.
+
+### Verified
+- `npx tsc --noEmit` and `npm run lint` pass.
+- **Gate proof, no id:** production build + served HTML contain zero occurrences of `adsbygoogle` / `pagead2.googlesyndication.com` anywhere in `.next`; no `<script>` loader and no `<ins class="adsbygoogle">` in response HTML; placeholder never renders.
+- **Gate proof, with id (`ca-pub-0000000000000000`):** build output contains the one-time loader `<script src="…/adsbygoogle.js?client=ca-pub-0000000000000000">` and `<ins class="adsbygoogle" data-ad-slot-id="journal-list">` in journal HTML — gate works in both directions.
+- Push: `feat/ws16-adsense` → origin (HEAD sha reported in commit).
+
+
 ## 2026-08-28 — Phase 5: Listing Workflow (FID-002 + FID-005)
 - **FID-002 (medium) resolved:** added `model ModerationLog` to `prisma/schema.prisma` (maps existing live table) + idempotent migration `20260828_phase5_moderation_log`; wired `prisma.moderationLog.create` into auto-approve (`src/lib/auto-publish.ts`, action `AUTO_APPROVED`) and admin approve/reject (`src/app/api/admin/submissions/[id]/route.ts`, `LISTING_APPROVED`/`LISTING_REJECTED`). Runtime write+read+delete round-trip verified.
 - **FID-005 (low) resolved:** `/api/contact` now persists an `Inquiry` row (`source: contact-form`, `vehicleId` resolved from `vehicleSlug`) before the Resend email; `ContactSellerButton` + `ContactForm` thread `vehicleSlug` through the contact page (`/contact` + `/[locale]/contact`, wrapped in Suspense for `useSearchParams`). Live-verified via POST /api/contact → Inquiry row created; test rows cleaned.

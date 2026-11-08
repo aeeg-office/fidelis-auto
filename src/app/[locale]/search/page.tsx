@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import VehicleCard from "@/components/VehicleCard";
 import { getVehicles } from "@/lib/vehicle-data";
 import SearchFilters from "./SearchFilters";
+import AdSlot from "@/components/AdSlot";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -180,7 +181,16 @@ export default async function SearchPage({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {results.map((vehicle) => (
+            {results.slice(0, 3).map((vehicle) => (
+              <VehicleCard key={vehicle.slug} vehicle={vehicle} />
+            ))}
+            {/* WS16: one in-feed slot mid-grid, only when there are enough results
+                to absorb it without crowding the listing. Renders nothing unless
+                NEXT_PUBLIC_ADSENSE_CLIENT is configured. */}
+            {results.length >= 4 && (
+              <AdSlot format="in-feed" slotId="search-results" className="self-start" />
+            )}
+            {results.slice(3).map((vehicle) => (
               <VehicleCard key={vehicle.slug} vehicle={vehicle} />
             ))}
           </div>

@@ -8,6 +8,7 @@ import JsonLd from "@/components/JsonLd";
 import SocialShare from "@/components/SocialShare";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import VehicleImage from "@/components/VehicleImage";
+import AdSlot from "@/components/AdSlot";
 
 export const dynamic = "force-dynamic";
 
@@ -203,6 +204,9 @@ export default async function JournalEntryPage({
               <div className="prose prose-lg max-w-none text-[var(--color-text-secondary)] whitespace-pre-line leading-relaxed">
                 {entry.contentEn}
               </div>
+
+              {/* WS16: single leaderboard after the article body — one slot per page. */}
+              <AdSlot format="leaderboard" slotId="journal-detail" className="mt-10" />
 
               <div className="mt-10 pt-8 border-t border-[var(--color-border)]">
                 <SocialShare url={url} title={entry.title} />
