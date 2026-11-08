@@ -227,7 +227,7 @@ export default function VehicleImageManager({
             type="button"
             disabled={busy}
             onClick={() => addInputRef.current?.click()}
-            className="aspect-[4/3] flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors disabled:opacity-40"
+            className="aspect-[4/3] flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] transition-colors disabled:opacity-40"
           >
             <Upload size={18} />
             <span className="text-xs">{busy ? "Uploading…" : `Add (${items.length}/${max})`}</span>
@@ -247,12 +247,12 @@ export default function VehicleImageManager({
         Drag to reorder · hover an image to set cover, replace, or remove. The cover shows on the home page, listings, cards, and social previews.
       </p>
       <div className="flex items-center gap-2">
-        <Plus size={14} className="text-[var(--color-accent)]" />
+        <Plus size={14} className="text-[var(--color-ink)]" />
         <button
           type="button"
           disabled={busy || items.length >= max}
           onClick={() => addInputRef.current?.click()}
-          className="text-sm text-[var(--color-accent)] hover:underline disabled:opacity-40 inline-flex items-center gap-1"
+          className="text-sm text-[var(--color-ink)] hover:underline disabled:opacity-40 inline-flex items-center gap-1"
         >
           <Upload size={14} /> Add photos
         </button>

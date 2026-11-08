@@ -9,22 +9,13 @@ import { MAKES, TRANSMISSIONS, COUNTRIES } from "@/lib/car-data";
 // ─── Props ──────────────────────────────────────
 interface FilterBarProps {
   bodyTypes: string[];
-  categories?: string[];
 }
 
-export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps) {
+export default function FilterBar({ bodyTypes }: FilterBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations("filters");
   const th = useTranslations("homepage");
-
-  const CATEGORY_LABELS: Record<string, string> = {
-    Modern: th("categories.modern"),
-    Classic: th("categories.classic"),
-    Vintage: th("categories.vintage"),
-    EV: th("categories.electric"),
-    Other: t("other"),
-  };
 
   // Initialize state from URL params
   const [q, setQ] = useState(searchParams.get("q") || "");
@@ -37,7 +28,7 @@ export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps
   const [country, setCountry] = useState(searchParams.get("country") || "");
   const [priceMin, setPriceMin] = useState(searchParams.get("priceMin") || "");
   const [priceMax, setPriceMax] = useState(searchParams.get("priceMax") || "");
-  const [category, setCategory] = useState(searchParams.get("category") || "");
+  const [type, setType] = useState(searchParams.get("type") || "");
   const [sort, setSort] = useState(searchParams.get("sort") || "newest");
 
   // Get models for the selected make
@@ -56,10 +47,10 @@ export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps
     if (country) params.set("country", country);
     if (priceMin) params.set("priceMin", priceMin);
     if (priceMax) params.set("priceMax", priceMax);
-    if (category) params.set("category", category);
+    if (type) params.set("type", type);
     if (sort !== "newest") params.set("sort", sort);
     return params.toString();
-  }, [q, make, model, yearMin, yearMax, bodyType, transmission, country, priceMin, priceMax, category, sort]);
+  }, [q, make, model, yearMin, yearMax, bodyType, transmission, country, priceMin, priceMax, type, sort]);
 
   const applyFilters = useCallback(() => {
     const qs = buildQuery();
@@ -83,12 +74,12 @@ export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps
     setCountry("");
     setPriceMin("");
     setPriceMax("");
-    setCategory("");
+    setType("");
     setSort("newest");
     router.push("/vehicles");
   }, [router]);
 
-  const hasAnyFilter = q || make || model || yearMin || yearMax || bodyType || transmission || country || priceMin || priceMax || category || sort !== "newest";
+  const hasAnyFilter = q || make || model || yearMin || yearMax || bodyType || transmission || country || priceMin || priceMax || type || sort !== "newest";
 
   // Build year options
   const currentYear = new Date().getFullYear();
@@ -169,26 +160,17 @@ export default function FilterBar({ bodyTypes, categories = [] }: FilterBarProps
           </div>
         </div>
 
-        {/* Category */}
+        {/* Type (Option C: Cars / Motorcycles, replaces legacy collector category) */}
         <div>
-          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("category")}</label>
+          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("type")}</label>
           <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={type}
+            onChange={(e) => setType(e.target.value)}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
           >
-            <option value="">{t("allCategories")}</option>
-            {categories.length > 0 ? categories.map((c) => (
-              <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
-            )) : (
-              <>
-                <option value="Modern">{th("categories.modern")}</option>
-                <option value="Classic">{th("categories.classic")}</option>
-                <option value="Vintage">{th("categories.vintage")}</option>
-                <option value="EV">{th("categories.electric")}</option>
-                <option value="Other">{t("other")}</option>
-              </>
-            )}
+            <option value="">{t("allTypes")}</option>
+            <option value="CAR">{th("categories.cars")}</option>
+            <option value="MOTORCYCLE">{th("categories.motorcycles")}</option>
           </select>
         </div>
 

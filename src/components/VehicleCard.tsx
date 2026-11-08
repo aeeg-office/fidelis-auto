@@ -10,6 +10,7 @@ export interface VehicleCardData {
   make: string;
   model: string;
   trim?: string | null;
+  vehicleType?: string | null;
   mileage?: number | null;
   mileageUnit?: string;
   exteriorColor?: string | null;

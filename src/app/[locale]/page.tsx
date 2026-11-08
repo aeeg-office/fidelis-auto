@@ -41,7 +41,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/vehicles"
-              className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+              className="inline-flex items-center gap-2 bg-[var(--color-text-inverse)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors"
             >
               {tHero("cta")}
               <ArrowRight size={18} className="rtl:rotate-180" />
@@ -206,7 +206,7 @@ export default async function HomePage() {
           <div className="text-center mt-10">
             <Link
               href="/vehicles"
-              className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+              className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
             >
               {t("viewAllVehicles")}
               <ArrowRight size={18} className="rtl:rotate-180" />
@@ -241,7 +241,7 @@ export default async function HomePage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+            className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
           >
             {t("contactUs")}
             <ArrowRight size={18} className="rtl:rotate-180" />

@@ -207,7 +207,8 @@
       "Manual": "Manual",
       "Automatic": "Automatic",
       "Other": "Other"
-    }
+    },
+    "type": "Type"
   },
   "contact": {
     "title": "Get in Touch",

@@ -159,7 +159,7 @@ export default async function JournalEntryPage({
             <article className="lg:col-span-2">
               <Link
                 href="/journal"
-                className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors mb-8"
+                className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors mb-8"
               >
                 <ArrowLeft size={16} className="rtl:rotate-180" />
                 {t("backToJournal")}
@@ -178,14 +178,14 @@ export default async function JournalEntryPage({
                 </div>
               )}
 
-              <p className="text-xs text-[var(--color-accent)] font-medium mb-2">
+              <p className="text-xs text-[var(--color-text-secondary)] font-medium mb-2">
                 {formatDate(entry.publishedAt, locale)}
               </p>
 
               {entry.category && (
                 <Link
                   href={`/journal?cat=${encodeURIComponent(entry.category)}`}
-                  className="inline-block text-[11px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] mb-3"
+                  className="inline-block text-[11px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full bg-[var(--color-ink)]/10 text-[var(--color-ink)] mb-3"
                 >
                   {entry.category}
                 </Link>

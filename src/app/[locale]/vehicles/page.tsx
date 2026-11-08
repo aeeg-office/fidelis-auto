@@ -57,12 +57,14 @@ function filterVehicles(vehicles: VehicleCardData[], params: Record<string, stri
   const priceMin = (params.priceMin || "").toString();
   const priceMax = (params.priceMax || "").toString();
   const category = (params.category || "").toString().trim();
+  const type = (params.type || "").toString().trim().toUpperCase();
 
   return vehicles.filter((v) => {
     if (q) {
       const haystack = `${v.year} ${v.make} ${v.model} ${v.trim || ""} ${v.exteriorColor || ""} ${v.title}`.toLowerCase();
       if (!haystack.includes(q)) return false;
     }
+    if (type && (v.vehicleType || "").toUpperCase() !== type) return false;
     if (make && v.make !== make) return false;
     if (model && v.model !== model) return false;
     if (yearMin && v.year < parseInt(yearMin, 10)) return false;
@@ -121,7 +123,6 @@ export default async function VehiclesPage({
   const pageVehicles = filtered.slice(start, start + PER_PAGE);
 
   const bodyTypes = Array.from(new Set(allVehicles.map((v) => v.trim).filter(Boolean) as string[])).sort();
-  const categories = Array.from(new Set(allVehicles.map((v) => v.category).filter(Boolean) as string[])).sort();
 
   const baseParams = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -154,7 +155,7 @@ export default async function VehiclesPage({
       {/* Filters + Grid */}
       <section className="container-page py-10 md:py-14">
         <Suspense>
-          <FilterBar bodyTypes={bodyTypes} categories={categories} />
+          <FilterBar bodyTypes={bodyTypes} />
         </Suspense>
 
         {/* Results count */}

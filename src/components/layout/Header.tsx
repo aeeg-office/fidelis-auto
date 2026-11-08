@@ -68,7 +68,7 @@ export default function Header() {
           <span className="flex flex-col leading-tight">
             {currentLocale === "ar" ? (
               <>
-                <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] font-bold text-xl md:text-2xl text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
+                <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] font-bold text-xl md:text-2xl text-[var(--color-text-primary)] group-hover:text-[var(--color-ink)] transition-colors">
                   {tb("wordmarkAr")}
                 </span>
                 <span className="font-[family-name:var(--font-cormorant)] text-xs tracking-[0.22em] uppercase font-semibold text-[var(--color-text-secondary)]">
@@ -77,7 +77,7 @@ export default function Header() {
               </>
             ) : (
               <>
-                <span className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-bold tracking-wider text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors uppercase">
+                <span className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-bold tracking-wider text-[var(--color-text-primary)] group-hover:text-[var(--color-ink)] transition-colors uppercase">
                   {tb("name")}
                 </span>
                 <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] text-xs font-medium text-[var(--color-text-secondary)]">
@@ -91,7 +91,7 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-8">
           {NAV_LINKS.map((link) => (
             <Link key={link.href} href={link.href}
-              className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
+              className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors">
               {link.label}
             </Link>
           ))}
@@ -100,7 +100,7 @@ export default function Header() {
           {compareCount > 0 && (
             <Link
               href={`/compare?slugs=${compareSlugs.join(",")}`}
-              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-accent)] hover:underline"
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-ink)] hover:underline"
             >
               <BarChart3 size={16} />
               <span>{t("compare")} ({compareCount})</span>
@@ -110,7 +110,7 @@ export default function Header() {
           {user && (
             <Link
               href="/watchlist"
-              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
             >
               <Heart size={16} />
               <span>{t("watchlist")}</span>
@@ -120,7 +120,7 @@ export default function Header() {
           {user && (
             <Link
               href={roleLandingPath(user.role)}
-              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
             >
               {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
               <span>{user.role === "DEALER" ? t("dealerPortal") : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? t("administration") : t("dashboard")}</span>
@@ -130,7 +130,7 @@ export default function Header() {
           {/* Language Switcher */}
           <Link
             href={switchHref}
-            className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors border border-[var(--color-border)] rounded-md px-2.5 py-1.5"
+            className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors border border-[var(--color-border)] rounded-md px-2.5 py-1.5"
             aria-label={switchLabel}
           >
             <Globe size={14} />
@@ -144,7 +144,7 @@ export default function Header() {
             </button>
           ) : (
             <Link href="/login"
-              className="text-sm font-medium text-[var(--color-accent)] hover:underline">
+              className="text-sm font-medium text-[var(--color-ink)] hover:underline">
               {t("signIn")}
             </Link>
           )}
@@ -175,7 +175,7 @@ export default function Header() {
           <div className="container-page py-4 flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
-                className="text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
+                className="text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors">
                 {link.label}
               </Link>
             ))}
@@ -184,7 +184,7 @@ export default function Header() {
               <Link
                 href={`/compare?slugs=${compareSlugs.join(",")}`}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-accent)]"
+                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-ink)]"
               >
                 <BarChart3 size={16} />
                 <span>{t("compare")} ({compareCount})</span>
@@ -195,7 +195,7 @@ export default function Header() {
               <Link
                 href={roleLandingPath(user.role)}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
               >
                 {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
                 {user.role === "DEALER" ? t("dealerPortal") : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? t("administration") : t("dashboard")}
@@ -204,7 +204,7 @@ export default function Header() {
 
             {!user && (
               <Link href="/login" onClick={() => setMobileOpen(false)}
-                className="text-base font-medium text-[var(--color-accent)]">
+                className="text-base font-medium text-[var(--color-ink)]">
                 {t("signIn")}
               </Link>
             )}

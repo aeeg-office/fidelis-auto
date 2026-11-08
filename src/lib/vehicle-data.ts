@@ -62,6 +62,7 @@ export async function getVehicles(opts: GetVehiclesOptions = {}): Promise<Vehicl
       make: v.make,
       model: v.model,
       trim: v.trim,
+      vehicleType: v.vehicleType,
       mileage: v.mileage,
       mileageUnit: v.mileageUnit,
       exteriorColor: v.exteriorColor,
