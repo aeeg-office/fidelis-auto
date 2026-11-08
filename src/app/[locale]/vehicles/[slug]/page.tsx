@@ -8,7 +8,8 @@ import JsonLd from "@/components/JsonLd";
 import FavoriteButton from "@/components/FavoriteButton";
 import SocialShare from "@/components/SocialShare";
 import ContactSellerButton from "@/components/ContactSellerButton";
-import VehicleGallery, { type GalleryImage } from "@/components/VehicleGallery";
+import VehicleDetailGallery from "@/components/VehicleDetailGallery";
+import type { GalleryImage } from "@/components/VehicleGallery";
 import RelatedVehicles from "@/components/RelatedVehicles";
 import VehicleReviews from "@/components/VehicleReviews";
 import AdSlot from "@/components/AdSlot";
@@ -248,7 +249,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
       <section className="container-page">
         <div className="mb-8">
-          <VehicleGallery
+          <VehicleDetailGallery
             images={vehicle.images}
             title={vehicle.title}
             fallbackSrc={imagePath}

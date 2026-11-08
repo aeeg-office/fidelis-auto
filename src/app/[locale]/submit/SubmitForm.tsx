@@ -1,15 +1,31 @@
 "use client";
 
-import { useState, FormEvent, useMemo, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useState, FormEvent, useMemo, useEffect, useRef } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Upload, Check, Video, Volume2 } from "lucide-react";
 import Link from "next/link";
 import { YEARS, EXTERIOR_COLORS, INTERIOR_COLORS, TRANSMISSIONS, COUNTRIES } from "@/lib/car-data";
+import {
+  buildListingDraft,
+  describeToConfirm,
+  displayValue,
+  FIELD_LABELS,
+  type DraftField,
+  type IntakeInput,
+  type ListingDraft,
+} from "@/lib/listing-intake";
 import PhoneInput from "@/components/PhoneInput";
 import type { MakeEntry } from "@/lib/car-data";
 
 export default function SubmitForm() {
   const t = useTranslations("sellYourCar");
+  const locale = useLocale();
+  const lang: "en" | "ar" = locale.startsWith("ar") ? "ar" : "en";
+  const formRef = useRef<HTMLFormElement>(null);
+  const [draft, setDraft] = useState<ListingDraft | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [draftCopied, setDraftCopied] = useState(false);
+  const [description, setDescription] = useState("");
   const [step, setStep] = useState<"form" | "success">("form");
   const [loading, setLoading] = useState(false);
   const [photos, setPhotos] = useState<File[]>([]);
@@ -46,6 +62,65 @@ export default function SubmitForm() {
     if (photos.length < 6) errs.push(t("errors.photosMin6", { count: photos.length }));
     if (photos.length > 30) errs.push(t("errors.photosMax30"));
     return errs;
+  }
+
+  /** Deterministic draft: takes what the seller already typed and turns it into
+   * a reviewable bilingual draft. The intake lib never invents anything — any
+   * unconfirmed detail is explicitly marked "to confirm". Photo file names are
+   * used as hints only. */
+  function generateDraft() {
+    setDraftError(null);
+    setDraftCopied(false);
+    const formEl = formRef.current;
+    if (!formEl) return;
+    const fd = new FormData(formEl);
+    const input: IntakeInput = {
+      year: selectedYear,
+      make: selectedMake === "Other" ? customMake || fd.get("customMake") : selectedMake,
+      model: selectedMake === "Other" ? customModel : fd.get("model"),
+      trim: fd.get("trim"),
+      mileage: fd.get("mileage"),
+      transmission: fd.get("transmission"),
+      exteriorColor: fd.get("exteriorColor"),
+      interiorColor: fd.get("interiorColor"),
+      engine: fd.get("engine"),
+      notes: description,
+      photoFilenames: photos.map(f => f.name),
+    };
+    const result = buildListingDraft(input);
+    if (result.ok) {
+      setDraft(result.draft);
+    } else {
+      setDraft(null);
+      setDraftError(result.error);
+    }
+  }
+
+  function applyDraft(localeCode: "en" | "ar") {
+    if (!draft) return;
+    setDescription(localeCode === "en" ? draft.descriptionEn : draft.descriptionAr);
+    setDraftCopied(true);
+  }
+
+  /** Confirmed (non-null) optional fields, rendered as labeled rows. */
+  function confirmedRows(d: ListingDraft): { label: string; value: string }[] {
+    const rows: { label: string; value: string }[] = [];
+    const add = (field: DraftField, value: string | number | null) => {
+      if (value === null || value === "") return;
+      rows.push({ label: FIELD_LABELS[field][lang], value: displayValue(field, value, lang, {
+        mileageUnit: d.fields.mileageUnit,
+        currency: d.fields.currency,
+      }) });
+    };
+    add("transmission", d.fields.transmission);
+    add("mileage", d.fields.mileage);
+    add("exteriorColor", d.fields.exteriorColor);
+    add("interiorColor", d.fields.interiorColor);
+    add("engine", d.fields.engine);
+    add("bodyType", d.fields.bodyType);
+    add("fuelType", d.fields.fuelType);
+    add("price", d.fields.price);
+    return rows;
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -136,7 +211,7 @@ export default function SubmitForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
       {/* Contact */}
       <fieldset>
         <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">{t("yourContact")}</legend>
@@ -212,8 +287,104 @@ export default function SubmitForm() {
       {/* Description */}
       <fieldset>
         <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">{t("description")}</legend>
-        <textarea name="description" rows={5} placeholder={t("descriptionPlaceholder")}
+        <textarea name="description" rows={5} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("descriptionPlaceholder")}
           className="w-full px-4 py-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] resize-none" />
+      </fieldset>
+
+      {/* AI listing intake: deterministic, never invents details */}
+      <fieldset>
+        <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">{t("draftSection")}</legend>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <p className="text-sm text-[var(--color-text-secondary)]">{t("draftSectionHint")}</p>
+          <button type="button" onClick={generateDraft}
+            className="shrink-0 px-4 py-2.5 rounded-lg border border-[var(--color-accent)] text-[var(--color-accent)] text-sm font-medium hover:bg-[var(--color-accent)]/10 transition-colors">
+            {t("draftFromInfo")}
+          </button>
+        </div>
+
+        {draftError && (
+          <p className="mt-3 text-sm text-red-700">{t("draftError", { error: draftError })}</p>
+        )}
+
+        {draft && (
+          <div className="mt-4 space-y-5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{t("draftConfirmed")}</h3>
+              <ul className="mt-2 space-y-1 text-sm text-[var(--color-text-secondary)]">
+                <li>{draft.fields.year} {draft.fields.make} {draft.fields.model}{draft.fields.trim ? ` ${draft.fields.trim}` : ""}</li>
+                {confirmedRows(draft).map((row) => (
+                  <li key={row.label}><span className="text-[var(--color-text-primary)]">{row.label}:</span> {row.value}</li>
+                ))}
+              </ul>
+            </div>
+
+            {draft.toConfirm.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{t("draftToConfirm")}</h3>
+                <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{t("draftToConfirmNote")}</p>
+                <ul className="mt-2 space-y-1 text-sm text-amber-700">
+                  {draft.toConfirm.map((item, i) => (
+                    <li key={`${item.field}-${i}`}>• {describeToConfirm(item, lang)}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {draft.photoHints.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{t("draftPhotoHints")}</h3>
+                <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{t("draftPhotoHintsNote")}</p>
+                <ul className="mt-2 space-y-1 text-sm text-[var(--color-text-secondary)]">
+                  {draft.photoHints.map((h, i) => (
+                    <li key={`${h.kind}-${i}`}>{h.kind}: {h.value} <span className="opacity-70">({h.source})</span></li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {draft.notes && (
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{t("draftNotes")}</h3>
+                <p className="mt-2 text-sm whitespace-pre-wrap text-[var(--color-text-secondary)]">{draft.notes}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{t("draftTitleEn")}</h3>
+                <p className="text-sm text-[var(--color-text-secondary)]">{draft.titleEn}</p>
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)] pt-2">{t("draftDescEn")}</h3>
+                <textarea readOnly rows={7} value={draft.descriptionEn}
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-dark)] text-sm text-[var(--color-text-inverse)] resize-none" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{t("draftTitleAr")}</h3>
+                <p className="text-sm text-[var(--color-text-secondary)] text-end">{draft.titleAr}</p>
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)] pt-2">{t("draftDescAr")}</h3>
+                <textarea readOnly rows={7} value={draft.descriptionAr}
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-dark)] text-sm text-[var(--color-text-inverse)] resize-none" />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => applyDraft("en")}
+                className="px-4 py-2 rounded-lg bg-[var(--color-ink)] text-[var(--color-text-inverse)] text-sm font-medium hover:bg-[var(--color-ink-hover)] transition-colors">
+                {t("useEnDraft")}
+              </button>
+              <button type="button" onClick={() => applyDraft("ar")}
+                className="px-4 py-2 rounded-lg bg-[var(--color-ink)] text-[var(--color-text-inverse)] text-sm font-medium hover:bg-[var(--color-ink-hover)] transition-colors">
+                {t("useArDraft")}
+              </button>
+              <button type="button" onClick={() => { setDraft(null); setDraftCopied(false); }}
+                className="px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] transition-colors">
+                {t("keepMyText")}
+              </button>
+            </div>
+            {draftCopied && (
+              <p className="text-sm text-[var(--color-verified)]">{t("draftCopied")}</p>
+            )}
+          </div>
+        )}
       </fieldset>
 
       {/* Photos */}

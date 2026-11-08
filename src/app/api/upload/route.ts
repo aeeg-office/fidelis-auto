@@ -4,6 +4,7 @@ import path from "path";
 import sharp from "sharp";
 import { can, type AccountRole } from "@/lib/authorization";
 import { validateUpload, MAX_ORIGINAL_DIM, cappedOriginalFilename, capOriginalDimensions } from "@/lib/upload-policy";
+import { generateStudioDerivatives } from "@/lib/studio-pipeline";
 import { getCurrentUser } from "@/lib/user-auth";
 
 /**
@@ -50,6 +51,7 @@ async function generateMediaOpts(buffer: Buffer, uploadDir: string, filename: st
       .toFile(path.join(uploadDir, `${base}${d.suffix}.webp`));
   }
 }
+
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -99,6 +101,15 @@ export async function POST(request: Request) {
         await generateMediaOpts(buffer, uploadDir, filename);
       } catch (error) {
         console.error("Media-opt (WebP/capped original) generation failed for", filename, error);
+      }
+      // Studio pipeline (additive, opt-in): enhanced / plate-blurred preview
+      // derivatives. Isolated from the standard pipeline and from the upload
+      // contract — a failure here never fails the upload, and every surface
+      // falls back to the original untouched photo.
+      try {
+        await generateStudioDerivatives(buffer, uploadDir, filename);
+      } catch (error) {
+        console.error("Studio derivative (enhanced/blur) generation failed for", filename, error);
       }
     }
 

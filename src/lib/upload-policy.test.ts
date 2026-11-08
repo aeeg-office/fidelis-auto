@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { validateUpload, cappedOriginalFilename, capOriginalDimensions, MAX_ORIGINAL_DIM } from "./upload-policy";
+import {
+  validateUpload,
+  cappedOriginalFilename,
+  capOriginalDimensions,
+  MAX_ORIGINAL_DIM,
+  enhancedDerivativeFilename,
+  blurredDerivativeFilename,
+  plateBlurRegion,
+  colorCastMatrix,
+} from "./upload-policy";
 
 describe("upload policy", () => {
   it("accepts bounded image, video, and sound uploads", () => {
@@ -43,5 +52,77 @@ describe("capped original copy (Spec L)", () => {
     expect(capOriginalDimensions(3000, 2000)).toEqual({ width: 2560, height: 1707 });
     // Tall portrait 2000x4000 → 1280x2560.
     expect(capOriginalDimensions(2000, 4000)).toEqual({ width: 1280, height: 2560 });
+  });
+});
+
+describe("studio derivatives (enhanced / blurred)", () => {
+  it("names the enhanced copy <base>-enhanced.webp regardless of source extension", () => {
+    expect(enhancedDerivativeFilename("abc123.jpg")).toBe("abc123-enhanced.webp");
+    expect(enhancedDerivativeFilename("abc123.png")).toBe("abc123-enhanced.webp");
+    expect(enhancedDerivativeFilename("abc.123.webp")).toBe("abc.123-enhanced.webp");
+  });
+
+  it("names the blurred copy <base>-blurred.webp", () => {
+    expect(blurredDerivativeFilename("abc123.jpg")).toBe("abc123-blurred.webp");
+    expect(blurredDerivativeFilename("abc123.jpeg")).toBe("abc123-blurred.webp");
+  });
+});
+
+describe("plate blur region heuristic", () => {
+  it("picks a centred lower band for a 16:9 landscape", () => {
+    const r = plateBlurRegion(1600, 900);
+    expect(r).not.toBeNull();
+    expect(r).toMatchObject({ left: 320, top: 702, width: 960, height: 126, sigma: 14 });
+    // Region must stay inside the canvas.
+    expect(r!.left + r!.width).toBeLessThanOrEqual(1600);
+    expect(r!.top + r!.height).toBeLessThanOrEqual(900);
+  });
+
+  it("clamps the region inside narrow or short frames", () => {
+    const portrait = plateBlurRegion(1000, 2000)!;
+    expect(portrait.left + portrait.width).toBeLessThanOrEqual(1000);
+    expect(portrait.top + portrait.height).toBeLessThanOrEqual(2000);
+    const narrow = plateBlurRegion(300, 1200)!;
+    expect(narrow.left).toBe(60);
+    expect(narrow.top + narrow.height).toBeLessThanOrEqual(1200);
+  });
+
+  it("returns null for degenerate or too-small frames (nothing to blur)", () => {
+    expect(plateBlurRegion(0, 100)).toBeNull();
+    expect(plateBlurRegion(-5, -5)).toBeNull();
+    expect(plateBlurRegion(200, 100)).toBeNull();
+    expect(plateBlurRegion(80, 80)).toBeNull();
+  });
+
+  it("honours a custom sigma", () => {
+    expect(plateBlurRegion(1600, 900, { sigma: 6 })?.sigma).toBe(6);
+  });
+});
+
+describe("gentle gray-world colour correction", () => {
+  it("returns null for a perfectly neutral sample", () => {
+    expect(colorCastMatrix({ r: 120, g: 120, b: 120 })).toBeNull();
+  });
+
+  it("returns null for degenerate samples (clipped or zero channels)", () => {
+    expect(colorCastMatrix({ r: 0, g: 120, b: 120 })).toBeNull();
+    expect(colorCastMatrix({ r: 255, g: 128, b: 128 })).toBeNull();
+    expect(colorCastMatrix({ r: NaN, g: 120, b: 120 })).toBeNull();
+  });
+
+  it("scales a warm cast toward neutral, clamped to ±4%", () => {
+    // Red-heavy cast: red is boosted down, blue lifted up — softly.
+    const m = colorCastMatrix({ r: 210, g: 180, b: 150 });
+    expect(m).not.toBeNull();
+    expect(m![0][0]).toBeCloseTo(0.96, 5);
+    expect(m![1][1]).toBeCloseTo(1, 5);
+    expect(m![2][2]).toBeCloseTo(1.04, 5);
+  });
+
+  it("never over-corrects an extreme cast (clamp holds)", () => {
+    const m = colorCastMatrix({ r: 240, g: 100, b: 100 })!;
+    expect(m[0][0]).toBe(0.96);
+    expect(m[1][1]).toBe(1.04);
+    expect(m[2][2]).toBe(1.04);
   });
 });

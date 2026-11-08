@@ -364,7 +364,25 @@
     "welcomeLine": "Welcome, {name}. Fill in the details below and our team will review your submission.",
     "year": "Year",
     "make": "Make",
-    "model": "Model"
+    "model": "Model",
+    "draftSection": "Draft from your info",
+    "draftSectionHint": "Creates a bilingual (EN/AR) draft from what you already entered. It never invents details — anything it could not confirm is marked for your review.",
+    "draftFromInfo": "Draft from your info",
+    "draftConfirmed": "Confirmed from your input",
+    "draftToConfirm": "To confirm before publishing",
+    "draftToConfirmNote": "These items could not be confirmed from what you entered. Nothing was invented — please confirm or correct them before submitting.",
+    "draftPhotoHints": "Photo file-name hints (suggestions only)",
+    "draftPhotoHintsNote": "Photo file names may suggest details, but they are only hints and were never used to determine a specification.",
+    "draftNotes": "Your notes (kept verbatim)",
+    "draftTitleEn": "Title (English)",
+    "draftTitleAr": "Title (Arabic)",
+    "draftDescEn": "Description draft (English)",
+    "draftDescAr": "Description draft (Arabic)",
+    "useEnDraft": "Use English draft",
+    "useArDraft": "Use Arabic draft",
+    "keepMyText": "Keep my text",
+    "draftCopied": "Draft copied to the description field — please review before submitting.",
+    "draftError": "Couldn't build a draft: {error}"
   },
   "auth": {
     "signIn": "Sign In",
@@ -770,5 +788,23 @@
     "subtitle": "Add to your home screen for the best experience",
     "button": "Install",
     "dismiss": "Not now"
+  },
+  "studioCover": {
+    "viewToggleLabel": "Vehicle photos",
+    "viewToggleHint": "Studio cover is a labelled illustration, never presented as a real photo.",
+    "galleryView": "Gallery",
+    "studioView": "Studio cover",
+    "illustrationBadge": "Illustration cover – not a photo",
+    "viewOriginal": "View original photo",
+    "photoUnavailable": "The original photo could not be loaded. The uploaded photo is never modified by the studio cover.",
+    "backToGallery": "Back to gallery",
+    "studioAlt": "Vehicle shown in a labelled illustration cover",
+    "effectsGroupLabel": "Photo preview effect",
+    "effectOriginal": "Original",
+    "effectEnhanced": "Enhanced",
+    "effectBlurPlate": "Blur plate",
+    "enhancedHint": "Automatic colour-correction preview. The uploaded original is never modified.",
+    "blurHint": "Heuristic plate region blurred in this preview only. The uploaded original is never modified.",
+    "enhancePreview": "Enhance"
   }
 }

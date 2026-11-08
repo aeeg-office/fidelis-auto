@@ -1,7 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Crown, GripVertical, Pencil, Plus, Upload, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Crown, GripVertical, Pencil, Plus, Sparkles, Upload, X } from "lucide-react";
+
+/** True for /uploads/* raster photos that the studio pipeline can enhance. */
+const UPLOAD_RASTER = /^\/uploads\/.*\.(jpe?g|png|webp|avif)$/i;
+
+/**
+ * Client-side pointer to the additive enhanced derivative (`<base>-enhanced.webp`)
+ * for a photo. Pure display preview — the original file is never touched, and
+ * if the file is missing the <img> error handler falls back to the original.
+ */
+function enhancedDerivativeSrc(src: string): string {
+  return src.replace(/\.(jpe?g|png|webp|avif)$/i, "-enhanced.webp");
+}
 
 export interface ManagerImage {
   /** Existing VehicleImage id (null for brand-new uploads). */
@@ -42,11 +55,16 @@ export default function VehicleImageManager({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  // Per-tile enhanced-preview flag (display only, keyed by index; cleared when
+  // the image set changes so a replaced photo never inherits the flag).
+  const [enhanced, setEnhanced] = useState<Record<number, boolean>>({});
   const addInputRef = useRef<HTMLInputElement>(null);
   const replaceRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const st = useTranslations("studioCover");
 
   const emit = (next: ManagerImage[]) => {
     setItems(next);
+    setEnhanced({});
     onChange(next);
   };
 
@@ -143,7 +161,16 @@ export default function VehicleImageManager({
             } ${it.cover ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/40" : "border-[var(--color-border)]"}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={it.src} alt="" className="w-full h-full object-cover" />
+            <img
+              src={enhanced[i] ? enhancedDerivativeSrc(it.src) : it.src}
+              alt=""
+              onError={
+                enhanced[i]
+                  ? () => setEnhanced((prev) => ({ ...prev, [i]: false }))
+                  : undefined
+              }
+              className="w-full h-full object-cover"
+            />
 
             {/* Cover badge */}
             {it.cover && (
@@ -188,6 +215,21 @@ export default function VehicleImageManager({
                   className="inline-flex items-center gap-1 text-[10px] bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-1.5 py-0.5 rounded"
                 >
                   <Crown size={10} /> Set cover
+                </button>
+              )}
+              {UPLOAD_RASTER.test(it.src) && (
+                <button
+                  type="button"
+                  aria-pressed={Boolean(enhanced[i])}
+                  title={st("enhancedHint")}
+                  onClick={() => setEnhanced((prev) => ({ ...prev, [i]: !prev[i] }))}
+                  className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded ${
+                    enhanced[i]
+                      ? "bg-white text-[var(--color-ink)]"
+                      : "bg-black/60 hover:bg-black/80 text-white"
+                  }`}
+                >
+                  <Sparkles size={10} /> {st("enhancePreview")}
                 </button>
               )}
             </div>
