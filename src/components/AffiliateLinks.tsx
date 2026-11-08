@@ -33,9 +33,9 @@ export default function AffiliateLinks() {
           rel="noopener noreferrer sponsored"
           className="flex items-start gap-3 p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)] transition-colors group"
         >
-          <a.icon size={20} className="text-[var(--color-accent)] shrink-0 mt-0.5" />
+          <a.icon size={20} className="text-[var(--color-ink)] shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
+            <p className="text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-ink)] transition-colors">
               {a.name}
             </p>
             <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{a.desc}</p>

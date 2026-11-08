@@ -40,14 +40,12 @@
     "haveACarDesc": "We're always interested in great cars with honest stories. Tell us about yours and let's start the conversation.",
     "contactUs": "Contact Us",
     "categories": {
-      "modern": "Modern",
-      "modernDesc": "Late-model performance and luxury vehicles",
-      "classic": "Classic",
-      "classicDesc": "Timeless automobiles from 1970s–1990s",
-      "vintage": "Vintage",
-      "vintageDesc": "Pre-1970s collector cars with history",
-      "electric": "Electric",
-      "electricDesc": "Modern electric and hybrid vehicles"
+      "cars": "Cars",
+      "carsDesc": "Sedans, SUVs, and coupes from every era",
+      "motorcycles": "Motorcycles",
+      "motorcyclesDesc": "Bikes, scooters, and off-road machines for every rider",
+      "collections": "Collections",
+      "collectionsDesc": "Hand-picked groups of verified cars and motorcycles"
     },
     "noFeaturedEmpty": "No featured vehicles yet. New additions will appear here as they're published.",
     "noRecentEmpty": "No vehicles have been added yet. Check back soon.",
@@ -209,7 +207,8 @@
       "Manual": "Manual",
       "Automatic": "Automatic",
       "Other": "Other"
-    }
+    },
+    "type": "Type"
   },
   "contact": {
     "title": "Get in Touch",
@@ -451,6 +450,8 @@
   },
   "brand": {
     "name": "Fidelis Auto",
+    "logoAlt": "Fidelis Auto emblem",
+    "wordmarkAr": "فيديليس أوتو",
     "tagline": "For the love of cars.",
     "fullTagline": "For the love of cars. Every car has a story — we help you find yours."
   },

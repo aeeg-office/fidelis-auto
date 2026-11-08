@@ -47,7 +47,7 @@ export default async function ServicesPage() {
       </div>
 
       <div className="mt-6">
-        <Link href="/services/submit" className="inline-flex items-center gap-2 text-sm bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-md font-medium hover:opacity-95">
+        <Link href="/services/submit" className="inline-flex items-center gap-2 text-sm bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md font-medium hover:opacity-95">
           <Plus size={15} /> Submit Your Service
         </Link>
       </div>

@@ -60,7 +60,7 @@ aria-label={t("whatsappAria", { vehicle: vehicleTitle })}
           )}&body=${encodeURIComponent(
             t("emailBody", { vehicle: vehicleTitle, url: `https://fidelisauto.com/vehicles/${vehicleSlug}` })
           )}`}
-          className="w-full flex items-center justify-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors py-1"
+          className="w-full flex items-center justify-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors py-1"
         >
           <Mail size={16} /> {t("emailSeller")}
         </a>

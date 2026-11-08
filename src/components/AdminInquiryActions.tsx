@@ -32,7 +32,7 @@ export default function AdminInquiryActions({ id, isRead }: { id: string; isRead
       <div className="flex gap-1">
         {!isRead && (
           <button type="button" onClick={markRead} disabled={busy !== null}
-            className="p-1.5 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+            className="p-1.5 rounded bg-[var(--color-ink)]/10 text-[var(--color-ink)] hover:bg-[var(--color-ink)]/20 disabled:opacity-50"
             title="Mark as read" aria-label="Mark as read"><Check size={14} /></button>
         )}
         <button type="button" onClick={remove} disabled={busy !== null}

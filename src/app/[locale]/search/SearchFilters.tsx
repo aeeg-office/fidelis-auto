@@ -165,7 +165,7 @@ export default function SearchFilters() {
       <div className="flex items-center justify-between gap-3 pt-2">
         <button
           onClick={apply}
-          className="px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-surface-dark)] rounded-lg hover:bg-[var(--color-accent-hover)] transition-colors"
+          className="px-4 py-2 text-sm font-medium bg-[var(--color-ink)] text-[var(--color-text-inverse)] rounded-lg hover:bg-[var(--color-ink-hover)] transition-colors"
         >
           {tf("applyFilters")}
         </button>

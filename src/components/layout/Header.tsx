@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -15,6 +16,7 @@ export default function Header() {
   const compareSlugs = useCompareStore((s) => s.slugs);
   const t = useTranslations("nav");
   const tc = useTranslations("common");
+  const tb = useTranslations("brand");
   const pathname = usePathname();
 
   useEffect(() => {
@@ -52,21 +54,44 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-sm">
       <div className="container-page flex items-center justify-between h-16 md:h-20">
-        <Link href="/" className="flex items-center gap-2 group" aria-label="Fidelis Auto — home">
-          <svg viewBox="0 0 64 64" className="w-10 h-10 shrink-0" aria-hidden="true">
-            <circle cx="32" cy="32" r="30" className="fill-[var(--color-surface-dark)]" />
-            <circle cx="32" cy="32" r="29" className="fill-none stroke-[var(--color-accent)]" strokeWidth="2.5" />
-            <path d="M24 16h18v5H29v8h11v5H29v14h-5V16z" className="fill-[var(--color-accent)]" />
-          </svg>
-          <span className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-bold tracking-wider text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors uppercase">
-            Fidelis Auto
+        <Link href="/" className="flex items-center gap-2.5 group" aria-label="Fidelis Auto — home">
+          {/* Ink + gold emblem on the ivory header surface */}
+          <Image
+            src="/logo-mark.svg"
+            alt={tb("logoAlt")}
+            width={40}
+            height={40}
+            className="w-10 h-10 shrink-0"
+            unoptimized
+            priority
+          />
+          <span className="flex flex-col leading-tight">
+            {currentLocale === "ar" ? (
+              <>
+                <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] font-bold text-xl md:text-2xl text-[var(--color-text-primary)] group-hover:text-[var(--color-ink)] transition-colors">
+                  {tb("wordmarkAr")}
+                </span>
+                <span className="font-[family-name:var(--font-cormorant)] text-xs tracking-[0.22em] uppercase font-semibold text-[var(--color-text-secondary)]">
+                  {tb("name")}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-bold tracking-wider text-[var(--color-text-primary)] group-hover:text-[var(--color-ink)] transition-colors uppercase">
+                  {tb("name")}
+                </span>
+                <span lang="ar" dir="rtl" className="font-[family-name:var(--font-arabic)] text-xs font-medium text-[var(--color-text-secondary)]">
+                  {tb("wordmarkAr")}
+                </span>
+              </>
+            )}
           </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
           {NAV_LINKS.map((link) => (
             <Link key={link.href} href={link.href}
-              className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
+              className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors">
               {link.label}
             </Link>
           ))}
@@ -75,7 +100,7 @@ export default function Header() {
           {compareCount > 0 && (
             <Link
               href={`/compare?slugs=${compareSlugs.join(",")}`}
-              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-accent)] hover:underline"
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-ink)] hover:underline"
             >
               <BarChart3 size={16} />
               <span>{t("compare")} ({compareCount})</span>
@@ -85,7 +110,7 @@ export default function Header() {
           {user && (
             <Link
               href="/watchlist"
-              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
             >
               <Heart size={16} />
               <span>{t("watchlist")}</span>
@@ -95,7 +120,7 @@ export default function Header() {
           {user && (
             <Link
               href={roleLandingPath(user.role)}
-              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
             >
               {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
               <span>{user.role === "DEALER" ? t("dealerPortal") : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? t("administration") : t("dashboard")}</span>
@@ -105,7 +130,7 @@ export default function Header() {
           {/* Language Switcher */}
           <Link
             href={switchHref}
-            className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors border border-[var(--color-border)] rounded-md px-2.5 py-1.5"
+            className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors border border-[var(--color-border)] rounded-md px-2.5 py-1.5"
             aria-label={switchLabel}
           >
             <Globe size={14} />
@@ -119,7 +144,7 @@ export default function Header() {
             </button>
           ) : (
             <Link href="/login"
-              className="text-sm font-medium text-[var(--color-accent)] hover:underline">
+              className="text-sm font-medium text-[var(--color-ink)] hover:underline">
               {t("signIn")}
             </Link>
           )}
@@ -150,7 +175,7 @@ export default function Header() {
           <div className="container-page py-4 flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
-                className="text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors">
+                className="text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors">
                 {link.label}
               </Link>
             ))}
@@ -159,7 +184,7 @@ export default function Header() {
               <Link
                 href={`/compare?slugs=${compareSlugs.join(",")}`}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-accent)]"
+                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-ink)]"
               >
                 <BarChart3 size={16} />
                 <span>{t("compare")} ({compareCount})</span>
@@ -170,7 +195,7 @@ export default function Header() {
               <Link
                 href={roleLandingPath(user.role)}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
+                className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
               >
                 {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
                 {user.role === "DEALER" ? t("dealerPortal") : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? t("administration") : t("dashboard")}
@@ -179,7 +204,7 @@ export default function Header() {
 
             {!user && (
               <Link href="/login" onClick={() => setMobileOpen(false)}
-                className="text-base font-medium text-[var(--color-accent)]">
+                className="text-base font-medium text-[var(--color-ink)]">
                 {t("signIn")}
               </Link>
             )}

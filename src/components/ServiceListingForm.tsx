@@ -68,7 +68,7 @@ export default function ServiceListingForm() {
               aria-pressed={tags.includes(tag)}
               className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
                 tags.includes(tag)
-                  ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-surface-dark)]"
+                  ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-text-inverse)]"
                   : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)]"
               }`}
             >

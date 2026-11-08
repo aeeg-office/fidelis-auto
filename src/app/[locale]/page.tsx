@@ -1,6 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { ArrowRight, Car, CableCar, Zap } from "lucide-react";
+import { ArrowRight, Bike, Car, LayoutGrid } from "lucide-react";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import VehicleCard from "@/components/VehicleCard";
 import VehicleImage from "@/components/VehicleImage";
@@ -21,10 +21,9 @@ export default async function HomePage() {
   ]);
 
   const CATEGORIES = [
-    { key: "Modern", label: t("categories.modern"), icon: Car, desc: t("categories.modernDesc"), color: "bg-blue-50 text-blue-700 border-blue-200" },
-    { key: "Classic", label: t("categories.classic"), icon: Car, desc: t("categories.classicDesc"), color: "bg-amber-50 text-amber-700 border-amber-200" },
-    { key: "Vintage", label: t("categories.vintage"), icon: CableCar, desc: t("categories.vintageDesc"), color: "bg-purple-50 text-purple-700 border-purple-200" },
-    { key: "EV", label: t("categories.electric"), icon: Zap, desc: t("categories.electricDesc"), color: "bg-green-50 text-green-700 border-green-200" },
+    { key: "cars", label: t("categories.cars"), icon: Car, href: "/vehicles?type=CAR", desc: t("categories.carsDesc") },
+    { key: "motorcycles", label: t("categories.motorcycles"), icon: Bike, href: "/vehicles?type=MOTORCYCLE", desc: t("categories.motorcyclesDesc") },
+    { key: "collections", label: t("categories.collections"), icon: LayoutGrid, href: "/collections", desc: t("categories.collectionsDesc") },
   ];
 
   return (
@@ -42,7 +41,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/vehicles"
-              className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
+              className="inline-flex items-center gap-2 bg-[var(--color-text-inverse)] text-[var(--color-surface-dark)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-text-inverse)]/90 transition-colors"
             >
               {tHero("cta")}
               <ArrowRight size={18} className="rtl:rotate-180" />
@@ -62,23 +61,23 @@ export default async function HomePage() {
               {t("browseSubtitle")}
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               return (
                 <Link
                   key={cat.key}
-                  href={`/vehicles?category=${cat.key}`}
-                  className={`group flex flex-col items-center text-center p-6 md:p-8 rounded-xl border ${cat.color} hover:shadow-md hover:-translate-y-1 transition-all duration-200`}
+                  href={cat.href}
+                  className="group flex flex-col items-center text-center p-6 md:p-8 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] border-t-2 border-t-[var(--color-accent)] text-[var(--color-ink)] hover:shadow-md hover:-translate-y-1 transition-all duration-200"
                 >
-                  <div className="p-3 rounded-full bg-white/80 mb-4">
+                  <div className="p-3 rounded-full bg-[var(--color-bg)] mb-4">
                     <Icon size={28} />
                   </div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold mb-1">
+                  <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold mb-1 text-[var(--color-ink)]">
                     {cat.label}
                   </h3>
-                  <p className="text-xs opacity-80 leading-relaxed">{cat.desc}</p>
-                  <span className="mt-3 text-xs font-medium inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{cat.desc}</p>
+                  <span className="mt-3 text-xs font-medium inline-flex items-center gap-1 text-[var(--color-ink)] opacity-0 group-hover:opacity-100 transition-opacity">
                     {t("browse")} <ArrowRight size={12} className="rtl:rotate-180" />
                   </span>
                 </Link>
@@ -207,7 +206,7 @@ export default async function HomePage() {
           <div className="text-center mt-10">
             <Link
               href="/vehicles"
-              className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+              className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
             >
               {t("viewAllVehicles")}
               <ArrowRight size={18} className="rtl:rotate-180" />
@@ -242,7 +241,7 @@ export default async function HomePage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+            className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
           >
             {t("contactUs")}
             <ArrowRight size={18} className="rtl:rotate-180" />

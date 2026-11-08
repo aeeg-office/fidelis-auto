@@ -165,7 +165,7 @@ export default function SignupPage() {
           {error && <p className="text-sm text-[var(--color-error)]">{error}</p>}
 
           <button type="submit" disabled={loading}
-            className="w-full bg-[var(--color-accent)] text-[var(--color-surface-dark)] py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] disabled:opacity-50">
+            className="w-full bg-[var(--color-verified)] text-[var(--color-text-inverse)] py-2.5 rounded-lg font-medium hover:bg-[var(--color-green-hover)] disabled:opacity-50">
             {loading ? t("creatingAccount") : t("createAccount")}
           </button>
         </form>

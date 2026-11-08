@@ -62,7 +62,7 @@ export default async function AdminReviewsPage() {
                       on <Link href={`/vehicles/${r.vehicle.slug}`} className="underline hover:text-[var(--color-accent)]">{r.vehicle.title || r.vehicle.slug}</Link>
                     </p>
                     {r.providerContext && (
-                      <p className="text-xs text-purple-700 mt-2 bg-purple-50 rounded px-2 py-1">
+                      <p className="text-xs text-[var(--color-ink)] mt-2 bg-[var(--color-accent)]/10 rounded px-2 py-1">
                         Provider context (admin-only): {r.providerContext}
                       </p>
                     )}

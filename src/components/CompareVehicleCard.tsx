@@ -39,7 +39,7 @@ export default function CompareVehicleCard({
           }}
 className={`absolute top-3 end-3 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-[var(--radius-control)] text-xs font-medium transition-colors ${
             isSelected
-              ? "bg-[var(--color-accent)] text-[var(--color-surface-dark)]"
+              ? "bg-[var(--color-ink)] text-[var(--color-text-inverse)]"
               : "bg-[var(--color-surface)]/90 text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-accent)]"
           }`}
           aria-label={isSelected ? t("removeFromCompare") : t("addToCompare")}

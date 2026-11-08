@@ -59,7 +59,7 @@ export default function DealerRegistrationPage() {
           </div>
           {error && <p role="alert" className="text-sm text-[var(--color-error)]">{error}</p>}
           {success && <p role="status" className="text-sm text-[var(--color-verified)]">{success}</p>}
-          <button disabled={loading} className="rounded-lg bg-[var(--color-accent)] px-6 py-3 font-medium text-[var(--color-surface-dark)] transition-colors hover:bg-[var(--color-accent-hover)] disabled:opacity-50">
+          <button disabled={loading} className="rounded-lg bg-[var(--color-verified)] px-6 py-3 font-medium text-[var(--color-text-inverse)] transition-colors hover:bg-[var(--color-green-hover)] disabled:opacity-50">
             {loading ? "Submitting…" : "Submit Dealer Application"}
           </button>
         </form>
