@@ -1,9 +1,8 @@
 import { test, expect } from "@playwright/test";
 
-// Production bilingual regression — runs against the live site (BASE_URL override).
-// Covers core public flows on mobile + desktop, EN + AR. Read-only smoke.
-
-const S = "https://fidelisauto.com";
+// Production/staging bilingual regression — runs against the live site.
+// URL overridable via TEST_BASE_URL (e.g. a staging tunnel); defaults to prod.
+const S: string = process.env.TEST_BASE_URL || "https://fidelisauto.com";
 
 test.describe("production regression (bilingual, mobile+desktop)", () => {
   test("EN: homepage + nav + vehicles + services + collections", async ({ page }) => {
