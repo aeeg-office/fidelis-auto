@@ -11,6 +11,7 @@ import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 import { Analytics } from "@vercel/analytics/react";
+import { ADSENSE_LOADER_URL } from "@/lib/adsense";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -91,6 +92,17 @@ export default async function LocaleLayout({ children, params }: Props) {
               `,
             }}
           />
+          {/* WS16: one-time AdSense loader — emitted ONLY when a ca-pub id is
+              configured (NEXT_PUBLIC_ADSENSE_CLIENT). Empty string → no script
+              tag is ever rendered and no request can be made. */}
+          {ADSENSE_LOADER_URL && (
+            <Script
+              id="adsense-loader"
+              strategy="afterInteractive"
+              src={ADSENSE_LOADER_URL}
+              crossOrigin="anonymous"
+            />
+          )}
         </NextIntlClientProvider>
       </body>
     </html>

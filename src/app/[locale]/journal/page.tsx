@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import VehicleImage from "@/components/VehicleImage";
 import { prisma } from "@/lib/prisma";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import AdSlot from "@/components/AdSlot";
 import { BLOG_CATEGORIES } from "@/lib/fidelisTaxonomy";
 
 export const dynamic = "force-dynamic";
@@ -188,6 +189,9 @@ export default async function JournalPage({
             {t("subtitle")}
           </p>
         </header>
+
+        {/* WS16: single leaderboard above the entries — one slot, never crowds the grid. */}
+        <AdSlot format="leaderboard" slotId="journal-list" className="mb-12" />
 
         <div className="grid lg:grid-cols-3 gap-10">
           {/* Entries grid */}

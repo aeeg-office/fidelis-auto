@@ -606,8 +606,7 @@
     }
   },
   "adSlots": {
-    "advertisement": "Advertisement",
-    "configureAdSense": "Configure AdSense in ad-slot.tsx"
+    "advertisement": "Advertisement"
   },
   "cookieConsent": {
     "message": "We use cookies to improve your experience. By using this site, you agree to our use of cookies.",
