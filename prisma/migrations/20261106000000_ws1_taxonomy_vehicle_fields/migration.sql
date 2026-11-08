@@ -1,32 +1,43 @@
--- CreateEnum
-CREATE TYPE "VehicleType" AS ENUM ('CAR', 'MOTORCYCLE');
+-- CreateEnum (idempotent — may exist from a partial apply or legacy schema)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'VehicleType') THEN
+    CREATE TYPE "VehicleType" AS ENUM ('CAR', 'MOTORCYCLE');
+  END IF;
+END $$;
 
--- CreateEnum
-CREATE TYPE "FuelType" AS ENUM ('PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID', 'LPG', 'CNG', 'OTHER');
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'FuelType') THEN
+    CREATE TYPE "FuelType" AS ENUM ('PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID', 'LPG', 'CNG', 'OTHER');
+  END IF;
+END $$;
 
--- CreateEnum
-CREATE TYPE "BodyType" AS ENUM ('SEDAN', 'HATCHBACK', 'SUV', 'PICKUP', 'VAN', 'COUPE', 'CONVERTIBLE', 'WAGON', 'MPV', 'OTHER');
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'BodyType') THEN
+    CREATE TYPE "BodyType" AS ENUM ('SEDAN', 'HATCHBACK', 'SUV', 'PICKUP', 'VAN', 'COUPE', 'CONVERTIBLE', 'WAGON', 'MPV', 'OTHER');
+  END IF;
+END $$;
 
--- AlterTable
-ALTER TABLE "Vehicle" ADD COLUMN     "bodyType" "BodyType",
-ADD COLUMN     "cityId" TEXT,
-ADD COLUMN     "countryId" TEXT,
-ADD COLUMN     "currency" TEXT NOT NULL DEFAULT 'EGP',
-ADD COLUMN     "expiresAt" TIMESTAMP(3),
-ADD COLUMN     "fuelType" "FuelType",
-ADD COLUMN     "isLicensed" BOOLEAN,
-ADD COLUMN     "makeId" TEXT,
-ADD COLUMN     "modelId" TEXT,
-ADD COLUMN     "priceAmount" INTEGER,
-ADD COLUMN     "vehicleType" "VehicleType" NOT NULL DEFAULT 'CAR',
-ALTER COLUMN "mileageUnit" SET DEFAULT 'km';
+-- AlterTable (idempotent column adds)
+ALTER TABLE "Vehicle"
+  ADD COLUMN IF NOT EXISTS "bodyType" "BodyType",
+  ADD COLUMN IF NOT EXISTS "cityId" TEXT,
+  ADD COLUMN IF NOT EXISTS "countryId" TEXT,
+  ADD COLUMN IF NOT EXISTS "currency" TEXT NOT NULL DEFAULT 'EGP',
+  ADD COLUMN IF NOT EXISTS "expiresAt" TIMESTAMP(3),
+  ADD COLUMN IF NOT EXISTS "fuelType" "FuelType",
+  ADD COLUMN IF NOT EXISTS "isLicensed" BOOLEAN,
+  ADD COLUMN IF NOT EXISTS "makeId" TEXT,
+  ADD COLUMN IF NOT EXISTS "modelId" TEXT,
+  ADD COLUMN IF NOT EXISTS "priceAmount" INTEGER,
+  ADD COLUMN IF NOT EXISTS "vehicleType" "VehicleType" NOT NULL DEFAULT 'CAR';
+ALTER TABLE "Vehicle" ALTER COLUMN "mileageUnit" SET DEFAULT 'km';
 
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "countryId" TEXT,
-ADD COLUMN IF NOT EXISTS "preferredLanguage" TEXT NOT NULL DEFAULT 'en';
+ALTER TABLE "User"
+  ADD COLUMN IF NOT EXISTS "countryId" TEXT,
+  ADD COLUMN IF NOT EXISTS "preferredLanguage" TEXT NOT NULL DEFAULT 'en';
 
--- CreateTable
-CREATE TABLE "Country" (
+-- CreateTable (idempotent)
+CREATE TABLE IF NOT EXISTS "Country" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "nameEn" TEXT NOT NULL,
@@ -41,8 +52,7 @@ CREATE TABLE "Country" (
     CONSTRAINT "Country_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "City" (
+CREATE TABLE IF NOT EXISTS "City" (
     "id" TEXT NOT NULL,
     "countryId" TEXT NOT NULL,
     "nameEn" TEXT NOT NULL,
@@ -52,8 +62,7 @@ CREATE TABLE "City" (
     CONSTRAINT "City_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "Make" (
+CREATE TABLE IF NOT EXISTS "Make" (
     "id" TEXT NOT NULL,
     "nameEn" TEXT NOT NULL,
     "nameAr" TEXT,
@@ -66,8 +75,7 @@ CREATE TABLE "Make" (
     CONSTRAINT "Make_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "Model" (
+CREATE TABLE IF NOT EXISTS "Model" (
     "id" TEXT NOT NULL,
     "makeId" TEXT NOT NULL,
     "nameEn" TEXT NOT NULL,
@@ -80,8 +88,7 @@ CREATE TABLE "Model" (
     CONSTRAINT "Model_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "SiteSetting" (
+CREATE TABLE IF NOT EXISTS "SiteSetting" (
     "id" TEXT NOT NULL,
     "key" TEXT NOT NULL,
     "value" TEXT,
@@ -91,54 +98,57 @@ CREATE TABLE "SiteSetting" (
     CONSTRAINT "SiteSetting_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "Country_code_key" ON "Country"("code");
+-- CreateIndex (idempotent)
+CREATE UNIQUE INDEX IF NOT EXISTS "Country_code_key" ON "Country"("code");
+CREATE INDEX IF NOT EXISTS "City_countryId_nameEn_idx" ON "City"("countryId", "nameEn");
+CREATE INDEX IF NOT EXISTS "Make_vehicleType_isActive_idx" ON "Make"("vehicleType", "isActive");
+CREATE UNIQUE INDEX IF NOT EXISTS "Make_nameEn_vehicleType_key" ON "Make"("nameEn", "vehicleType");
+CREATE INDEX IF NOT EXISTS "Model_makeId_vehicleType_idx" ON "Model"("makeId", "vehicleType");
+CREATE UNIQUE INDEX IF NOT EXISTS "Model_makeId_nameEn_key" ON "Model"("makeId", "nameEn");
+CREATE UNIQUE INDEX IF NOT EXISTS "SiteSetting_key_key" ON "SiteSetting"("key");
+CREATE INDEX IF NOT EXISTS "Vehicle_countryId_vehicleType_isPublished_priceAmount_idx" ON "Vehicle"("countryId", "vehicleType", "isPublished", "priceAmount");
+CREATE INDEX IF NOT EXISTS "Vehicle_makeId_modelId_year_idx" ON "Vehicle"("makeId", "modelId", "year");
+CREATE INDEX IF NOT EXISTS "Vehicle_cityId_idx" ON "Vehicle"("cityId");
 
--- CreateIndex
-CREATE INDEX "City_countryId_nameEn_idx" ON "City"("countryId", "nameEn");
+-- AddForeignKey (idempotent via constraint checks)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'City_countryId_fkey') THEN
+    ALTER TABLE "City" ADD CONSTRAINT "City_countryId_fkey" FOREIGN KEY ("countryId") REFERENCES "Country"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
 
--- CreateIndex
-CREATE INDEX "Make_vehicleType_isActive_idx" ON "Make"("vehicleType", "isActive");
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Model_makeId_fkey') THEN
+    ALTER TABLE "Model" ADD CONSTRAINT "Model_makeId_fkey" FOREIGN KEY ("makeId") REFERENCES "Make"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
 
--- CreateIndex
-CREATE UNIQUE INDEX "Make_nameEn_vehicleType_key" ON "Make"("nameEn", "vehicleType");
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Vehicle_countryId_fkey') THEN
+    ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_countryId_fkey" FOREIGN KEY ("countryId") REFERENCES "Country"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+END $$;
 
--- CreateIndex
-CREATE INDEX "Model_makeId_vehicleType_idx" ON "Model"("makeId", "vehicleType");
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Vehicle_cityId_fkey') THEN
+    ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_cityId_fkey" FOREIGN KEY ("cityId") REFERENCES "City"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+END $$;
 
--- CreateIndex
-CREATE UNIQUE INDEX "Model_makeId_nameEn_key" ON "Model"("makeId", "nameEn");
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Vehicle_makeId_fkey') THEN
+    ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_makeId_fkey" FOREIGN KEY ("makeId") REFERENCES "Make"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+END $$;
 
--- CreateIndex
-CREATE UNIQUE INDEX "SiteSetting_key_key" ON "SiteSetting"("key");
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Vehicle_modelId_fkey') THEN
+    ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_modelId_fkey" FOREIGN KEY ("modelId") REFERENCES "Model"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+END $$;
 
--- CreateIndex
-CREATE INDEX "Vehicle_countryId_vehicleType_isPublished_priceAmount_idx" ON "Vehicle"("countryId", "vehicleType", "isPublished", "priceAmount");
-
--- CreateIndex
-CREATE INDEX "Vehicle_makeId_modelId_year_idx" ON "Vehicle"("makeId", "modelId", "year");
-
--- CreateIndex
-CREATE INDEX "Vehicle_cityId_idx" ON "Vehicle"("cityId");
-
--- AddForeignKey
-ALTER TABLE "City" ADD CONSTRAINT "City_countryId_fkey" FOREIGN KEY ("countryId") REFERENCES "Country"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Model" ADD CONSTRAINT "Model_makeId_fkey" FOREIGN KEY ("makeId") REFERENCES "Make"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_countryId_fkey" FOREIGN KEY ("countryId") REFERENCES "Country"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_cityId_fkey" FOREIGN KEY ("cityId") REFERENCES "City"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_makeId_fkey" FOREIGN KEY ("makeId") REFERENCES "Make"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Vehicle" ADD CONSTRAINT "Vehicle_modelId_fkey" FOREIGN KEY ("modelId") REFERENCES "Model"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_countryId_fkey" FOREIGN KEY ("countryId") REFERENCES "Country"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'User_countryId_fkey') THEN
+    ALTER TABLE "User" ADD CONSTRAINT "User_countryId_fkey" FOREIGN KEY ("countryId") REFERENCES "Country"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+END $$;
