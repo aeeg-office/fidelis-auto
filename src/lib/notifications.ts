@@ -56,6 +56,9 @@ export async function sendVerificationCode(email: string, code: string): Promise
       headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: process.env.FIDELIS_EMAIL_FROM || "Fidelis Auto <no-reply@fidelis-auto.com>",
+        ...(process.env.FIDELIS_REPLY_TO
+          ? { replyTo: process.env.FIDELIS_REPLY_TO }
+          : {}),
         to: email,
         subject: "Verify your Fidelis Auto account",
         html: `
