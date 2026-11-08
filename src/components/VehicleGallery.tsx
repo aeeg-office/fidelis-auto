@@ -16,6 +16,13 @@ interface VehicleGalleryProps {
   title?: string;
   /** Fallback shown when no images exist (e.g. slug placeholder). */
   fallbackSrc?: string;
+  /**
+   * Opt-in studio photo pipeline controls (OFF by default, zero behaviour
+   * change for existing callers): shows a per-photo Original / Enhanced /
+   * Blur-plate switcher above the main image. All variants are additive
+   * display-only previews — the uploaded original is never modified.
+   */
+  effects?: boolean;
 }
 
 /**
@@ -35,8 +42,10 @@ export default function VehicleGallery({
   images: propImages,
   title = "Vehicle",
   fallbackSrc,
+  effects = false,
 }: VehicleGalleryProps) {
   const t = useTranslations("common");
+  const st = useTranslations("studioCover");
   const images = useMemo(
     () =>
       Array.isArray(propImages)
@@ -47,6 +56,10 @@ export default function VehicleGallery({
 
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  // Per-photo studio pipeline preview variant, keyed by photo index. A photo
+  // without an entry renders as "original", so switching photos automatically
+  // resets the preview without an effect.
+  const [effectsByIndex, setEffectsByIndex] = useState<Record<number, "original" | "enhanced" | "blurred">>({});
   const thumbRef = useRef<HTMLDivElement>(null);
   const activeThumbRef = useRef<HTMLButtonElement>(null);
   const touchX = useRef<number | null>(null);
@@ -54,6 +67,9 @@ export default function VehicleGallery({
   const total = images.length;
   // Derive a safe index at render (avoids setState-in-effect when total shrinks).
   const index = total === 0 ? 0 : Math.min(active, total - 1);
+  const effect = effectsByIndex[index] ?? "original";
+  const setEffect = (next: "original" | "enhanced" | "blurred") =>
+    setEffectsByIndex((prev) => ({ ...prev, [index]: next }));
 
   const goTo = useCallback((n: number) => {
     if (total === 0) return;
@@ -126,6 +142,44 @@ export default function VehicleGallery({
     <>
       <div className="mb-3">
         {/* Main image */}
+        {effects && (
+          <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <div
+              role="group"
+              aria-label={st("effectsGroupLabel")}
+              className="inline-flex items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-0.5 text-xs"
+            >
+              {(
+                [
+                  { key: "original", label: st("effectOriginal") },
+                  { key: "enhanced", label: st("effectEnhanced") },
+                  { key: "blurred", label: st("effectBlurPlate") },
+                ] as const
+              ).map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  aria-pressed={effect === opt.key}
+                  onClick={() => setEffect(opt.key)}
+                  className={`px-2.5 py-1 rounded-md transition-colors ${
+                    effect === opt.key
+                      ? "bg-[var(--color-accent)] text-[var(--color-surface-dark)] font-medium"
+                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-ink)]"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <p
+              className={`text-xs ${
+                effect === "original" ? "hidden" : "text-[var(--color-text-secondary)]"
+              }`}
+            >
+              {effect === "enhanced" ? st("enhancedHint") : st("blurHint")}
+            </p>
+          </div>
+        )}
         <div
           key={images[index].src}
           className="relative aspect-[21/9] bg-[var(--color-surface-dark)] rounded-lg overflow-hidden cursor-zoom-in select-none"
@@ -141,6 +195,7 @@ export default function VehicleGallery({
             fill
             priority={index === 0}
             sizes="(max-width: 768px) 100vw, 90vw"
+            variant={effect}
             className="object-cover transition-transform duration-200 animate-[fadeIn_.25s_ease]"
           />
           {/* Counter */}
