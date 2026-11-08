@@ -48,7 +48,7 @@ export default async function AddVehiclePage() {
             <label className="flex items-center gap-2"><input name="isFeatured" type="checkbox" className="rounded" /> Featured</label>
             <label className="flex items-center gap-2"><input name="isPublished" type="checkbox" className="rounded" defaultChecked /> Published</label>
           </div>
-          <button type="submit" className="bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)]">Save Vehicle</button>
+          <button type="submit" className="bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-6 py-2.5 rounded-lg font-medium hover:bg-[var(--color-ink-hover)]">Save Vehicle</button>
         </form>
       </div>
     </div>

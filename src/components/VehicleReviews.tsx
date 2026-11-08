@@ -118,7 +118,7 @@ export default function VehicleReviews({ slug, userId, isVerified }: Props) {
             <p className="text-sm text-[var(--color-text-secondary)] mb-3">{t("signInToReview")}</p>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+              className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
             >
               {t("writeReview")}
             </Link>
@@ -128,7 +128,7 @@ export default function VehicleReviews({ slug, userId, isVerified }: Props) {
             <p className="text-sm text-[var(--color-text-secondary)] mb-3">{t("verifyToReview")}</p>
             <Link
               href="/verify"
-              className="inline-flex items-center gap-2 border border-[var(--color-accent)] text-[var(--color-accent)] px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[var(--color-accent)] hover:text-[var(--color-surface-dark)] transition-colors"
+              className="inline-flex items-center gap-2 border border-[var(--color-ink)] text-[var(--color-ink)] px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[var(--color-ink)] hover:text-[var(--color-text-inverse)] transition-colors"
             >
               {t("verifyToReview")}
             </Link>
@@ -201,7 +201,7 @@ export default function VehicleReviews({ slug, userId, isVerified }: Props) {
             <button
               type="submit"
               disabled={loading || rating === 0}
-              className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-6 py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-6 py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {loading ? "…" : t("submit")}
             </button>

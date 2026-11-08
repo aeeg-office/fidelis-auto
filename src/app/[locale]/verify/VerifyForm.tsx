@@ -56,7 +56,7 @@ export default function VerifyForm() {
       {error && <p className="text-sm text-[var(--color-error)] text-center">{error}</p>}
 
       <button type="submit" disabled={loading || code.length !== 6}
-        className="w-full bg-[var(--color-accent)] text-[var(--color-surface-dark)] py-2.5 rounded-lg font-medium hover:bg-[var(--color-accent-hover)] disabled:opacity-50">
+        className="w-full bg-[var(--color-verified)] text-[var(--color-text-inverse)] py-2.5 rounded-lg font-medium hover:bg-[var(--color-green-hover)] disabled:opacity-50">
         {loading ? t("verifying") : t("verifyButton")}
       </button>
 

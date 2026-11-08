@@ -48,7 +48,7 @@ export default function AdminReviewActions({ id, status }: Props) {
         )}
         {status !== "removed" && (
           <button type="button" onClick={() => setStatus("removed")} disabled={busy !== null}
-            className="p-1.5 rounded bg-yellow-50 text-yellow-700 hover:bg-yellow-100 disabled:opacity-50"
+            className="p-1.5 rounded bg-[var(--color-ink)]/10 text-[var(--color-ink)] hover:bg-[var(--color-ink)]/20 disabled:opacity-50"
             title="Remove" aria-label="Remove"><RotateCcw size={14} /></button>
         )}
         <button type="button" onClick={remove} disabled={busy !== null}

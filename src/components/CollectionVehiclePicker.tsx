@@ -70,7 +70,7 @@ export default function CollectionVehiclePicker({
                 onClick={() => toggle(v)}
                 className={`flex items-center gap-3 w-full text-start p-2 rounded-lg border text-sm transition-colors disabled:opacity-60 ${
                   isSelected
-                    ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10"
+                    ? "border-[var(--color-ink)] bg-[var(--color-ink)]/10"
                     : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)]/50"
                 }`}
                 aria-pressed={isSelected}
@@ -91,7 +91,7 @@ export default function CollectionVehiclePicker({
                 </span>
                 <span
                   className={`shrink-0 w-5 h-5 rounded-full border flex items-center justify-center ${
-                    isSelected ? "bg-[var(--color-accent)] border-[var(--color-accent)] text-[var(--color-surface-dark)]" : "border-[var(--color-border)]"
+                    isSelected ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-[var(--color-text-inverse)]" : "border-[var(--color-border)]"
                   }`}
                 >
                   {isSelected && <Check size={12} strokeWidth={3} />}

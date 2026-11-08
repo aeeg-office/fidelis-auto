@@ -133,7 +133,7 @@ export default function CollectionForm({
 
       <div className="flex gap-3">
         <button type="submit" disabled={busy}
-          className="px-4 py-2 rounded-lg bg-[var(--color-accent)] text-[var(--color-surface-dark)] text-sm font-medium hover:bg-[var(--color-accent-hover)] disabled:opacity-50">
+          className="px-4 py-2 rounded-lg bg-[var(--color-ink)] text-[var(--color-text-inverse)] text-sm font-medium hover:bg-[var(--color-ink-hover)] disabled:opacity-50">
           {busy ? "Saving..." : mode === "create" ? "Create Collection" : "Save Changes"}
         </button>
         <button type="button" onClick={() => router.push("/admin/collections")}

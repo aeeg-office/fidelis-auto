@@ -58,8 +58,8 @@ export default function FavoriteButton({ slug, className = "" }: FavoriteButtonP
         aria-pressed={favorited}
         className={`inline-flex items-center gap-2 border px-5 py-3 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${
           favorited
-            ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-surface-dark)]"
-            : "border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-text-inverse)]"
+            : "border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]"
         }`}
       >
         <Heart size={16} fill={favorited ? "currentColor" : "none"} />

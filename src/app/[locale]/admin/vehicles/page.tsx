@@ -8,11 +8,11 @@ import type { Vehicle, VehicleImage } from "@prisma/client";
 type VehicleWithImage = Vehicle & { images: VehicleImage[] };
 
 const CATEGORY_STYLES: Record<string, string> = {
-  Modern: "bg-blue-100 text-blue-800",
-  Classic: "bg-amber-100 text-amber-800",
-  Vintage: "bg-purple-100 text-purple-800",
-  EV: "bg-green-100 text-green-800",
-  Other: "bg-gray-100 text-gray-800",
+  Modern: "bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-border)]",
+  Classic: "bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-border)]",
+  Vintage: "bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-border)]",
+  EV: "bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-border)]",
+  Other: "bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-border)]",
 };
 
 export default async function AdminVehiclesPage() {
@@ -26,7 +26,7 @@ export default async function AdminVehiclesPage() {
   return (
     <AdminLayout title="Vehicles">
       <div className="flex justify-end mb-4">
-        <Link href="/admin/vehicles/new" className="flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-lg text-sm font-medium">
+        <Link href="/admin/vehicles/new" className="flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-lg text-sm font-medium">
           <Plus size={16} /> Add Vehicle
         </Link>
       </div>

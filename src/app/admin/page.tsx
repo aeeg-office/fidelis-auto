@@ -60,7 +60,7 @@ export default async function AdminDashboard() {
       <div className="ml-56 p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-[family-name:var(--font-cormorant)] text-3xl font-semibold">Dashboard</h1>
-          <Link href="/admin/vehicles/new" className="flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-surface-dark)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--color-accent-hover)]">
+          <Link href="/admin/vehicles/new" className="flex items-center gap-2 bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--color-ink-hover)]">
             <Plus size={16} /> Add Vehicle
           </Link>
         </div>
