@@ -212,7 +212,7 @@ export default async function JournalEntryPage({
               )}
 
               <h1 className={locale === "ar" ? "font-[family-name:var(--font-arabic)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3" : "font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3"}>
-                {entry.title}
+                {pageTitle}
               </h1>
 
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
