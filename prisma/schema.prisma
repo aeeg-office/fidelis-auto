@@ -283,6 +283,9 @@ model JournalEntry {
   vehicle       Vehicle? @relation(fields: [vehicleId], references: [id])
   slug          String   @unique
   title         String
+  titleAr       String?
+  excerptAr     String?
+  metaDescriptionAr String?
   author        String   @default("Fidelis Auto")
   contentEn     String?  @db.Text
   contentAr     String?  @db.Text

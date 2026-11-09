@@ -23,7 +23,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 type JournalEntry = {
   slug: string;
   title: string;
+  titleAr: string | null;
   excerpt: string | null;
+  excerptAr: string | null;
   author: string;
   publishedAt: Date | null;
   editorialDate?: Date | null;
@@ -32,88 +34,7 @@ type JournalEntry = {
 };
 
 // Placeholder data used when the database is empty or unavailable.
-const PLACEHOLDER_ENTRIES: JournalEntry[] = [
-  {
-    slug: "how-to-inspect-a-used-porsche-911",
-    title: "How to Inspect a Used Porsche 911",
-    excerpt:
-      "A practical, hands-on checklist for evaluating a used 911 before you buy — from the flat-six to the body panels.",
-    author: "Fidelis Auto",
-    publishedAt: new Date("2026-05-12T09:00:00.000Z"),
-    coverImage: null,
-    category: "Inspection Guides",
-  },
-  {
-    slug: "mercedes-benz-pagoda-what-to-know-before-buying",
-    title: "Mercedes-Benz Pagoda: What to Know Before Buying",
-    excerpt:
-      "The W113 Pagoda is one of the most elegant roadsters ever built. Here is what buyers should know before taking the plunge.",
-    author: "Fidelis Auto",
-    publishedAt: new Date("2026-05-28T09:00:00.000Z"),
-    coverImage: null,
-    category: "Buying Guides",
-  },
-  {
-    slug: "complete-guide-to-vehicle-provenance-checks",
-    title: "The Complete Guide to Vehicle Provenance Checks",
-    excerpt:
-      "How to verify a vehicle's history before you buy — documentation, VIN checks, and avoiding hidden surprises.",
-    author: "Fidelis Auto",
-    publishedAt: new Date("2026-06-09T09:00:00.000Z"),
-    coverImage: null,
-    category: "Provenance & Paperwork",
-  },
-  {
-    slug: "5-essential-tools-every-car-enthusiast-should-own",
-    title: "5 Essential Tools Every Car Enthusiast Should Own",
-    excerpt:
-      "You do not need a full workshop to enjoy your car. These five tools cover the vast majority of enthusiast jobs.",
-    author: "Fidelis Auto",
-    publishedAt: new Date("2026-06-21T09:00:00.000Z"),
-    coverImage: null,
-    category: "Ownership & Running Costs",
-  },
-  {
-    slug: "road-trip-cairo-to-the-red-sea",
-    title: "Road Trip: Cairo to the Red Sea in a Convertible",
-    excerpt:
-      "Six hours of open road, desert light, and a coastal payoff. A first-hand account of the classic Cairo to Red Sea run.",
-    author: "Fidelis Auto",
-    publishedAt: new Date("2026-07-03T09:00:00.000Z"),
-    coverImage: null,
-    category: "Road Trips & Travel",
-  },
-  {
-    slug: "understanding-vehicle-import-rules-egypt-and-gcc",
-    title: "Understanding Vehicle Import Rules in Egypt and the GCC",
-    excerpt:
-      "Importing a car into Egypt or the GCC involves specific rules, taxes, and paperwork. Here is what you need to know.",
-    author: "Fidelis Auto",
-    publishedAt: new Date("2026-07-14T09:00:00.000Z"),
-    coverImage: null,
-    category: "Import & Export Rules",
-  },
-  {
-    slug: "how-to-sell-your-car-online-step-by-step",
-    title: "How to Sell Your Car Online: A Step-by-Step Guide",
-    excerpt:
-      "Selling your car online is easier than ever — if you do it right. Here is a step-by-step guide to a faster, fairer sale.",
-    author: "Fidelis Auto",
-    publishedAt: new Date("2026-07-24T09:00:00.000Z"),
-    coverImage: null,
-    category: "Selling Guides",
-  },
-  {
-    slug: "best-weekend-cars-under-50000",
-    title: "The Best Weekend Cars Under $50,000",
-    excerpt:
-      "You do not need a fortune to have a brilliant weekend car. Here are the best enthusiast picks under $50,000.",
-    author: "Fidelis Auto",
-    publishedAt: new Date("2026-08-01T09:00:00.000Z"),
-    coverImage: null,
-    category: "Valuation & Prices",
-  },
-];
+
 
 async function getJournalEntries(cat?: string): Promise<JournalEntry[]> {
   try {
@@ -125,7 +46,9 @@ async function getJournalEntries(cat?: string): Promise<JournalEntry[]> {
       select: {
         slug: true,
         title: true,
+        titleAr: true,
         excerpt: true,
+        excerptAr: true,
         author: true,
         publishedAt: true,
         editorialDate: true,
@@ -135,9 +58,9 @@ async function getJournalEntries(cat?: string): Promise<JournalEntry[]> {
     });
     if (entries && entries.length > 0) return entries as unknown as JournalEntry[];
   } catch {
-    // DB unavailable — fall through to placeholder.
+    // DB unavailable — treat as empty; DB is the single source of truth.
   }
-  return cat ? PLACEHOLDER_ENTRIES.filter((e) => e.category === cat) : PLACEHOLDER_ENTRIES;
+  return [];
 }
 
 async function getCategoryCounts(): Promise<Record<string, number>> {
@@ -224,7 +147,7 @@ export default async function JournalPage({
                         {entry.coverImage ? (
                           <VehicleImage
                             src={entry.coverImage}
-                            alt={entry.title}
+                            alt={locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title}
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw"
                             className="object-cover"
@@ -248,10 +171,10 @@ export default async function JournalPage({
                         )}
                       </div>
                       <h2 className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors mb-2">
-                        {entry.title}
+                        {locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title}
                       </h2>
                       <p className="text-sm text-[var(--color-text-secondary)] line-clamp-3">
-                        {entry.excerpt}
+                        {locale === "ar" ? (entry.excerptAr ?? entry.excerpt) : entry.excerpt}
                       </p>
                       <span className="inline-flex items-center gap-1 text-sm text-[var(--color-accent)] mt-3 transition-colors">
                         {t("readMore")} <ArrowRight size={14} className="rtl:rotate-180" />
