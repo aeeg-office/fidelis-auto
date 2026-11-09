@@ -23,7 +23,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 type JournalEntry = {
   slug: string;
   title: string;
+  titleAr: string | null;
   excerpt: string | null;
+  excerptAr: string | null;
   author: string;
   publishedAt: Date | null;
   editorialDate?: Date | null;
@@ -125,7 +127,9 @@ async function getJournalEntries(cat?: string): Promise<JournalEntry[]> {
       select: {
         slug: true,
         title: true,
+        titleAr: true,
         excerpt: true,
+        excerptAr: true,
         author: true,
         publishedAt: true,
         editorialDate: true,
@@ -135,9 +139,9 @@ async function getJournalEntries(cat?: string): Promise<JournalEntry[]> {
     });
     if (entries && entries.length > 0) return entries as unknown as JournalEntry[];
   } catch {
-    // DB unavailable — fall through to placeholder.
+    // DB unavailable — treat as empty; DB is the single source of truth.
   }
-  return cat ? PLACEHOLDER_ENTRIES.filter((e) => e.category === cat) : PLACEHOLDER_ENTRIES;
+  return [];
 }
 
 async function getCategoryCounts(): Promise<Record<string, number>> {
@@ -224,7 +228,7 @@ export default async function JournalPage({
                         {entry.coverImage ? (
                           <VehicleImage
                             src={entry.coverImage}
-                            alt={entry.title}
+                            alt={locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title}
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw"
                             className="object-cover"
@@ -248,10 +252,10 @@ export default async function JournalPage({
                         )}
                       </div>
                       <h2 className="font-[family-name:var(--font-cormorant)] text-xl md:text-2xl font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors mb-2">
-                        {entry.title}
+                        {locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title}
                       </h2>
                       <p className="text-sm text-[var(--color-text-secondary)] line-clamp-3">
-                        {entry.excerpt}
+                        {locale === "ar" ? (entry.excerptAr ?? entry.excerpt) : entry.excerpt}
                       </p>
                       <span className="inline-flex items-center gap-1 text-sm text-[var(--color-accent)] mt-3 transition-colors">
                         {t("readMore")} <ArrowRight size={14} className="rtl:rotate-180" />

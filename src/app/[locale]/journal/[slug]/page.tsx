@@ -17,9 +17,12 @@ export const dynamic = "force-dynamic";
 type EntryData = {
   slug: string;
   title: string;
+  titleAr: string | null;
   contentEn: string | null;
   contentAr: string | null;
   excerpt: string | null;
+  excerptAr: string | null;
+  metaDescriptionAr: string | null;
   author: string;
   publishedAt: Date | null;
   editorialDate: Date | null;
@@ -36,9 +39,12 @@ async function getEntry(slug: string): Promise<EntryData | null> {
       select: {
         slug: true,
         title: true,
+        titleAr: true,
         contentEn: true,
         contentAr: true,
         excerpt: true,
+        excerptAr: true,
+        metaDescriptionAr: true,
         author: true,
         publishedAt: true,
         editorialDate: true,
@@ -76,13 +82,19 @@ export async function generateMetadata({
 
   const url = `https://fidelisauto.com/journal/${slug}`;
 
+  const metaTitle = locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title;
+  const metaDesc =
+    locale === "ar"
+      ? entry.metaDescriptionAr || entry.excerptAr || entry.contentEn?.slice(0, 160) || ""
+      : entry.excerpt || entry.contentEn?.slice(0, 160) || "";
+
   return {
-    title: entry.title,
-    description: entry.excerpt || entry.contentEn?.slice(0, 160) || "",
+    title: metaTitle,
+    description: metaDesc,
     alternates: { canonical: url },
     openGraph: {
-      title: entry.title,
-      description: entry.excerpt || entry.contentEn?.slice(0, 160) || "",
+      title: metaTitle,
+      description: metaDesc,
       url,
       type: "article",
       publishedTime: entry.publishedAt?.toISOString(),
@@ -129,7 +141,7 @@ export default async function JournalEntryPage({
             {
               "@type": "ListItem",
               position: 3,
-              name: entry.title,
+              name: locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title,
               item: url,
             },
           ],
@@ -140,7 +152,7 @@ export default async function JournalEntryPage({
       <JsonLd
         type="BlogPosting"
         data={{
-          headline: entry.title,
+          headline: locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title,
           description: entry.excerpt,
           author: {
             "@type": "Person",
@@ -197,7 +209,7 @@ export default async function JournalEntryPage({
                 </Link>
               )}
 
-              <h1 className="font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3">
+              <h1 className={locale === "ar" ? "font-[family-name:var(--font-arabic)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3" : "font-[family-name:var(--font-cormorant)] text-3xl md:text-4xl font-semibold text-[var(--color-text-primary)] mb-3"}>
                 {entry.title}
               </h1>
 
