@@ -42,17 +42,21 @@ export async function POST(request: Request) {
     // this row can actually store; the moderation approval (autoPublish) reads
     // exactly this model-valid subset. Schema backfill for the richer fields is
     // an owner escalation, not a code fix.
-    const LISTING_REQUEST_COLUMNS = [
-      "userId", "status", "name", "email", "phone", "year", "make", "model",
-      "trim", "mileage", "exteriorColor", "interiorColor", "engine",
-      "transmission", "description", "photoUrls", "videoUrls", "audioUrl",
-      "city", "state", "country", "zipCode", "notes", "createdAt", "updatedAt",
-    ] as const;
-    const listingData = Object.fromEntries(
-      LISTING_REQUEST_COLUMNS
-        .filter((k) => k in submission.value)
-        .map((k) => [k, submission.value[k]])
-    );
+    const {
+      mileageUnit: _mileageUnit,
+      vehicleType: _vehicleType,
+      price: _price,
+      priceAmount: _priceAmount,
+      currency: _currency,
+      bodyType: _bodyType,
+      fuelType: _fuelType,
+      isLicensed: _isLicensed,
+      makeId: _makeId,
+      modelId: _modelId,
+      cityId: _cityId,
+      countryId: _countryId,
+      ...listingData
+    } = submission.value;
     const listing = await prisma.listingRequest.create({ data: listingData });
 
     // Moderation: every submission is routed to the admin moderation queue.
