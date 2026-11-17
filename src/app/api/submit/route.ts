@@ -34,7 +34,26 @@ export async function POST(request: Request) {
     const submission = normalizeListingSubmission({ ...submitted, name: user.name, email: user.email }, user.id);
     if (!submission.ok) return NextResponse.json({ error: submission.error }, { status: 400 });
 
-    const listing = await prisma.listingRequest.create({ data: submission.value });
+    // WS3/WS15 drift guard: normalizeListingSubmission emits rich Vehicle-side
+    // fields (mileageUnit, vehicleType, price, priceAmount, currency, bodyType,
+    // fuelType, isLicensed, makeId, modelId, cityId, countryId) that have NO
+    // columns on the ListingRequest table. Passing them through makes Prisma
+    // reject the payload (500 `Unknown argument ...`). Keep only the columns
+    // this row can actually store; the moderation approval (autoPublish) reads
+    // exactly this model-valid subset. Schema backfill for the richer fields is
+    // an owner escalation, not a code fix.
+    const LISTING_REQUEST_COLUMNS = [
+      "userId", "status", "name", "email", "phone", "year", "make", "model",
+      "trim", "mileage", "exteriorColor", "interiorColor", "engine",
+      "transmission", "description", "photoUrls", "videoUrls", "audioUrl",
+      "city", "state", "country", "zipCode", "notes", "createdAt", "updatedAt",
+    ] as const;
+    const listingData = Object.fromEntries(
+      LISTING_REQUEST_COLUMNS
+        .filter((k) => k in submission.value)
+        .map((k) => [k, submission.value[k]])
+    );
+    const listing = await prisma.listingRequest.create({ data: listingData });
 
     // Moderation: every submission is routed to the admin moderation queue.
     // No submission auto-publishes — an admin must approve it (FID-AUD-202).
