@@ -134,7 +134,8 @@
       "present": "Available at Fidelis Auto",
       "contactForFile": "Contact us for the full provenance file.",
       "built": "{year} {make} {model} built",
-      "presentDate": "Present"
+      "presentDate": "Present",
+      "availableOnRequest": "Provenance and history documents are available on request through our team."
     },
     "relatedVehicles": "Related Vehicles",
     "notFound": "Vehicle Not Found",
@@ -145,7 +146,9 @@
     "recentlySold": "Recently Sold",
     "mediaVideo": "Walkaround Video",
     "mediaEngineSound": "Engine Sound Clip",
-    "nearbySpecialists": "Nearby specialists in {city}"
+    "nearbySpecialists": "Nearby specialists in {city}",
+    "priceOnRequest": "Price on request",
+    "notSpecified": "Not specified"
   },
   "filters": {
     "search": "Search vehicles...",

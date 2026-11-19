@@ -9,10 +9,9 @@ import JsonLd from "@/components/JsonLd";
 import FavoriteButton from "@/components/FavoriteButton";
 import SocialShare from "@/components/SocialShare";
 import ContactSellerButton from "@/components/ContactSellerButton";
-import VehicleDetailGallery from "@/components/VehicleDetailGallery";
+import VehicleGallery from "@/components/VehicleGallery";
 import type { GalleryImage } from "@/components/VehicleGallery";
 import RelatedVehicles from "@/components/RelatedVehicles";
-import VehicleReviews from "@/components/VehicleReviews";
 import AdSlot from "@/components/AdSlot";
 import { decidePhoneGate } from "@/lib/phone-gate";
 import { getCurrentUser } from "@/lib/user-auth";
@@ -26,6 +25,23 @@ function absoluteUrl(path: string | null | undefined): string | undefined {
   if (!path) return undefined;
   if (/^https?:\/\//.test(path)) return path;
   return `${BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
+/** Locale-aware short date for provenance milestones. */
+function formatProvenanceDate(d: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-EG" : "en-GB", { month: "short", year: "numeric" }).format(d);
+}
+
+/**
+ * Resolve an OG/social image to a light WEBP derivative (1600px) instead of the
+ * ~7 MB original raster. Evergreen requirement (A5): never present the original
+ * file as a social image. Falls back to the original only for non-upload assets.
+ */
+function socialImage(path: string | null | undefined): string | undefined {
+  if (!path) return undefined;
+  const m = /^\/uploads\/[0-9a-f-]{36}\.(jpe?g|png|webp|avif)$/i.exec(path);
+  if (m) return path.replace(/\.(jpe?g|png|webp|avif)$/i, "-1600.webp");
+  return absoluteUrl(path);
 }
 
 /** Meta description from the long English description, flattened and truncated. */
@@ -86,6 +102,8 @@ type VehicleData = {
   ownerEmail: string | null;
   ownerPhone: string | null;
   dealerPhone: string | null;
+  /** Ordered provenance milestones from the DB (truthful, never fabricated). */
+  provenance: { id: string; date: Date; title: string; description?: string | null }[];
 };
 
 async function getVehicle(slug: string): Promise<VehicleData | null> {
@@ -96,6 +114,7 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
         owner: { include: { dealerProfile: true } },
         city: { select: { nameEn: true, nameAr: true } },
+        milestones: { orderBy: { sortOrder: "asc" } },
       },
     });
     if (vehicle) {
@@ -128,6 +147,7 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         ownerEmail: vehicle.contactEmail ?? null, // never fall back to owner account email
         ownerPhone: vehicle.contactPhone ?? vehicle.owner?.phone ?? null,
         dealerPhone: vehicle.owner?.dealerProfile?.phone ?? null,
+        provenance: (vehicle as { milestones?: { id: string; date: Date; title: string; description?: string | null; sortOrder: number }[] }).milestones ?? [],
       };
     }
   } catch {
@@ -145,10 +165,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const vehicle = await getVehicle(slug);
   if (!vehicle) return { title: t("notFound") };
 
-  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ""}`;
+  // A5: SEO title derives from the vehicle's authoritative title field.
+  const title = vehicle.title;
   const alternates = getAlternates(locale, `/vehicles/${slug}`);
   const canonical = alternates.canonical;
-  const ogImage = absoluteUrl(vehicle.coverImage);
+  const ogImage = socialImage(vehicle.coverImage);
 
   return {
     title,
@@ -196,7 +217,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
   const specs = [
     { label: t("specs.year"), value: vehicle.year, icon: Calendar },
-    { label: t("specs.mileage"), value: vehicle.mileage ? `${vehicle.mileage.toLocaleString()} ${t("mileageUnit")}` : "—", icon: Gauge },
+    { label: t("specs.mileage"), value: vehicle.mileage ? `${vehicle.mileage.toLocaleString()} ${t("mileageUnit")}` : t("notSpecified"), icon: Gauge },
     { label: t("specs.engine"), value: vehicle.engine || "—", icon: Wrench },
     { label: t("specs.exterior"), value: vehicle.exteriorColor || "—", icon: Palette },
   ];
@@ -253,7 +274,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
       <section className="container-page">
         <div className="mb-8">
-          <VehicleDetailGallery
+          <VehicleGallery
             images={vehicle.images}
             title={vehicle.title}
             fallbackSrc={imagePath}
@@ -313,6 +334,9 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
           <div className="lg:col-span-1 min-w-0">
             <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6 space-y-4">
+              {!parsedPrice && (
+                <p className="text-base font-medium text-[var(--color-text-primary)]">{t("priceOnRequest")}</p>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 {specs.map((spec) => (
                   <div key={spec.label}>
@@ -362,32 +386,29 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
         <div className="container-page">
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl md:text-3xl font-semibold text-[var(--color-text-primary)] mb-8">{pT("title")}</h2>
           <div className="space-y-6">
-            {[
-              { date: String(vehicle.year), title: pT("manufactured"), desc: pT("built", { year: vehicle.year, make: vehicle.make, model: vehicle.model }) },
-              { date: pT("presentDate"), title: pT("present"), desc: pT("contactForFile") },
-            ].map((milestone, i) => (
-              <div key={i} className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 rounded-full bg-[var(--color-accent)] mt-1.5" />
-                  {i < 1 && <div className="w-px flex-1 bg-[var(--color-border)]" />}
+            {vehicle.provenance.length > 0 ? (
+              vehicle.provenance.map((milestone) => (
+                <div key={milestone.id} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="w-3 h-3 rounded-full bg-[var(--color-accent)] mt-1.5" />
+                    <div className="w-px flex-1 bg-[var(--color-border)]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-[var(--color-accent)] font-medium">{formatProvenanceDate(milestone.date, bodyLocale)}</p>
+                    <p className="text-base font-medium text-[var(--color-text-primary)]">{milestone.title}</p>
+                    {milestone.description && (
+                      <p className="text-sm text-[var(--color-text-secondary)]">{milestone.description}</p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-[var(--color-accent)] font-medium">{milestone.date}</p>
-                  <p className="text-base font-medium text-[var(--color-text-primary)]">{milestone.title}</p>
-                  <p className="text-sm text-[var(--color-text-secondary)]">{milestone.desc}</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-[var(--color-text-secondary)]">{pT("availableOnRequest")}</p>
+            )}
           </div>
         </div>
       </section>
 
-      {/* WS14: verified-user reviews (spec P2 trust) */}
-      <VehicleReviews
-        slug={slug}
-        userId={viewer?.id ?? null}
-        isVerified={Boolean(viewer && (viewer.verified || viewer.phoneVerified))}
-      />
 
       {/* Related Vehicles */}
       <RelatedVehicles
