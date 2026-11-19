@@ -22,7 +22,7 @@
   },
   "hero": {
     "title": "We Love Cars.",
-    "subtitle": "Every car has a story. We verify it, document it, and tell it honestly. From daily drivers to once-in-a-lifetime finds — find the car you love.",
+    "subtitle": "Every car has a story. We document it and tell it honestly. From daily drivers to once-in-a-lifetime finds — find the car you love.",
     "cta": "Explore Vehicles"
   },
   "homepage": {
@@ -30,11 +30,11 @@
     "browseSubtitle": "From vintage classics to modern marvels — find your perfect match.",
     "browse": "Browse",
     "featuredVehicles": "Featured Vehicles",
-    "featuredSubtitle": "Every vehicle we present is documented, verified, and shared with the honesty every car and its story deserves.",
+    "featuredSubtitle": "Every vehicle we present is documented and shared with the honesty every car and its story deserves.",
     "recentlyAdded": "Recently Added",
-    "recentlySubtitle": "The latest additions to our collection — each one carefully documented and verified.",
+    "recentlySubtitle": "The latest additions to our collection — each one carefully documented.",
     "viewAllVehicles": "View All Vehicles",
-    "brandStatement": "Honest. Verified. Loved.",
+    "brandStatement": "Honest. Documented. Loved.",
     "brandDescription": "Fidelis Auto is more than a marketplace. It's a celebration of cars — the machines we grew up with, the ones we dreamed about, and the ones we can't stop thinking about. We document every vehicle honestly so you can buy, sell, and collect with confidence.",
     "haveACar": "Have a Car to Share?",
     "haveACarDesc": "We're always interested in great cars with honest stories. Tell us about yours and let's start the conversation.",
@@ -45,18 +45,21 @@
       "motorcycles": "Motorcycles",
       "motorcyclesDesc": "Bikes, scooters, and off-road machines for every rider",
       "collections": "Collections",
-      "collectionsDesc": "Hand-picked groups of verified cars and motorcycles"
+      "collectionsDesc": "Hand-picked groups of cars and motorcycles"
     },
     "noFeaturedEmpty": "No featured vehicles yet. New additions will appear here as they're published.",
     "noRecentEmpty": "No vehicles have been added yet. Check back soon.",
     "curatedCollections": "Curated Collections",
     "curatedSubtitle": "Hand-picked groups of vehicles — from timeless classics to modern electrics and everything between.",
     "viewAllCollections": "View All Collections",
-    "collectionsEmpty": "Collections are being curated. Check back soon."
+    "collectionsEmpty": "Collections are being curated. Check back soon.",
+    "metaTitle": "Fidelis Auto — Egypt's car destination",
+    "metaDescription": "Buy and sell cars and motorcycles in Egypt. Every make on the market including Chinese brands, an honest specialist directory, and useful guides.",
+    "collectionsDesc": "Hand-picked groups of cars and motorcycles"
   },
   "collections": {
     "title": "Curated Collections",
-    "description": "Hand-picked groups of vehicles — each one documented and verified by the Fidelis Auto team.",
+    "description": "Hand-picked groups of vehicles — each one documented by the Fidelis Auto team.",
     "viewCollection": "View Collection",
     "empty": "No collections published yet. Check back soon.",
     "vehicleCount": "{count} vehicles",
@@ -73,17 +76,18 @@
     "legal": "Legal",
     "email": "Email",
     "privacy": "Privacy",
-    "terms": "Terms"
+    "terms": "Terms",
+    "contactForm": "Contact form"
   },
   "about": {
     "title": "About Fidelis Auto",
-    "description": "Fidelis Auto is a home for car lovers. We verify, document, and share the stories behind every car we feature.",
+    "description": "Fidelis Auto is a home for car lovers. We document and share the stories behind every car we feature.",
     "fidelisLatin": "Fidelis — from the Latin for \"faithful\" — represents our commitment to honesty, transparency, and trust in every car we feature.",
     "weBuiltIt": "We built Fidelis Auto because we love cars. Not just the rare ones, not just the expensive ones — all of them. We believe every car has a story worth telling, and we believe that story should be told honestly.",
     "whyWeExist": "Why We Exist",
     "whyWeExistDesc": "The car market is full of noise. Misleading listings, hidden histories, exaggerated claims. We wanted something different — a place where every car is documented thoroughly, where buyers can trust what they see, and where sellers can present their cars with the pride they deserve.",
     "whatWeDo": "What We Do",
-    "verifiedDocumentation": "Verified Documentation",
+    "verifiedDocumentation": "Documented History",
     "verifiedDocumentationDesc": "Every service record, ownership change, and detail is presented transparently. We don't claim history — we show it.",
     "honestPhotography": "Honest Photography",
     "honestPhotographyDesc": "Real photos, real condition. No deceptive angles, no misleading edits. What you see is what you get.",
@@ -96,9 +100,9 @@
   },
   "vehicles": {
     "title": "Vehicles",
-    "description": "Browse the Fidelis Auto collection of documented, verified collector vehicles. From daily drivers to once-in-a-lifetime finds.",
+    "description": "Browse the Fidelis Auto collection of documented collector vehicles. From daily drivers to once-in-a-lifetime finds.",
     "theCollection": "The Collection",
-    "collectionSubtitle": "Every vehicle in our collection is documented, verified, and presented with the care it deserves.",
+    "collectionSubtitle": "Every vehicle in our collection is documented and presented with the care it deserves.",
     "vehiclesFound_one": "vehicle found",
     "vehiclesFound_other": "vehicles found",
     "noVehiclesMatch": "No vehicles match your filters",
@@ -130,7 +134,8 @@
       "present": "Available at Fidelis Auto",
       "contactForFile": "Contact us for the full provenance file.",
       "built": "{year} {make} {model} built",
-      "presentDate": "Present"
+      "presentDate": "Present",
+      "availableOnRequest": "Provenance and history documents are available on request through our team."
     },
     "relatedVehicles": "Related Vehicles",
     "notFound": "Vehicle Not Found",
@@ -141,7 +146,9 @@
     "recentlySold": "Recently Sold",
     "mediaVideo": "Walkaround Video",
     "mediaEngineSound": "Engine Sound Clip",
-    "nearbySpecialists": "Nearby specialists in {city}"
+    "nearbySpecialists": "Nearby specialists in {city}",
+    "priceOnRequest": "Price on request",
+    "notSpecified": "Not specified"
   },
   "filters": {
     "search": "Search vehicles...",
@@ -208,7 +215,10 @@
       "Automatic": "Automatic",
       "Other": "Other"
     },
-    "type": "Type"
+    "type": "Type",
+    "allBodyTypes": "All body types",
+    "city": "City",
+    "allCities": "All cities"
   },
   "contact": {
     "title": "Get in Touch",
@@ -229,7 +239,7 @@
   },
   "searchPage": {
     "title": "Search the Collection",
-    "description": "Search by make, model, year, body type, fuel type, or transmission. Every vehicle is documented and verified.",
+    "description": "Search by make, model, year, body type, fuel type, or transmission.",
     "resultsFor": "Results for",
     "browseAll": "Browse all vehicles →",
     "noResults": "No vehicles match your search",
@@ -737,14 +747,14 @@
     "locationEmptyDesc": "Try a different city or remove the location filter to browse the full directory.",
     "submitYourService": "Submit Your Service",
     "emptyTitle": "The specialist directory is being curated.",
-    "emptyDesc": "Check back soon for verified service partners.",
+    "emptyDesc": "Check back soon for service partners.",
     "website": "Website",
     "contact": "Contact",
     "languages": "Languages",
     "whatsapp": "WhatsApp",
     "selectLanguage": "Select languages spoken",
     "submitTitle": "Submit Your Service",
-    "submitDescription": "Join the Fidelis Auto directory of verified specialist services for collector and enthusiast vehicles. Your listing appears after a quick review by our team.",
+    "submitDescription": "Join the Fidelis Auto directory of specialist services for collector and enthusiast vehicles. Your listing appears after a quick review by our team.",
     "metaTitle": "Submit a Service",
     "metaDescription": "List your specialist service on Fidelis Auto — inspections, restoration, maintenance, and more.",
     "form": {

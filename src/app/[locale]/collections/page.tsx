@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import Link from "next/link";
 import type { Metadata } from "next";
 import VehicleImage from "@/components/VehicleImage";
@@ -7,7 +8,12 @@ import { getVisibleCollections } from "@/lib/collections-data";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("collections");
-  return { title: t("title"), description: t("description") };
+  const locale = await getLocale();
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: getAlternates(locale, "/collections"),
+  };
 }
 
 export default async function CollectionsListPage() {

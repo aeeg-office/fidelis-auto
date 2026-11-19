@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import Link from "next/link";
 import { Heart, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -14,6 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
+    alternates: getAlternates(locale, "/watchlist"),
   };
 }
 

@@ -4,32 +4,25 @@ import { getMessages } from "next-intl/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fidelisauto.com"),
-  alternates: {
-    canonical: "/",
-    languages: {
-      en: "https://fidelisauto.com",
-      "ar-EG": "https://fidelisauto.com/ar",
-      "x-default": "https://fidelisauto.com",
-    },
-  },
+  // NOTE: no global `alternates.canonical` here. Each [locale] route sets its
+  // own self-referencing canonical via src/lib/seo.ts getAlternates(). A global
+  // "/" leaked the homepage canonical onto every subpage (/vehicles, /services,
+  // /journal, /ar, …) — fixed in the launch-blocker sprint 2026-11-19.
   title: {
-    default: "Fidelis Auto — Premium Collector Vehicle Showroom",
+    default: "Fidelis Auto — Egypt's car destination",
     template: "%s | Fidelis Auto",
   },
   description:
-    "A premium digital showroom for collector, classic, and enthusiast vehicles. Every vehicle tells a story. Own the story.",
-  keywords: [
-    "collector cars",
-    "classic cars",
-    "vintage cars",
-    "Egypt",
-    "GCC",
-    "premium automotive",
-  ],
+    "Buy and sell cars and motorcycles in Egypt — every make on the market including Chinese brands, an honest specialist directory, and useful guides.",
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: "Fidelis Auto",
+    images: [{ url: "https://fidelisauto.com/images/og-default.png", width: 1200, height: 630, alt: "Fidelis Auto — Egypt's car destination" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["https://fidelisauto.com/images/og-default.png"],
   },
   manifest: "/manifest.webmanifest",
   applicationName: "Fidelis Auto",

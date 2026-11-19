@@ -107,7 +107,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const vehicle = await getVehicle(slug);
   if (!vehicle) return { title: "Vehicle Not Found" };
 
-  const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ""}`;
+  // A5: SEO title derives from the vehicle's authoritative title field.
+  const title = vehicle.title;
   const canonical = `https://fidelisauto.com/vehicles/${slug}`;
   const ogImage = absoluteUrl(vehicle.coverImage);
 

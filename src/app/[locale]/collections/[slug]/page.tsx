@@ -1,4 +1,5 @@
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -18,6 +19,7 @@ export async function generateMetadata({
   return {
     title: isAr && collection.titleAr ? collection.titleAr : collection.titleEn,
     description: (isAr ? collection.descriptionAr : collection.descriptionEn) ?? undefined,
+    alternates: getAlternates(locale, `/collections/${slug}`),
   };
 }
 

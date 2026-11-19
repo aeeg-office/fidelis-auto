@@ -40,21 +40,26 @@ export default function Header() {
     }
   })();
 
+  // A3: every internal link keeps the current locale prefix. On Arabic pages
+  // all nav/footer/card/button hrefs stay under /ar so the locale never drops.
+  const localize = (href: string) =>
+    currentLocale === "ar" ? (href === "/" ? "/ar" : `/ar${href}`) : href;
+
   const NAV_LINKS = [
-    { href: "/", label: t("home") },
-    { href: "/vehicles", label: t("vehicles") },
-    { href: "/search", label: t("search") },
-    { href: "/journal", label: t("journal") },
-    { href: "/services", label: t("services") },
-    { href: "/submit", label: t("sellYourCar") },
-    { href: "/about", label: t("about") },
-    { href: "/contact", label: t("contact") },
+    { href: localize("/"), label: t("home") },
+    { href: localize("/vehicles"), label: t("vehicles") },
+    { href: localize("/search"), label: t("search") },
+    { href: localize("/journal"), label: t("journal") },
+    { href: localize("/services"), label: t("services") },
+    { href: localize("/submit"), label: t("sellYourCar") },
+    { href: localize("/about"), label: t("about") },
+    { href: localize("/contact"), label: t("contact") },
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-sm">
       <div className="container-page flex items-center justify-between h-16 md:h-20">
-        <Link href="/" className="flex items-center gap-2.5 group" aria-label="Fidelis Auto — home">
+        <Link href={localize("/")} className="flex items-center gap-2.5 group" aria-label="Fidelis Auto — home">
           {/* Ink + gold emblem on the ivory header surface */}
           <Image
             src="/logo-mark.svg"
@@ -99,7 +104,7 @@ export default function Header() {
           {/* Compare button */}
           {compareCount > 0 && (
             <Link
-              href={`/compare?slugs=${compareSlugs.join(",")}`}
+              href={localize(`/compare?slugs=${compareSlugs.join(",")}`)}
               className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-ink)] hover:underline"
             >
               <BarChart3 size={16} />
@@ -109,7 +114,7 @@ export default function Header() {
 
           {user && (
             <Link
-              href="/watchlist"
+              href={localize("/watchlist")}
               className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
             >
               <Heart size={16} />
@@ -119,7 +124,7 @@ export default function Header() {
 
           {user && (
             <Link
-              href={roleLandingPath(user.role)}
+              href={localize(roleLandingPath(user.role))}
               className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
             >
               {user.role === "DEALER" ? <Building2 size={16} /> : user.role === "ADMINISTRATOR" || user.role === "SUPER_ADMIN" ? <ShieldCheck size={16} /> : <LayoutDashboard size={16} />}
@@ -143,7 +148,7 @@ export default function Header() {
               <User size={16} /> {user.name} ({t("signOut")})
             </button>
           ) : (
-            <Link href="/login"
+            <Link href={localize("/login")}
               className="text-sm font-medium text-[var(--color-ink)] hover:underline">
               {t("signIn")}
             </Link>
@@ -182,7 +187,7 @@ export default function Header() {
 
             {compareCount > 0 && (
               <Link
-                href={`/compare?slugs=${compareSlugs.join(",")}`}
+                href={localize(`/compare?slugs=${compareSlugs.join(",")}`)}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-1.5 text-base font-medium text-[var(--color-ink)]"
               >
@@ -193,7 +198,7 @@ export default function Header() {
 
             {user && (
               <Link
-                href={roleLandingPath(user.role)}
+                href={localize(roleLandingPath(user.role))}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-1.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-ink)] transition-colors"
               >
@@ -203,7 +208,7 @@ export default function Header() {
             )}
 
             {!user && (
-              <Link href="/login" onClick={() => setMobileOpen(false)}
+              <Link href={localize("/login")} onClick={() => setMobileOpen(false)}
                 className="text-base font-medium text-[var(--color-ink)]">
                 {t("signIn")}
               </Link>

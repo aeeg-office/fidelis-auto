@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import { parseSpecialties } from "@/lib/service-listing";
 import { prisma } from "@/lib/prisma";
 import { Wrench, MapPin, Globe, Phone, Plus, Languages, Tag } from "lucide-react";
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t("title"),
     description: t("description"),
+    alternates: getAlternates(locale, "/services"),
   };
 }
 
@@ -35,12 +37,16 @@ type ServiceRow = {
 };
 
 export default async function ServicesPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { city, coverage } = await searchParams;
+  const [{ locale }, { city, coverage }] = await Promise.all([params, searchParams]);
   const t = await getTranslations("services");
+  // A3: on Arabic pages internal links keep the /ar prefix.
+  const localize = (href: string) => (locale === "ar" ? (href === "/" ? "/ar" : `/ar${href}`) : href);
 
   // WS13 location search: a single term filters by city or coverage area (L+ basic).
   const location = (city || coverage || "").toString().trim();
@@ -81,7 +87,7 @@ export default async function ServicesPage({
         <Suspense>
           <LocationSearchBox />
         </Suspense>
-        <Link href="/services/submit" className="inline-flex items-center gap-2 text-sm bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md font-medium hover:opacity-95">
+        <Link href={localize("/services/submit")} className="inline-flex items-center gap-2 text-sm bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md font-medium hover:opacity-95">
           <Plus size={15} /> {t("submitYourService")}
         </Link>
       </div>
@@ -91,6 +97,11 @@ export default async function ServicesPage({
           <Wrench className="mx-auto text-[var(--color-accent)]" size={36} />
           <h2 className="mt-4 text-xl font-semibold">{location ? t("locationEmptyTitle") : t("emptyTitle")}</h2>
           <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{location ? t("locationEmptyDesc") : t("emptyDesc")}</p>
+          {!location && (
+            <Link href={localize("/services/submit")} className="mt-6 inline-flex items-center gap-2 text-sm bg-[var(--color-ink)] text-[var(--color-text-inverse)] px-5 py-2.5 rounded-md font-medium hover:opacity-95">
+              <Plus size={15} /> {t("submitYourService")}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="mt-12 space-y-10">

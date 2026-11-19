@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t("title"),
     description: t("description"),
-    alternates: { canonical: "https://fidelisauto.com/journal" },
+    alternates: getAlternates(locale, "/journal"),
   };
 }
 

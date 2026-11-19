@@ -50,7 +50,11 @@ export async function getVehicles(opts: GetVehiclesOptions = {}): Promise<Vehicl
   try {
     const rows = await prisma.vehicle.findMany({
       where,
-      include: { images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] } },
+      include: {
+        images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
+        city: { select: { nameEn: true, nameAr: true } },
+        country: { select: { nameEn: true, nameAr: true } },
+      },
       orderBy: order,
       ...(limit ? { take: limit } : {}),
     });
@@ -71,8 +75,8 @@ export async function getVehicles(opts: GetVehiclesOptions = {}): Promise<Vehicl
       bodyType: v.bodyType,
       fuelType: v.fuelType,
       price: v.price,
-      city: null,
-      country: null,
+      city: v.city?.nameEn ?? v.city?.nameAr ?? null,
+      country: v.country?.nameEn ?? v.country?.nameAr ?? null,
       createdAt: v.createdAt.getTime(),
       image:
         primaryImage(v as { images: { src: string; isPrimary: boolean }[] }) ??

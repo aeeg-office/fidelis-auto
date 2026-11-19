@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, Car, CableCar, Zap } from "lucide-react";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import VehicleCard from "@/components/VehicleCard";
@@ -13,6 +14,10 @@ const CATEGORIES = [
   { key: "Vintage", label: "Vintage", icon: CableCar, desc: "Pre-1970s collector cars with history", color: "bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-border)] border-t-2 border-t-[var(--color-accent)]" },
   { key: "EV", label: "Electric", icon: Zap, desc: "Modern electric and hybrid vehicles", color: "bg-[var(--color-surface)] text-[var(--color-ink)] border-[var(--color-border)] border-t-2 border-t-[var(--color-accent)]" },
 ];
+
+export const metadata: Metadata = {
+  alternates: { canonical: "https://fidelisauto.com" },
+};
 
 export default async function HomePage() {
   const [featuredVehicles, recentVehicles, collections] = await Promise.all([
