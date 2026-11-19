@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search, X } from "lucide-react";
 import { TRANSMISSIONS } from "@/lib/car-data";
-import { FILTER_BODY_TYPES, type TaxonomyMake, type TaxonomyCountry } from "@/lib/taxonomy";
+import { FILTER_BODY_TYPES, type TaxonomyMake, type TaxonomyCountry } from "@/lib/taxonomy-types";
 
 // ─── Props ──────────────────────────────────────
 interface FilterBarProps {

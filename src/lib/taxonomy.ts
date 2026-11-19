@@ -11,16 +11,9 @@ import { prisma } from "@/lib/prisma";
  *  - Body types are the controlled BodyType enum (not free-text trim values).
  */
 
-export type TaxonomyMake = {
-  name: string;
-  vehicleType: "CAR" | "MOTORCYCLE";
-  models: string[];
-};
-
-export type TaxonomyCountry = {
-  name: string;
-  cities: string[];
-};
+import { FILTER_BODY_TYPES as _FILTER_BODY_TYPES, type TaxonomyMake, type TaxonomyCountry } from "@/lib/taxonomy-types";
+export type { TaxonomyMake, TaxonomyCountry };
+export const FILTER_BODY_TYPES = _FILTER_BODY_TYPES;
 
 export async function getFilterTaxonomy(): Promise<{
   makes: TaxonomyMake[];
@@ -61,17 +54,3 @@ export async function getFilterTaxonomy(): Promise<{
     return { makes: [], countries: [] };
   }
 }
-
-/** Controlled body types for the filter (mirrors the BodyType enum). */
-export const FILTER_BODY_TYPES = [
-  "SEDAN",
-  "HATCHBACK",
-  "SUV",
-  "PICKUP",
-  "VAN",
-  "COUPE",
-  "CONVERTIBLE",
-  "WAGON",
-  "MPV",
-  "OTHER",
-];
