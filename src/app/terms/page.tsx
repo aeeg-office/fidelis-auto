@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -37,7 +38,7 @@ export default function TermsPage() {
           <p>We may update these Terms of Service from time to time. We will post any changes on this page, and your continued use of the platform constitutes acceptance of the revised terms.</p>
 
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] mt-8">8. Contact</h2>
-          <p>If you have questions about these Terms of Service, please <a href="/contact" className="underline">contact us</a>.</p>
+          <p>If you have questions about these Terms of Service, please <Link href="/contact" className="underline">contact us</Link>.</p>
         </div>
       </div>
     </div>
