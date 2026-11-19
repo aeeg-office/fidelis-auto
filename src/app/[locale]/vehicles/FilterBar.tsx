@@ -4,14 +4,24 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search, X } from "lucide-react";
-import { MAKES, TRANSMISSIONS, COUNTRIES } from "@/lib/car-data";
+import { TRANSMISSIONS } from "@/lib/car-data";
+import { FILTER_BODY_TYPES, type TaxonomyMake, type TaxonomyCountry } from "@/lib/taxonomy";
 
 // ─── Props ──────────────────────────────────────
 interface FilterBarProps {
-  bodyTypes: string[];
+  bodyTypes?: string[];
+  makes: TaxonomyMake[];
+  countries: TaxonomyCountry[];
 }
 
-export default function FilterBar({ bodyTypes }: FilterBarProps) {
+// ─── Props ──────────────────────────────────────
+interface FilterBarProps {
+  bodyTypes?: string[];
+  makes: TaxonomyMake[];
+  countries: TaxonomyCountry[];
+}
+
+export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countries }: FilterBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations("filters");
@@ -26,14 +36,24 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
   const [bodyType, setBodyType] = useState(searchParams.get("bodyType") || "");
   const [transmission, setTransmission] = useState(searchParams.get("transmission") || "");
   const [country, setCountry] = useState(searchParams.get("country") || "");
+  const [city, setCity] = useState(searchParams.get("city") || "");
   const [priceMin, setPriceMin] = useState(searchParams.get("priceMin") || "");
   const [priceMax, setPriceMax] = useState(searchParams.get("priceMax") || "");
   const [type, setType] = useState(searchParams.get("type") || "");
   const [sort, setSort] = useState(searchParams.get("sort") || "newest");
 
-  // Get models for the selected make
-  const makeEntry = MAKES.find((m) => m.make === make);
+  // A7: makes/models load from the DB taxonomy. The model list depends on the
+  // selected make AND vehicle type; when a type is chosen the make list narrows.
+  const activeType = type || "";
+  const typeMakes = makes.filter((m) => !activeType || m.vehicleType === activeType);
+  const countryEntry = countries.find((c) => c.name === country);
+  const cities = countryEntry ? countryEntry.cities : [];
+  // If the selected city is not in the current country's list, drop it.
+  const resolvedCity = countryEntry && cities.includes(city) ? city : "";
+  const makeEntry = typeMakes.find((m) => m.name === make);
   const models = makeEntry ? makeEntry.models : [];
+  // If the selected make is not in the type-filtered set, drop the model.
+  const resolvedModel = makeEntry ? model : "";
 
   const buildQuery = useCallback(() => {
     const params = new URLSearchParams();
@@ -45,12 +65,13 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
     if (bodyType) params.set("bodyType", bodyType);
     if (transmission) params.set("transmission", transmission);
     if (country) params.set("country", country);
+    if (resolvedCity) params.set("city", resolvedCity);
     if (priceMin) params.set("priceMin", priceMin);
     if (priceMax) params.set("priceMax", priceMax);
     if (type) params.set("type", type);
     if (sort !== "newest") params.set("sort", sort);
     return params.toString();
-  }, [q, make, model, yearMin, yearMax, bodyType, transmission, country, priceMin, priceMax, type, sort]);
+  }, [q, make, model, yearMin, yearMax, bodyType, transmission, country, resolvedCity, priceMin, priceMax, type, sort]);
 
   const applyFilters = useCallback(() => {
     const qs = buildQuery();
@@ -72,6 +93,7 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
     setBodyType("");
     setTransmission("");
     setCountry("");
+    setCity("");
     setPriceMin("");
     setPriceMax("");
     setType("");
@@ -79,7 +101,7 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
     router.push("/vehicles");
   }, [router]);
 
-  const hasAnyFilter = q || make || model || yearMin || yearMax || bodyType || transmission || country || priceMin || priceMax || type || sort !== "newest";
+  const hasAnyFilter = q || make || model || yearMin || yearMax || bodyType || transmission || country || city || priceMin || priceMax || type || sort !== "newest";
 
   // Build year options
   const currentYear = new Date().getFullYear();
@@ -111,8 +133,8 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
           >
             <option value="">{t("allMakes")}</option>
-            {MAKES.map((m) => (
-              <option key={m.make} value={m.make}>{m.make}</option>
+            {typeMakes.map((m) => (
+              <option key={`${m.name}-${m.vehicleType}`} value={m.name}>{m.name}</option>
             ))}
           </select>
         </div>
@@ -121,7 +143,7 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("model")}</label>
           <select
-            value={model}
+            value={resolvedModel}
             onChange={(e) => setModel(e.target.value)}
             disabled={!make}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30 disabled:opacity-50"
@@ -182,9 +204,9 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
             onChange={(e) => setBodyType(e.target.value)}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
           >
-            <option value="">{t("allTypes")}</option>
+            <option value="">{t("allBodyTypes")}</option>
             {bodyTypes.map((t) => (
-              <option key={t} value={t}>{t}</option>
+              <option key={t} value={t}>{t.toLowerCase()}</option>
             ))}
           </select>
         </div>
@@ -213,7 +235,23 @@ export default function FilterBar({ bodyTypes }: FilterBarProps) {
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
           >
             <option value="">{t("allCountries")}</option>
-            {COUNTRIES.map((c) => (
+            {countries.map((c) => (
+              <option key={c.name} value={c.name}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* City / Governorate (depends on selected country) */}
+        <div>
+          <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("city")}</label>
+          <select
+            value={resolvedCity}
+            onChange={(e) => setCity(e.target.value)}
+            disabled={!country}
+            className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30 disabled:opacity-50"
+          >
+            <option value="">{t("allCities")}</option>
+            {cities.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>

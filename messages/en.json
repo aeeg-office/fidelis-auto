@@ -215,7 +215,10 @@
       "Automatic": "Automatic",
       "Other": "Other"
     },
-    "type": "Type"
+    "type": "Type",
+    "allBodyTypes": "All body types",
+    "city": "City",
+    "allCities": "All cities"
   },
   "contact": {
     "title": "Get in Touch",

@@ -214,7 +214,10 @@
       "Automatic": "أوتوماتيك",
       "Other": "أخرى"
     },
-    "type": "النوع"
+    "type": "النوع",
+    "allBodyTypes": "كل أنواع الهياكل",
+    "city": "المدينة",
+    "allCities": "كل المدن"
   },
   "contact": {
     "title": "تواصل معنا",

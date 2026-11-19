@@ -3,12 +3,12 @@ import { getAlternates } from "@/lib/seo";
 import Link from "next/link";
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import VehicleCard from "@/components/VehicleCard";
 import CompareVehicleCard from "@/components/CompareVehicleCard";
 import type { VehicleCardData } from "@/components/VehicleCard";
 import RecentlySold from "@/components/RecentlySold";
 import { getVehicles } from "@/lib/vehicle-data";
 import FilterBar from "./FilterBar";
+import { getFilterTaxonomy, FILTER_BODY_TYPES } from "@/lib/taxonomy";
 
 // ─── Types ──────────────────────────────────────
 // VehicleCardData imported from @/components/VehicleCard
@@ -40,13 +40,6 @@ function extractPrice(value?: string | null): number | null {
   return parseInt(clean, 10);
 }
 
-function formatPrice(value?: string | null): string {
-  if (!value) return "Price on Application";
-  const n = extractPrice(value);
-  if (n === null) return value === "POA" ? "Price on Application" : value;
-  return `$${n.toLocaleString()}`;
-}
-
 function filterVehicles(vehicles: VehicleCardData[], params: Record<string, string | string[] | undefined>): VehicleCardData[] {
   const q = (params.q || "").toString().toLowerCase().trim();
   const make = (params.make || "").toString().trim();
@@ -56,6 +49,7 @@ function filterVehicles(vehicles: VehicleCardData[], params: Record<string, stri
   const bodyType = (params.bodyType || "").toString().trim();
   const transmission = (params.transmission || "").toString().trim();
   const country = (params.country || "").toString().trim();
+  const city = (params.city || "").toString().trim();
   const priceMin = (params.priceMin || "").toString();
   const priceMax = (params.priceMax || "").toString();
   const category = (params.category || "").toString().trim();
@@ -71,9 +65,10 @@ function filterVehicles(vehicles: VehicleCardData[], params: Record<string, stri
     if (model && v.model !== model) return false;
     if (yearMin && v.year < parseInt(yearMin, 10)) return false;
     if (yearMax && v.year > parseInt(yearMax, 10)) return false;
-    if (bodyType && (v.trim || "") !== bodyType) return false;
+    if (bodyType && (v.bodyType || "").toLowerCase() !== bodyType.toLowerCase()) return false;
     if (transmission && normalizeTransmission(v.transmission) !== transmission) return false;
     if (country && v.country !== country) return false;
+    if (city && v.city !== city && !((v.city || "").toLowerCase().includes(city.toLowerCase()))) return false;
     if (category && (v.category || "") !== category) return false;
 
     const price = extractPrice(v.price);
@@ -119,12 +114,16 @@ export default async function VehiclesPage({
   const allVehicles = await getVehicles({ status: "all", orderBy: "featured" });
   const filtered = sortVehicles(filterVehicles(allVehicles, params), sort);
 
+  // A7: filter taxonomy loads from the DB (makes/models/countries/cities),
+  // body types come from the controlled enum, never from inventory trim.
+  const taxonomy = await getFilterTaxonomy();
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const currentPage = Math.min(page, totalPages);
   const start = (currentPage - 1) * PER_PAGE;
   const pageVehicles = filtered.slice(start, start + PER_PAGE);
 
-  const bodyTypes = Array.from(new Set(allVehicles.map((v) => v.trim).filter(Boolean) as string[])).sort();
+  const bodyTypes = FILTER_BODY_TYPES;
 
   const baseParams = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -157,7 +156,7 @@ export default async function VehiclesPage({
       {/* Filters + Grid */}
       <section className="container-page py-10 md:py-14">
         <Suspense>
-          <FilterBar bodyTypes={bodyTypes} />
+          <FilterBar bodyTypes={bodyTypes} makes={taxonomy.makes} countries={taxonomy.countries} />
         </Suspense>
 
         {/* Results count */}
