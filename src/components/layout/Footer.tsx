@@ -9,27 +9,23 @@ export default async function Footer() {
   const locale = await getLocale();
   const isAr = locale === "ar";
 
-  const FOOTER_LINKS = {
-    [t("explore")]: [
-      { href: "/", label: t("explore") },
-      { href: "/vehicles", label: t("explore") },
-    ],
-  };
+  // A3: on Arabic pages every footer link keeps the /ar prefix.
+  const localize = (href: string) => (isAr ? (href === "/" ? "/ar" : `/ar${href}`) : href);
 
   const footerLinks: Record<string, { href: string; label: string }[]> = {
     [t("explore")]: [
-      { href: "/", label: tn("home") },
-      { href: "/vehicles", label: tn("vehicles") },
-      { href: "/journal", label: tn("journal") },
-      { href: "/about", label: tn("about") },
+      { href: localize("/"), label: tn("home") },
+      { href: localize("/vehicles"), label: tn("vehicles") },
+      { href: localize("/journal"), label: tn("journal") },
+      { href: localize("/about"), label: tn("about") },
     ],
     [t("connect")]: [
-      { href: "/contact", label: tn("contact") },
-      { href: "/contact", label: t("contactForm") },
+      { href: localize("/contact"), label: tn("contact") },
+      { href: localize("/contact"), label: t("contactForm") },
     ],
     [t("legal")]: [
-      { href: "/privacy", label: t("privacy") },
-      { href: "/terms", label: t("terms") },
+      { href: localize("/privacy"), label: t("privacy") },
+      { href: localize("/terms"), label: t("terms") },
     ],
   };
 
@@ -39,7 +35,7 @@ export default async function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-2 mb-4" aria-label="Fidelis Auto — home">
+            <Link href={localize("/")} className="inline-flex items-center gap-2 mb-4" aria-label="Fidelis Auto — home">
               {/* Gold line emblem for the ink footer surface */}
               <Image
                 src="/logo-mark-light.svg"
