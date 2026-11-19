@@ -34,7 +34,7 @@ export default function PrivacyPage() {
           <p>You may request access to, correction of, or deletion of your personal data at any time by contacting us. You can also delete your account by contacting our support team.</p>
 
           <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-[var(--color-text-primary)] mt-8">7. Contact</h2>
-          <p>If you have questions about this privacy policy, contact us at aeeg.education@gmail.com.</p>
+          <p>If you have questions about this privacy policy, please <a href="/contact" className="underline">contact us</a>.</p>
         </div>
       </div>
     </div>

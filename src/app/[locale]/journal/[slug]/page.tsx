@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import { prisma } from "@/lib/prisma";
 import JsonLd from "@/components/JsonLd";
 import SocialShare from "@/components/SocialShare";
@@ -80,7 +81,8 @@ export async function generateMetadata({
   const entry = await getEntry(slug);
   if (!entry) return { title: t("notFound") };
 
-  const url = `https://fidelisauto.com/journal/${slug}`;
+  const alternates = getAlternates(locale, `/journal/${slug}`);
+  const url = alternates.canonical;
 
   const metaTitle = locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title;
   const metaDesc =
@@ -91,7 +93,7 @@ export async function generateMetadata({
   return {
     title: metaTitle,
     description: metaDesc,
-    alternates: { canonical: url },
+    alternates,
     openGraph: {
       title: metaTitle,
       description: metaDesc,
@@ -119,7 +121,7 @@ export default async function JournalEntryPage({
   const pageTitle = locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title;
   const pageExcerpt = locale === "ar" ? (entry.metaDescriptionAr || entry.excerptAr || entry.excerpt || "") : (entry.excerpt || "");
 
-  const url = `https://fidelisauto.com/journal/${slug}`;
+  const url = getAlternates(locale, `/journal/${slug}`).canonical;
 
   return (
     <>

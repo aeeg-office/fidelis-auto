@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, Bike, Car, LayoutGrid } from "lucide-react";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import VehicleCard from "@/components/VehicleCard";
@@ -7,6 +8,25 @@ import VehicleImage from "@/components/VehicleImage";
 import RecentlySold from "@/components/RecentlySold";
 import { getFeaturedVehicles, getRecentVehicles } from "@/lib/vehicle-data";
 import { getVisibleCollections } from "@/lib/collections-data";
+import { getAlternates } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("homepage");
+  const locale = await getLocale();
+  const isAr = locale === "ar";
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: getAlternates(locale, ""),
+    openGraph: {
+      type: "website",
+      locale: isAr ? "ar_EG" : "en_US",
+      siteName: "Fidelis Auto",
+    },
+  };
+}
 
 export default async function HomePage() {
   const t = await getTranslations("homepage");

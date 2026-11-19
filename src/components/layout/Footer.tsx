@@ -25,7 +25,7 @@ export default async function Footer() {
     ],
     [t("connect")]: [
       { href: "/contact", label: tn("contact") },
-      { href: "mailto:aeeg.education@gmail.com", label: t("email") },
+      { href: "/contact", label: t("contactForm") },
     ],
     [t("legal")]: [
       { href: "/privacy", label: t("privacy") },

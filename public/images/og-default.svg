@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Fidelis Auto default social/OG card — gold linework on ink -->
+  <rect width="1200" height="630" fill="#1a1a2e"/>
+  <!-- center emblem -->
+  <g transform="translate(600,235)">
+    <path
+      d="M0-105 L225-84 V-42 C225-8 -55 2 -110-8 Z"
+      transform="translate(-46,0)"
+      fill="#1a1a2e" fill-opacity="0.9"
+      stroke="#c9a84c" stroke-width="7" stroke-linejoin="round"/>
+    <path
+      d="M-28-47 H30 V-30 H-9 V-14 H25 V0 H-9 V36 H-28 Z"
+      transform="translate(-1,5)"
+      fill="#c9a84c"/>
+  </g>
+  <text x="600" y="430" font-family="Georgia, serif" font-size="64" fill="#f5f1e8"
+        text-anchor="middle" font-weight="600">Fidelis Auto</text>
+  <text x="600" y="486" font-family="Georgia, serif" font-size="30" fill="#c9a84c"
+        text-anchor="middle" letter-spacing="3">EGYPT&apos;S CAR DESTINATION</text>
+  <text x="600" y="540" font-family="Arial, sans-serif" font-size="22" fill="#e8e2d4"
+        text-anchor="middle">Buy and sell cars and motorcycles — every make, including Chinese brands</text>
+</svg>

@@ -1,4 +1,5 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Gauge, Wrench, Palette } from "lucide-react";
 import Link from "next/link";
@@ -145,13 +146,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!vehicle) return { title: t("notFound") };
 
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ""}`;
-  const canonical = `https://fidelisauto.com/vehicles/${slug}`;
+  const alternates = getAlternates(locale, `/vehicles/${slug}`);
+  const canonical = alternates.canonical;
   const ogImage = absoluteUrl(vehicle.coverImage);
 
   return {
     title,
     description: buildDescription(vehicle.title, vehicle.descriptionEn),
-    alternates: { canonical },
+    alternates,
     openGraph: {
       type: "article",
       title,
@@ -173,6 +175,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function VehicleDetailPage({ params }: { params: Promise<{ slug: string; locale: string }> }) {
   const { slug } = await params;
+  const bodyLocale = await getLocale();
   const vehicle = await getVehicle(slug);
   const t = await getTranslations("vehicles");
   if (!vehicle) notFound();
@@ -201,7 +204,8 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
   const pT = await getTranslations("vehicles.provenance");
 
   const imagePath = vehicle.coverImage ?? `/images/placeholder-${slug}.svg`;
-  const canonical = `https://fidelisauto.com/vehicles/${slug}`;
+  const alternatesBody = getAlternates(bodyLocale, `/vehicles/${slug}`);
+  const canonical = alternatesBody.canonical;
   const parsedPrice = parsePrice(vehicle.price);
 
   return (

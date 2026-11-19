@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { getAlternates } from "@/lib/seo";
 import { parseSpecialties } from "@/lib/service-listing";
 import { prisma } from "@/lib/prisma";
 import { Wrench, MapPin, Globe, Phone, Plus, Languages, Tag } from "lucide-react";
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t("title"),
     description: t("description"),
+    alternates: getAlternates(locale, "/services"),
   };
 }
 
