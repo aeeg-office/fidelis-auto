@@ -18,6 +18,16 @@ export async function POST(request: Request) {
     if (!user.verified) {
       return NextResponse.json({ error: "Please verify your email first.", needsVerification: true, email: user.email }, { status: 403 });
     }
+    // 2026-11-22 audit (H8): a suspended account must not be able to log in.
+    if (user.isSuspended) {
+      return NextResponse.json(
+        {
+          error: "Your account is suspended. Please contact support.",
+          errorAr: "تم تعليق حسابك. يرجى التواصل مع الدعم.",
+        },
+        { status: 403 }
+      );
+    }
 
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {

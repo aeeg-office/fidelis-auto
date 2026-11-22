@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { safeInternalPath } from "@/lib/locale-path";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff } from "lucide-react";
@@ -33,7 +34,12 @@ export default function LoginPage() {
     setLoading(false);
     const data = await res.json();
     if (res.ok) {
-      router.push(data.redirectPath || "/dashboard");
+      // Read the redirect target from the URL at submit time (avoids a Suspense
+      // boundary for useSearchParams) and accept same-site paths only.
+      const requested = safeInternalPath(
+        typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null
+      );
+      router.push(requested || data.redirectPath || "/dashboard");
     } else if (data.needsVerification) {
       setNeedsVerification(true);
       setVerifyEmail(data.email);

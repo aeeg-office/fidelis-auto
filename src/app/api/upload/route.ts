@@ -3,9 +3,10 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import sharp from "sharp";
 import { can, type AccountRole } from "@/lib/authorization";
-import { validateUpload, MAX_ORIGINAL_DIM, cappedOriginalFilename, capOriginalDimensions } from "@/lib/upload-policy";
+import { validateUpload, sniffUploadBytes, MAX_ORIGINAL_DIM, cappedOriginalFilename, capOriginalDimensions } from "@/lib/upload-policy";
 import { generateStudioDerivatives } from "@/lib/studio-pipeline";
 import { getCurrentUser } from "@/lib/user-auth";
+import { decidePhoneGate } from "@/lib/phone-gate";
 
 /**
  * Rasters sharp can decode. Videos (mp4/webm) are left untouched.
@@ -56,6 +57,17 @@ async function generateMediaOpts(buffer: Buffer, uploadDir: string, filename: st
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Sign in to upload listing media." }, { status: 401 });
+  // 2026-11-22 audit (B3): the phone gate is a "post" gate — upload/submit were not covered.
+  const gate = decidePhoneGate({ id: user.id, phoneVerified: user.phoneVerified });
+  if (!gate.allowed) {
+    return NextResponse.json(
+      {
+        error: gate.reason === "phone-not-verified" ? "Please verify your phone number to upload listing media." : "You must be signed in to upload listing media.",
+        errorAr: gate.reason === "phone-not-verified" ? "يرجى تأكيد رقم هاتفك لرفع وسائط الإعلان." : "يجب تسجيل الدخول لرفع وسائط الإعلان.",
+      },
+      { status: gate.status }
+    );
+  }
   if (!can(user.role as AccountRole, "listing:create")) {
     return NextResponse.json({ error: "Your account is not permitted to upload listing media." }, { status: 403 });
   }
@@ -78,6 +90,18 @@ export async function POST(request: Request) {
       .replace(/^-+|-+$/g, "");
 
     const buffer = Buffer.from(await candidate.arrayBuffer());
+
+    // 2026-11-22 audit fix: the declared MIME type and filename are client-controlled, so
+    // verify the real bytes before anything is written to disk.
+    const sniffed = sniffUploadBytes(buffer);
+    if (!sniffed.ok) return NextResponse.json({ error: sniffed.error }, { status: 400 });
+    if (sniffed.kind !== validation.kind) {
+      return NextResponse.json(
+        { error: "File content does not match the declared media type." },
+        { status: 400 }
+      );
+    }
+
     const uploadDir = slug
       ? path.join(process.cwd(), "public", "uploads", "vehicles", slug)
       : path.join(process.cwd(), "public", "uploads");

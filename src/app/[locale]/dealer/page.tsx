@@ -1,12 +1,14 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/user-auth";
+import { localePath } from "@/lib/locale-path";
 import { prisma } from "@/lib/prisma";
 import ServiceListingForm from "@/components/ServiceListingForm";
 
-export default async function DealerPortalPage() {
+export default async function DealerPortalPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
-  if (!user) redirect("/login?redirect=/dealer");
+  if (!user) redirect(localePath(locale, `/login?redirect=${localePath(locale, "/dealer")}`));
   const profile = await prisma.dealerProfile.findUnique({ where: { ownerId: user.id } });
 
   if (!profile) {

@@ -46,6 +46,14 @@ export async function getCurrentUser(): Promise<SessionUser> {
     return null;
   }
 
+  // 2026-11-22 audit (H8): suspension must revoke the live session, not only block
+  // the two routes that happened to check it. Drop the session and treat the caller
+  // as anonymous so every route inherits the lockout.
+  if (session.user.isSuspended) {
+    await prisma.authSession.deleteMany({ where: { userId: session.user.id } }).catch(() => undefined);
+    return null;
+  }
+
   void prisma.authSession.update({
     where: { id: session.id },
     data: { lastSeenAt: new Date() },

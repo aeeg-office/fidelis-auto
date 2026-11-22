@@ -15,7 +15,11 @@ describe("Fidelis Auto role authorization", () => {
     expect(can("BUYER", "vehicle:favorite")).toBe(true);
     expect(can("SELLER", "listing:create")).toBe(true);
     expect(can("DEALER", "dealer:manage")).toBe(true);
-    expect(can("DEALER", "service:manage")).toBe(true);
+    // 2026-11-22 audit (G3): service:manage governs /api/admin/services — a delegate
+    // could publish/unpublish/delete ANY service listing through that route. Dealers
+    // must not hold it; only administrators do.
+    expect(can("DEALER", "service:manage")).toBe(false);
+    expect(can("ADMINISTRATOR", "service:manage")).toBe(true);
     expect(can("ADMINISTRATOR", "listing:moderate")).toBe(true);
     expect(can("SUPER_ADMIN", "system:manage")).toBe(true);
 

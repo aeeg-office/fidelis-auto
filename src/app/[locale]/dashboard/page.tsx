@@ -2,12 +2,14 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user-auth";
+import { localePath } from "@/lib/locale-path";
 import { Car, Plus, ArrowRight, Calendar, CheckCircle, Clock, XCircle } from "lucide-react";
 import VehicleStatusControl from "@/components/VehicleStatusControl";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
-  if (!user) redirect("/login?redirect=/dashboard");
+  if (!user) redirect(localePath(locale, `/login?redirect=${localePath(locale, "/dashboard")}`));
 
   const [submissions, totalSubmissions, approvedCount, pendingCount, rejectedCount, myVehicles] = await Promise.all([
     prisma.listingRequest.findMany({

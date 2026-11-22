@@ -4,6 +4,7 @@ import { can, type AccountRole } from "@/lib/authorization";
 import { normalizeListingSubmission } from "@/lib/listing-submission";
 import { getCurrentUser } from "@/lib/user-auth";
 import { scanAdText } from "@/lib/ad-scanner";
+import { decidePhoneGate } from "@/lib/phone-gate";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -21,6 +22,17 @@ export async function POST(request: Request) {
         errorAr: "تم تعليق حسابك. يرجى التواصل مع الدعم.",
       },
       { status: 403 }
+    );
+  }
+  // 2026-11-22 audit (B3): the phone gate is a "post" gate — submit was not covered.
+  const gate = decidePhoneGate({ id: user.id, phoneVerified: user.phoneVerified });
+  if (!gate.allowed) {
+    return NextResponse.json(
+      {
+        error: gate.reason === "phone-not-verified" ? "Please verify your phone number to submit a listing." : "You must be signed in to submit a listing.",
+        errorAr: gate.reason === "phone-not-verified" ? "يرجى تأكيد رقم هاتفك لإرسال الإعلان." : "يجب تسجيل الدخول لإرسال الإعلان.",
+      },
+      { status: gate.status }
     );
   }
 

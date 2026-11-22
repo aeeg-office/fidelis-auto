@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Heart, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user-auth";
+import { localePath } from "@/lib/locale-path";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default async function WatchlistPage() {
+export default async function WatchlistPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations("watchlist");
   const user = await getCurrentUser();
-  if (!user) redirect("/login?redirect=/watchlist");
+  if (!user) redirect(localePath(locale, `/login?redirect=${localePath(locale, "/watchlist")}`));
 
   const favorites = await prisma.favorite.findMany({
     where: { userId: user.id },

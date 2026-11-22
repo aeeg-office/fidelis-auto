@@ -67,7 +67,7 @@ export default async function Footer() {
                 )}
               </span>
             </Link>
-            <p className="text-sm text-[var(--color-text-secondary)] max-w-xs">
+            <p className="text-sm text-[var(--color-text-inverse)]/70 max-w-xs">
               {t("tagline")}
             </p>
           </div>
@@ -95,10 +95,10 @@ export default async function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-[var(--color-text-secondary)]">
+          <p className="text-xs text-[var(--color-text-inverse)]/70">
             &copy; {new Date().getFullYear()} Fidelis Auto. {t("copyright")}
           </p>
-          <p className="text-xs text-[var(--color-text-secondary)]">
+          <p className="text-xs text-[var(--color-text-inverse)]/70">
             {t("forTheLoveOfCars")}
           </p>
         </div>

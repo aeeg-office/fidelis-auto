@@ -8,6 +8,7 @@ import {
   blurredDerivativeFilename,
   plateBlurRegion,
   colorCastMatrix,
+  sniffUploadBytes,
 } from "./upload-policy";
 
 describe("upload policy", () => {
@@ -124,5 +125,39 @@ describe("gentle gray-world colour correction", () => {
     expect(m[0][0]).toBe(0.96);
     expect(m[1][1]).toBe(1.04);
     expect(m[2][2]).toBe(1.04);
+  });
+});
+
+describe("sniffUploadBytes (2026-11-22 audit fix)", () => {
+  const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(16)]);
+  const jpeg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(16)]);
+  const webp = Buffer.concat([Buffer.from("RIFF"), Buffer.alloc(4), Buffer.from("WEBP"), Buffer.alloc(8)]);
+  const elf = Buffer.concat([Buffer.from([0x7f, 0x45, 0x4c, 0x46]), Buffer.alloc(32)]);
+  const pe = Buffer.concat([Buffer.from("MZ"), Buffer.alloc(32)]);
+  const svg = Buffer.concat([Buffer.from("<svg xmlns="), Buffer.alloc(16)]);
+  const wav = Buffer.concat([Buffer.from("RIFF"), Buffer.alloc(4), Buffer.from("WAVE"), Buffer.alloc(8)]);
+  const mp4 = Buffer.concat([Buffer.alloc(4), Buffer.from("ftypisom"), Buffer.alloc(8)]);
+
+  it("accepts real image containers", () => {
+    expect(sniffUploadBytes(png)).toEqual({ ok: true, kind: "image" });
+    expect(sniffUploadBytes(jpeg)).toEqual({ ok: true, kind: "image" });
+    expect(sniffUploadBytes(webp)).toEqual({ ok: true, kind: "image" });
+  });
+
+  it("accepts real video/audio containers", () => {
+    expect(sniffUploadBytes(mp4)).toEqual({ ok: true, kind: "video" });
+    expect(sniffUploadBytes(wav)).toEqual({ ok: true, kind: "audio" });
+  });
+
+  it("rejects disguised executables, scripts and markup", () => {
+    for (const bad of [elf, pe, svg]) {
+      const result = sniffUploadBytes(bad);
+      expect(result.ok).toBe(false);
+    }
+  });
+
+  it("rejects a truncated or unrecognised payload", () => {
+    expect(sniffUploadBytes(Buffer.from([1, 2, 3])).ok).toBe(false);
+    expect(sniffUploadBytes(Buffer.alloc(64)).ok).toBe(false);
   });
 });
