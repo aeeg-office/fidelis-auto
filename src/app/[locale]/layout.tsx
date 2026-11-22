@@ -10,7 +10,6 @@ import Footer from "@/components/layout/Footer";
 import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
-import { Analytics } from "@vercel/analytics/react";
 import { ADSENSE_LOADER_URL } from "@/lib/adsense";
 
 const inter = Inter({
@@ -74,7 +73,6 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Footer />
           <CookieConsent />
           <PwaInstallPrompt />
-          <Analytics />
           <Script
             id="register-sw"
             strategy="afterInteractive"

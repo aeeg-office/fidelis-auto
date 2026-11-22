@@ -253,6 +253,15 @@ body {
   outline-color: var(--color-accent);
 }
 
+/* Dark surfaces inside an otherwise light page (footer, cookie bar, dark cards).
+   The ink ring above is indistinguishable on #1A1A2E (1.06:1) — 2026-11-22 audit
+   finding F-05. Gold reads at ~8:1 on that background. */
+footer :focus-visible,
+[data-surface="dark"] :focus-visible,
+.bg-\[var\(--color-ink\)\] :focus-visible {
+  outline-color: var(--color-accent);
+}
+
 /* Mouse users never see the ring */
 :focus:not(:focus-visible) {
   outline: none;

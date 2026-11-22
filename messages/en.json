@@ -816,5 +816,25 @@
     "enhancedHint": "Automatic colour-correction preview. The uploaded original is never modified.",
     "blurHint": "Heuristic plate region blurred in this preview only. The uploaded original is never modified.",
     "enhancePreview": "Enhance"
+  },
+  "dealerRegister": {
+    "title": "Register Your Dealership",
+    "intro": "Tell buyers about your business. Dealer profiles are reviewed before they receive dealership tools.",
+    "businessName": "Business Name",
+    "contactPerson": "Contact Person",
+    "businessEmail": "Business Email",
+    "businessPhone": "Business Phone",
+    "address": "Address",
+    "city": "City",
+    "country": "Country",
+    "description": "Business Description",
+    "descriptionHint": "At least 30 characters. Include your specialties and the types of vehicles you support.",
+    "website": "Website",
+    "logoUrl": "Logo URL",
+    "optional": "(optional)",
+    "submit": "Submit Dealer Application",
+    "submitting": "Submitting…",
+    "errorGeneric": "Unable to submit dealer application.",
+    "success": "Your dealership application has been submitted for review."
   }
 }
