@@ -79,6 +79,8 @@ export async function GET(request: Request) {
       isPublished: true,
       // WS3: only live listings — exclude expired. Null = unlimited (older rows / admin choice).
       OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      // 2026-11-22 audit (J10): a suspended owner's live listings must not stay public.
+      owner: { isSuspended: false },
     };
     if (type) where.vehicleType = type;
     if (make) where.make = { contains: make, mode: "insensitive" };

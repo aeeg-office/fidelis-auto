@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user-auth";
 import { isVerifiedUser, parseReviewInput } from "@/lib/review-validation";
+import { decidePhoneGate } from "@/lib/phone-gate";
 
 // ─── GET /api/vehicles/[slug]/reviews — public: published reviews only ──
 export async function GET(
@@ -55,6 +56,18 @@ export async function POST(
       return NextResponse.json(
         { error: "Please verify your account (email or phone) before writing a review." },
         { status: 403 }
+      );
+    }
+    // 2026-11-22 audit (B4): "post/review" is a phone-gated action — when the gate is
+    // enabled an email-verified but phone-unverified user must not be able to review.
+    const reviewGate = decidePhoneGate({ id: user.id, phoneVerified: user.phoneVerified });
+    if (!reviewGate.allowed) {
+      return NextResponse.json(
+        {
+          error: "Please verify your phone number to write a review.",
+          errorAr: "يرجى تأكيد رقم هاتفك لكتابة مراجعة.",
+        },
+        { status: reviewGate.status }
       );
     }
 

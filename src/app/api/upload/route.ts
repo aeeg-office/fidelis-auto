@@ -6,6 +6,7 @@ import { can, type AccountRole } from "@/lib/authorization";
 import { validateUpload, sniffUploadBytes, MAX_ORIGINAL_DIM, cappedOriginalFilename, capOriginalDimensions } from "@/lib/upload-policy";
 import { generateStudioDerivatives } from "@/lib/studio-pipeline";
 import { getCurrentUser } from "@/lib/user-auth";
+import { decidePhoneGate } from "@/lib/phone-gate";
 
 /**
  * Rasters sharp can decode. Videos (mp4/webm) are left untouched.
@@ -56,6 +57,17 @@ async function generateMediaOpts(buffer: Buffer, uploadDir: string, filename: st
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Sign in to upload listing media." }, { status: 401 });
+  // 2026-11-22 audit (B3): the phone gate is a "post" gate — upload/submit were not covered.
+  const gate = decidePhoneGate({ id: user.id, phoneVerified: user.phoneVerified });
+  if (!gate.allowed) {
+    return NextResponse.json(
+      {
+        error: gate.reason === "phone-not-verified" ? "Please verify your phone number to upload listing media." : "You must be signed in to upload listing media.",
+        errorAr: gate.reason === "phone-not-verified" ? "يرجى تأكيد رقم هاتفك لرفع وسائط الإعلان." : "يجب تسجيل الدخول لرفع وسائط الإعلان.",
+      },
+      { status: gate.status }
+    );
+  }
   if (!can(user.role as AccountRole, "listing:create")) {
     return NextResponse.json({ error: "Your account is not permitted to upload listing media." }, { status: 403 });
   }
