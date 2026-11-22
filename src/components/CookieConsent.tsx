@@ -63,7 +63,7 @@ export default function CookieConsent() {
             >
               {t("dismiss")}
             </button>
-            <button onClick={dismiss} className="p-1 text-[var(--color-text-inverse)]/40 hover:text-[var(--color-text-inverse)]">
+            <button onClick={dismiss} aria-label="Close" className="p-1 text-[var(--color-text-inverse)]/40 hover:text-[var(--color-text-inverse)]">
               <X size={16} />
             </button>
           </div>

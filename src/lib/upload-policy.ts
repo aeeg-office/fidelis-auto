@@ -205,3 +205,57 @@ export function validateUpload(file: UploadDescriptor): UploadValidation {
   }
   return { ok: true, extension: definition.extension, kind: definition.kind };
 }
+/**
+ * Server-side content sniffing for uploads (2026-11-22 audit fix).
+ *
+ * `validateUpload` only sees the client-supplied MIME type and filename, both of
+ * which an attacker controls. An executable renamed `photo.png` with
+ * `Content-Type: image/png` therefore passed validation and was written to
+ * /uploads. This checks the actual leading bytes and rejects anything that is not
+ * a real image/video/audio container, and rejects any file whose sniffed kind
+ * disagrees with the declared kind.
+ */
+export type SniffedKind = "image" | "video" | "audio";
+
+function startsWith(buffer: Buffer, bytes: number[], offset = 0): boolean {
+  if (buffer.length < offset + bytes.length) return false;
+  return bytes.every((b, i) => buffer[offset + i] === b);
+}
+
+function asciiAt(buffer: Buffer, offset: number, text: string): boolean {
+  if (buffer.length < offset + text.length) return false;
+  return buffer.toString("latin1", offset, offset + text.length) === text;
+}
+
+export function sniffUploadBytes(buffer: Buffer): { ok: true; kind: SniffedKind } | { ok: false; error: string } {
+  if (buffer.length < 12) {
+    return { ok: false, error: "The uploaded file is too small to be a valid image, video or audio file." };
+  }
+
+  // Explicitly rejected containers / payloads (defence in depth).
+  if (startsWith(buffer, [0x4d, 0x5a])) return { ok: false, error: "Executable files are not allowed." };          // MZ / PE
+  if (startsWith(buffer, [0x7f, 0x45, 0x4c, 0x46])) return { ok: false, error: "Executable files are not allowed." }; // ELF
+  if (startsWith(buffer, [0xca, 0xfe, 0xba, 0xbe])) return { ok: false, error: "Executable files are not allowed." }; // Mach-O fat
+  if (startsWith(buffer, [0x23, 0x21])) return { ok: false, error: "Script files are not allowed." };               // #!
+  const first = buffer[0];
+  if (first === 0x3c) return { ok: false, error: "Markup files (HTML/SVG) are not allowed." };                      // '<'
+
+  // Images
+  if (startsWith(buffer, [0xff, 0xd8, 0xff])) return { ok: true, kind: "image" };                                   // JPEG
+  if (startsWith(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return { ok: true, kind: "image" };    // PNG
+  if (asciiAt(buffer, 0, "RIFF") && asciiAt(buffer, 8, "WEBP")) return { ok: true, kind: "image" };                 // WebP
+  if (asciiAt(buffer, 4, "ftyp")) {                                                                                 // ISO-BMFF
+    const brand = buffer.toString("latin1", 8, 12);
+    if (["avif", "avis", "heic", "heix", "mif1", "msf1"].includes(brand)) return { ok: true, kind: "image" };
+    return { ok: true, kind: "video" };                                                                             // mp4 / mov
+  }
+  if (startsWith(buffer, [0x1a, 0x45, 0xdf, 0xa3])) return { ok: true, kind: "video" };                              // Matroska/WebM
+
+  // Audio
+  if (asciiAt(buffer, 0, "RIFF") && asciiAt(buffer, 8, "WAVE")) return { ok: true, kind: "audio" };
+  if (asciiAt(buffer, 0, "OggS")) return { ok: true, kind: "audio" };
+  if (asciiAt(buffer, 0, "ID3")) return { ok: true, kind: "audio" };                                                // MP3 with ID3
+  if (first === 0xff && (buffer[1] & 0xe0) === 0xe0) return { ok: true, kind: "audio" };                            // MPEG frame sync
+
+  return { ok: false, error: "File content is not a recognised image, video or audio format." };
+}

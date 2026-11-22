@@ -107,7 +107,7 @@ export async function POST(request: Request) {
 
   // Resolve listing + owner (listing owner email wins; otherwise admin fallback)
   let vehicleId: string | null = null;
-  let recipient = process.env.ADMIN_EMAIL || "aeeg.education@gmail.com";
+  let recipient = process.env.ADMIN_EMAIL || process.env.FIDELIS_REPLY_TO || "listings@fidelisauto.com";
   let subjectTitle = vehicleSlug ? String(vehicleSlug) : "Fidelis Auto";
   if (vehicleSlug) {
     const vehicle = await prisma.vehicle.findUnique({

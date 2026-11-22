@@ -2,13 +2,15 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { can, type AccountRole } from "@/lib/authorization";
 import { getCurrentUser } from "@/lib/user-auth";
+import { localePath } from "@/lib/locale-path";
 import SubmitForm from "./SubmitForm";
 
-export default async function SubmitPage() {
+export default async function SubmitPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations("sellYourCar");
   const user = await getCurrentUser();
-  if (!user) redirect("/login?redirect=/submit");
-  if (!can(user.role as AccountRole, "listing:create")) redirect("/dashboard");
+  if (!user) redirect(localePath(locale, `/login?redirect=${localePath(locale, "/submit")}`));
+  if (!can(user.role as AccountRole, "listing:create")) redirect(localePath(locale, "/dashboard"));
 
   return (
     <div className="container-page py-16 md:py-24">

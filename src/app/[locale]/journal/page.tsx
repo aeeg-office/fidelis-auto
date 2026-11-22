@@ -43,7 +43,7 @@ async function getJournalEntries(cat?: string): Promise<JournalEntry[]> {
     if (cat) where.category = cat;
     const entries = await prisma.journalEntry.findMany({
       where,
-      orderBy: { editorialDate: "desc" },
+      orderBy: [{ editorialDate: { sort: "desc", nulls: "last" } }, { publishedAt: "desc" }],
       select: {
         slug: true,
         title: true,

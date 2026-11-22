@@ -45,7 +45,13 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
   // A7: makes/models load from the DB taxonomy. The model list depends on the
   // selected make AND vehicle type; when a type is chosen the make list narrows.
   const activeType = type || "";
-  const typeMakes = makes.filter((m) => !activeType || m.vehicleType === activeType);
+  const typeMakes = (() => {
+    const scoped = makes.filter((m) => !activeType || m.vehicleType === activeType);
+    // 2026-11-22 audit: Honda/Suzuki exist as both CAR and MOTORCYCLE rows; without a
+    // type filter the dropdown listed them twice. De-duplicate by display name.
+    const seen = new Set<string>();
+    return scoped.filter((m) => (seen.has(m.name) ? false : (seen.add(m.name), true)));
+  })();
   const countryEntry = countries.find((c) => c.name === country);
   const cities = countryEntry ? countryEntry.cities : [];
   // If the selected city is not in the current country's list, drop it.
@@ -128,6 +134,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("make")}</label>
           <select
+              aria-label={t("make")}
             value={make}
             onChange={(e) => { setMake(e.target.value); setModel(""); }}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
@@ -143,6 +150,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("model")}</label>
           <select
+              aria-label={t("model")}
             value={resolvedModel}
             onChange={(e) => setModel(e.target.value)}
             disabled={!make}
@@ -160,6 +168,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("year")}</label>
           <div className="flex gap-1">
             <select
+              aria-label={t("year")}
               value={yearMin}
               onChange={(e) => setYearMin(e.target.value)}
               className="w-1/2 px-1 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
@@ -170,6 +179,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
               ))}
             </select>
             <select
+              aria-label={t("year")}
               value={yearMax}
               onChange={(e) => setYearMax(e.target.value)}
               className="w-1/2 px-1 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
@@ -186,6 +196,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("type")}</label>
           <select
+              aria-label={t("type")}
             value={type}
             onChange={(e) => setType(e.target.value)}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
@@ -200,6 +211,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("bodyType")}</label>
           <select
+              aria-label={t("bodyType")}
             value={bodyType}
             onChange={(e) => setBodyType(e.target.value)}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
@@ -215,6 +227,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("transmission")}</label>
           <select
+              aria-label={t("transmission")}
             value={transmission}
             onChange={(e) => setTransmission(e.target.value)}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
@@ -230,6 +243,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("country")}</label>
           <select
+              aria-label={t("country")}
             value={country}
             onChange={(e) => setCountry(e.target.value)}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
@@ -245,6 +259,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("city")}</label>
           <select
+              aria-label={t("city")}
             value={resolvedCity}
             onChange={(e) => setCity(e.target.value)}
             disabled={!country}
@@ -282,6 +297,7 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1 uppercase tracking-wider">{t("sortBy")}</label>
           <select
+              aria-label={t("sortBy")}
             value={sort}
             onChange={(e) => setSort(e.target.value)}
             className="w-full px-2 py-2 text-sm rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
