@@ -10,6 +10,7 @@ import SocialShare from "@/components/SocialShare";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import VehicleImage from "@/components/VehicleImage";
 import AdSlot from "@/components/AdSlot";
+import { renderJournalBody } from "@/lib/markdown";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,12 @@ function formatDate(date: Date | null, locale: string): string {
   });
 }
 
+/** Absolute og:image URL from a local cover path (or a full URL as-is). */
+function coverImageUrl(siteUrl: string, cover: string): string {
+  if (/^https?:\/\//i.test(cover)) return cover;
+  return `${siteUrl}${cover.startsWith("/") ? "" : "/"}${cover}`;
+}
+
 // ─── Metadata ───────────────────────────────────
 
 export async function generateMetadata({
@@ -90,6 +97,12 @@ export async function generateMetadata({
       ? entry.metaDescriptionAr || entry.excerptAr || entry.contentEn?.slice(0, 160) || ""
       : entry.excerpt || entry.contentEn?.slice(0, 160) || "";
 
+  // FID-AUD-403: articles + home emit a real og:image once coverImage is populated.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fidelisauto.com";
+  const cover = entry.coverImage
+    ? coverImageUrl(siteUrl, entry.coverImage)
+    : `${siteUrl}/images/og-default.png`;
+
   return {
     title: metaTitle,
     description: metaDesc,
@@ -99,6 +112,7 @@ export async function generateMetadata({
       description: metaDesc,
       url,
       type: "article",
+      images: [{ url: cover, width: 1200, height: 630, alt: metaTitle }],
       publishedTime: entry.publishedAt?.toISOString(),
       authors: [entry.author],
     },
@@ -158,6 +172,7 @@ export default async function JournalEntryPage({
         data={{
           headline: locale === "ar" ? (entry.titleAr ?? entry.title) : entry.title,
           description: pageExcerpt,
+          image: entry.coverImage ? coverImageUrl("https://fidelisauto.com", entry.coverImage) : undefined,
           author: {
             "@type": "Person",
             name: entry.author,
@@ -223,8 +238,11 @@ export default async function JournalEntryPage({
 
               <SocialShare url={url} title={pageTitle} className="mb-8" />
 
-              <div className="prose prose-lg max-w-none text-[var(--color-text-secondary)] whitespace-pre-line leading-relaxed">
-                {body}
+              {/* FID-AUD-404 (TASK-2026-037): body is now rendered through the sanitised
+                  markdown renderer (HTML escaped first). Headings, lists, bold/italic,
+                  sources links and internal links survive; raw HTML never reaches the DOM. */}
+              <div className="prose prose-lg max-w-none text-[var(--color-text-secondary)] leading-relaxed">
+                <div dangerouslySetInnerHTML={{ __html: renderJournalBody(body || "") }} />
               </div>
 
               {/* WS16: single leaderboard after the article body — one slot per page. */}

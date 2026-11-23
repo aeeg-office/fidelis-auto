@@ -46,30 +46,13 @@ export async function POST(request: Request) {
     const submission = normalizeListingSubmission({ ...submitted, name: user.name, email: user.email }, user.id);
     if (!submission.ok) return NextResponse.json({ error: submission.error }, { status: 400 });
 
-    // WS3/WS15 drift guard: normalizeListingSubmission emits rich Vehicle-side
-    // fields (mileageUnit, vehicleType, price, priceAmount, currency, bodyType,
-    // fuelType, isLicensed, makeId, modelId, cityId, countryId) that have NO
-    // columns on the ListingRequest table. Passing them through makes Prisma
-    // reject the payload (500 `Unknown argument ...`). Keep only the columns
-    // this row can actually store; the moderation approval (autoPublish) reads
-    // exactly this model-valid subset. Schema backfill for the richer fields is
-    // an owner escalation, not a code fix.
-    const {
-      mileageUnit: _mileageUnit,
-      vehicleType: _vehicleType,
-      price: _price,
-      priceAmount: _priceAmount,
-      currency: _currency,
-      bodyType: _bodyType,
-      fuelType: _fuelType,
-      isLicensed: _isLicensed,
-      makeId: _makeId,
-      modelId: _modelId,
-      cityId: _cityId,
-      countryId: _countryId,
-      ...listingData
-    } = submission.value;
-    const listing = await prisma.listingRequest.create({ data: listingData });
+    // TASK-2026-037/FID-AUD-401: ListingRequest now has additive columns for the rich
+    // vehicle fields (mileageUnit, vehicleType, price, priceAmount, currency, bodyType,
+    // fuelType, isLicensed, makeId, modelId, cityId, countryId, expiresAt). Pass the full
+    // normalized payload through so an approved listing keeps its price, type, city and
+    // expiry. No destructure-and-drop — the columns exist on the table (additive migration
+    // 20261123090000_listing_request_vehicle_fields).
+    const listing = await prisma.listingRequest.create({ data: submission.value });
 
     // Moderation: every submission is routed to the admin moderation queue.
     // No submission auto-publishes — an admin must approve it (FID-AUD-202).

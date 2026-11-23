@@ -466,6 +466,19 @@ model ListingRequest {
   model         String
   trim          String?
   mileage       Int?
+  mileageUnit   String   @default("km") // TASK-2026-037/FID-AUD-401: carry through to publish
+  vehicleType   String? // CAR | MOTORCYCLE
+  price         String? // raw text price (always preserved)
+  priceAmount   Int?    // smallest unit (priceAmount/100 = EGP)
+  currency      String   @default("EGP")
+  bodyType      String?
+  fuelType      String?
+  isLicensed    Boolean?
+  makeId        String?
+  modelId       String?
+  cityId        String?
+  countryId     String?
+  expiresAt     DateTime? // listing expiry carried through approval
   exteriorColor String?
   interiorColor String?
   engine        String?
