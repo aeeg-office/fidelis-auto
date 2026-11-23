@@ -5,6 +5,7 @@
  * ad-text scanner deems the submission clean.
  */
 import { prisma } from "@/lib/prisma";
+import type { BodyType, FuelType } from "@prisma/client";
 
 function slugify(text: string): string {
   return text
@@ -58,6 +59,19 @@ export async function autoPublish(
     model: string;
     trim?: string | null;
     mileage?: number | null;
+    mileageUnit?: string;
+    vehicleType?: string | null;
+    price?: string | null;
+    priceAmount?: number | null;
+    currency?: string | null;
+    bodyType?: string | null;
+    fuelType?: string | null;
+    isLicensed?: boolean | null;
+    makeId?: string | null;
+    modelId?: string | null;
+    cityId?: string | null;
+    countryId?: string | null;
+    expiresAt?: Date | null;
     exteriorColor?: string | null;
     interiorColor?: string | null;
     engine?: string | null;
@@ -70,6 +84,19 @@ export async function autoPublish(
   listingId: string,
 ): Promise<AutoPublishResult> {
   const ownerId = submission.userId ?? undefined;
+
+  // Normalize the taxonomy ids to undefined when absent so Prisma doesn't set them NULL/nullable-0.
+  const makeId = submission.makeId ?? undefined;
+  const modelId = submission.modelId ?? undefined;
+  const cityId = submission.cityId ?? undefined;
+  const countryId = submission.countryId ?? undefined;
+
+  // bodyType / fuelType come from the submission as validated strings; only carry
+  // values that are real Prisma enum members (safe cast), drop anything else.
+  const BODY_TYPES = ["SEDAN","HATCHBACK","SUV","PICKUP","VAN","COUPE","CONVERTIBLE","WAGON","MPV","OTHER"] as const;
+  const FUEL_TYPES = ["PETROL","DIESEL","ELECTRIC","HYBRID","LPG","CNG","OTHER"] as const;
+  const bodyType = (submission.bodyType && (BODY_TYPES as readonly string[]).includes(submission.bodyType) ? submission.bodyType : null) as BodyType | null;
+  const fuelType = (submission.fuelType && (FUEL_TYPES as readonly string[]).includes(submission.fuelType) ? submission.fuelType : null) as FuelType | null;
 
   // Title + slug from make/model/year/trim.
   const titleParts = [String(submission.year), submission.make, submission.model];
@@ -88,6 +115,19 @@ export async function autoPublish(
       model: submission.model,
       trim: submission.trim ?? null,
       mileage: submission.mileage ?? null,
+      mileageUnit: submission.mileageUnit ?? "km",
+      vehicleType: (submission.vehicleType === "MOTORCYCLE" || submission.vehicleType === "CAR" ? submission.vehicleType : "CAR"),
+      price: submission.price ?? "",
+      priceAmount: submission.priceAmount ?? null,
+      currency: submission.currency ?? "EGP",
+      bodyType,
+      fuelType,
+      isLicensed: submission.isLicensed ?? null,
+      makeId,
+      modelId,
+      cityId,
+      countryId,
+      expiresAt: submission.expiresAt ?? null,
       exteriorColor: submission.exteriorColor ?? null,
       interiorColor: submission.interiorColor ?? null,
       engine: submission.engine ?? null,
@@ -97,8 +137,6 @@ export async function autoPublish(
       // through to the published vehicle verbatim.
       videoUrls: submission.videoUrls ?? null,
       audioUrl: submission.audioUrl ?? null,
-      // No explicit price provided by a submission yet — default status available.
-      price: "", // filled by owner via edit flow; placeholder to satisfy required field
       status: "available",
       isPublished: true,
     },

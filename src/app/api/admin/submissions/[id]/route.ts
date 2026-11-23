@@ -23,6 +23,8 @@ export async function PATCH(
   if (submission.status !== "pending") return NextResponse.json({ error: "Only pending submissions can be moderated." }, { status: 409 });
 
   // Build the autoPublish payload from the full submission row.
+  // TASK-2026-037/FID-AUD-401: carry ALL the rich vehicle fields now stored on the
+  // ListingRequest row so an approved listing keeps its price, type, city, expiry.
   const publishable = {
     userId: submission.userId,
     name: submission.name,
@@ -31,6 +33,19 @@ export async function PATCH(
     model: submission.model,
     trim: submission.trim,
     mileage: submission.mileage,
+    mileageUnit: submission.mileageUnit,
+    vehicleType: submission.vehicleType,
+    price: submission.price,
+    priceAmount: submission.priceAmount,
+    currency: submission.currency,
+    bodyType: submission.bodyType,
+    fuelType: submission.fuelType,
+    isLicensed: submission.isLicensed,
+    makeId: submission.makeId,
+    modelId: submission.modelId,
+    cityId: submission.cityId,
+    countryId: submission.countryId,
+    expiresAt: submission.expiresAt,
     exteriorColor: submission.exteriorColor,
     interiorColor: submission.interiorColor,
     engine: submission.engine,

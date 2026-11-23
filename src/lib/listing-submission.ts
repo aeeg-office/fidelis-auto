@@ -26,6 +26,7 @@ type ListingSubmission = {
   modelId: string | null;
   cityId: string | null;
   countryId: string | null;
+  expiresAt: Date; // listing works live 30 days from submission (WS1 minimum)
   exteriorColor: string | null;
   interiorColor: string | null;
   engine: string | null;
@@ -110,6 +111,16 @@ export function normalizeListingSubmission(payload: ListingPayload, authenticate
   const cityId = asOptionalText(payload.cityId);
   const countryId = asOptionalText(payload.countryId);
 
+  // WS1 expiry: listings go live for 30 days minimum. Accept an optional seller-chosen
+  // `expiresInDays` (>= 30, <= 365) or default to 30 days from now. Reject absurd values.
+  const now = Date.now();
+  const expiresInDaysInput = Number(payload.expiresInDays);
+  const expiresInDays =
+    Number.isFinite(expiresInDaysInput) && expiresInDaysInput >= 30 && expiresInDaysInput <= 365
+      ? Math.floor(expiresInDaysInput)
+      : 30;
+  const expiresAt = new Date(now + expiresInDays * 24 * 60 * 60 * 1000);
+
   const isLicensed = payload.isLicensed === true || payload.isLicensed === "true";
 
   const photoUrls = serializeUrlList(payload.photoUrls, "Photo");
@@ -143,6 +154,7 @@ export function normalizeListingSubmission(payload: ListingPayload, authenticate
       modelId,
       cityId,
       countryId,
+      expiresAt,
       exteriorColor: asOptionalText(payload.exteriorColor),
       interiorColor: asOptionalText(payload.interiorColor),
       engine: asOptionalText(payload.engine),
