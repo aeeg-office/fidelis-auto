@@ -1,6 +1,17 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+import { getAlternates } from "@/lib/seo";
 import VerifyForm from "./VerifyForm";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "verify" }).catch(() => null);
+  return {
+    title: t ? t("title") : "Verify Email",
+    alternates: getAlternates(locale, "/verify"),
+  };
+}
 
 export default async function VerifyPage() {
   const t = await getTranslations("verify");

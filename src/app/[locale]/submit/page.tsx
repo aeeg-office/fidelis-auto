@@ -1,9 +1,20 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { can, type AccountRole } from "@/lib/authorization";
 import { getCurrentUser } from "@/lib/user-auth";
 import { localePath } from "@/lib/locale-path";
+import { getAlternates } from "@/lib/seo";
 import SubmitForm from "./SubmitForm";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "sellYourCar" });
+  return {
+    title: t("metaTitle"),
+    alternates: getAlternates(locale, "/submit"),
+  };
+}
 
 export default async function SubmitPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

@@ -48,9 +48,11 @@ export default function FilterBar({ bodyTypes = FILTER_BODY_TYPES, makes, countr
   const typeMakes = (() => {
     const scoped = makes.filter((m) => !activeType || m.vehicleType === activeType);
     // 2026-11-22 audit: Honda/Suzuki exist as both CAR and MOTORCYCLE rows; without a
-    // type filter the dropdown listed them twice. De-duplicate by display name.
+    // type filter the dropdown listed them twice. De-duplicate by normalized display
+    // name (case/space-insensitive, first occurrence wins — keeps alphabetical order).
     const seen = new Set<string>();
-    return scoped.filter((m) => (seen.has(m.name) ? false : (seen.add(m.name), true)));
+    const key = (s: string) => s.trim().replace(/\s+/g, " ").toLowerCase();
+    return scoped.filter((m) => (seen.has(key(m.name)) ? false : (seen.add(key(m.name)), true)));
   })();
   const countryEntry = countries.find((c) => c.name === country);
   const cities = countryEntry ? countryEntry.cities : [];
