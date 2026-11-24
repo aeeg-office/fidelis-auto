@@ -9,7 +9,8 @@ import NewsletterSignup from "@/components/NewsletterSignup";
 import AdSlot from "@/components/AdSlot";
 import { BLOG_CATEGORIES } from "@/lib/fidelisTaxonomy";
 
-export const dynamic = "force-dynamic";
+// C-09: public journal list — short ISR cache (120 s). No user/personalized data.
+export const revalidate = 120;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;

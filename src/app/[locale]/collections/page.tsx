@@ -16,6 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// C-09: public, non-personal page - short ISR cache (120 s).
+export const revalidate = 120;
 export default async function CollectionsListPage() {
   const t = await getTranslations("collections");
   const locale = await getLocale();
