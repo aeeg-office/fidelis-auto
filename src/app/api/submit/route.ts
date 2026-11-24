@@ -44,7 +44,12 @@ export async function POST(request: Request) {
 
     const submitted = body as Record<string, unknown>;
     const submission = normalizeListingSubmission({ ...submitted, name: user.name, email: user.email }, user.id);
-    if (!submission.ok) return NextResponse.json({ error: submission.error }, { status: 400 });
+    if (!submission.ok) {
+      return NextResponse.json(
+        { error: submission.error, ...(submission.ar ? { ar: submission.ar } : {}) },
+        { status: 400 }
+      );
+    }
 
     // TASK-2026-037/FID-AUD-401: ListingRequest now has additive columns for the rich
     // vehicle fields (mileageUnit, vehicleType, price, priceAmount, currency, bodyType,

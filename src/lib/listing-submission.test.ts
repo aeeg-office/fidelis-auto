@@ -36,14 +36,30 @@ describe("listing submission normalization", () => {
     expect(normalizeListingSubmission({ ...validPayload, year: "invalid" }, "owner")).toEqual({
       ok: false,
       error: "A valid vehicle year is required.",
+      ar: "يرجى إدخال سنة سيارة صالحة.",
     });
     expect(normalizeListingSubmission({ ...validPayload, photoUrls: "not-an-array" }, "owner")).toEqual({
       ok: false,
       error: "Photo URLs must reference approved uploaded media.",
+      ar: "روابط الصور يجب أن تكون وسائط مرفوعة معتمدة.",
     });
     expect(normalizeListingSubmission({ ...validPayload, photoUrls: ["https://example.invalid/untrusted.jpg"] }, "owner")).toEqual({
       ok: false,
       error: "Photo URLs must reference approved uploaded media.",
+      ar: "روابط الصور يجب أن تكون وسائط مرفوعة معتمدة.",
+    });
+  });
+
+  it("requires the seller phone number (missing/blank is rejected server-side)", () => {
+    expect(normalizeListingSubmission({ ...validPayload, phone: "" }, "owner")).toEqual({
+      ok: false,
+      error: "Seller phone number is required.",
+      ar: "رقم هاتف البائع مطلوب.",
+    });
+    expect(normalizeListingSubmission({ ...validPayload, phone: "   " }, "owner")).toEqual({
+      ok: false,
+      error: "Seller phone number is required.",
+      ar: "رقم هاتف البائع مطلوب.",
     });
   });
 
@@ -51,15 +67,18 @@ describe("listing submission normalization", () => {
     expect(normalizeListingSubmission({ ...validPayload, audioUrl: "https://example.invalid/untrusted.mp3" }, "owner")).toEqual({
       ok: false,
       error: "Engine sound must reference approved uploaded media.",
+      ar: "صوت المحرك يجب أن يكون ملفاً مرفوعاً معتمداً.",
     });
     expect(normalizeListingSubmission({ ...validPayload, audioUrl: "/uploads/somecarp.ogg" }, "owner")).toEqual({
       ok: false,
       error: "Engine sound must reference approved uploaded media.",
+      ar: "صوت المحرك يجب أن يكون ملفاً مرفوعاً معتمداً.",
     });
     // audioUrl is a single string — arrays/objects are rejected.
     expect(normalizeListingSubmission({ ...validPayload, audioUrl: ["/uploads/audio-00000000-0000-4000-8000-000000000003.mp3"] }, "owner")).toEqual({
       ok: false,
       error: "Engine sound must reference approved uploaded media.",
+      ar: "صوت المحرك يجب أن يكون ملفاً مرفوعاً معتمداً.",
     });
   });
 
