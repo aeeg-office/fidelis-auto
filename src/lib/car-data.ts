@@ -56,7 +56,27 @@ export const COUNTRIES = [
 
 // ─── Car Makes & Models ───────────────────────
 
-export const MAKES: MakeEntry[] = [
+/** Normalize a make name for comparison: trim, collapse inner whitespace, lowercase. */
+export function normalizeMakeName(name: string): string {
+  return name.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/**
+ * Case/space-insensitive make dedupe. Keeps the FIRST occurrence of each
+ * normalized name, so the original (alphabetical) ordering and data integrity
+ * are preserved — e.g. "BMW", "bmw" and "BMW " collapse to one entry.
+ */
+export function dedupeMakes(makes: MakeEntry[]): MakeEntry[] {
+  const seen = new Set<string>();
+  return makes.filter((m) => {
+    const key = normalizeMakeName(m.make);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+export const MAKES: MakeEntry[] = dedupeMakes([
   { make: "Acura", models: ['Integra', 'Legend', 'NSX', 'TL', 'CL', 'RL', 'TSX', 'RSX', 'MDX', 'RDX', 'ZDX', 'TLX', 'ILX', 'RLX', 'NSX Type S', 'Integra Type S', 'ADX'] },
   { make: "Alfa Romeo", models: ['Giulia', 'Giulietta', 'Spider', 'GTV', '156', '147', '159', 'Brera', 'MiTo', '4C', 'Stelvio', 'Tonale', '8C Competizione', 'Montreal', '33 Stradale', 'Giulia Quadrifoglio', 'Alfetta', '75/Milano', '164', 'GT', 'GTA'] },
   { make: "Aston Martin", models: ['DB5', 'DB6', 'DBS', 'V8 Vantage', 'Virage', 'DB7', 'Vanquish', 'DB9', 'V8 Vantage (2005)', 'DBS Superleggera', 'One-77', 'Rapide', 'Valkyrie', 'DB11', 'Vantage (2018)', 'DBS (2018)', 'DBX', 'DB12', 'Valhalla', 'Vanquish (2024)', 'Valour', 'DB5 Vantage'] },
@@ -124,4 +144,4 @@ export const MAKES: MakeEntry[] = [
   { make: "Vauxhall", models: ['Viva', 'Victor', 'Velox', 'Cresta', 'Cavalier', 'Carlton', 'Senator', 'Astra', 'Vectra', 'Omega', 'Nova', 'Corsa', 'Calibra', 'Frontera', 'Sintra', 'Zafira', 'Meriva', 'Agila', 'Signum', 'Insignia', 'Adam', 'Mokka', 'Crossland', 'Grandland', 'Combo', 'Vivaro', 'Movano', 'Ampera', 'Ampera-e', 'Mokka-e', 'Corsa-e', 'Vivaro-e', 'Combo-e', 'Cascada', 'GT', 'Lotus Carlton', 'Chevette', 'Bedford (commercial)', '10-4', '12-4', '14-6', 'Wyvern', 'Rekord (badge engineered)', 'Kadett (rebadged)', 'Frontera (2024)', 'Grandland (2024)'] },
   { make: "Volkswagen", models: ['Beetle', 'Golf', 'Jetta', 'Passat', 'Polo', 'Lupo', 'Fox', 'Up!', 'e-Up!', 'ID.3', 'ID.4', 'ID.5', 'ID.6', 'ID.7', 'ID.Buzz', 'ID.2all', 'T-Cross', 'T-Roc', 'Taigo', 'Tiguan', 'Tayron', 'Touareg', 'Atlas', 'Atlas Cross Sport', 'Teramont', 'Käfer', 'Bus', 'Transporter', 'Multivan', 'Caravelle', 'California', 'Crafter', 'LT', 'Lupo GTI', 'Golf GTI', 'Golf R', 'Golf GTD', 'Polo GTI', 'Jetta GLI', 'Scirocco', 'Corrado', 'Karmann Ghia', 'Type 3', 'Type 4', '411', '412', 'Phaeton', 'Arteon', 'CC', 'Eos', 'New Beetle', 'Beetle (A5)', 'Bora', 'Santana', 'Vento', 'Caddy', 'Saveiro', 'Amarok', 'Nivus', 'Taos', 'Virtus', 'Lamando', 'Magotan', 'Lavida', 'Sagitar', 'Passat CC', 'W12', 'Nardo', 'W12 Coupe', 'XL1', 'L1', 'Concept R', 'ID.GTI', 'ID. Buzz Cargo', 'Golf R 333', 'Golf Clubsport', 'Touareg R', 'Arteon R'] },
   { make: "Volvo", models: ['PV444', 'PV544', 'Amazon', 'P1800', 'P1800ES', '140 Series', '164', '240 Series', '260 Series', '340', '360', '440', '460', '480', '740', '760', '780', '850', '940', '960', 'S40', 'S60', 'S70', 'S80', 'S90', 'V40', 'V50', 'V60', 'V70', 'V90', 'C30', 'C70', 'XC60', 'XC70', 'XC90', 'XC40', 'EX30', 'EX90', 'EC40', 'EM90', 'ES90', 'EX30 Cross Country', 'P1800 Cyan', 'Polestar 1 (shared)', '242 GT', '245 GL', '850 T-5R', '850 R', 'V70 R', 'S60 Polestar', 'XC90 Recharge', 'S60 T8 Polestar', 'V60 Polestar', 'V90 Cross Country', 'S90 Recharge', 'XC60 Recharge', 'Duett', 'S80 V8', '240 Turbo', '780 Bertone', '262C Bertone', 'Amazon Estate', 'PV831', 'FP'] },
-];
+]);
