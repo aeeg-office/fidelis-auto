@@ -33,6 +33,7 @@ export default function SubmitForm() {
   /** Single engine sound clip (Spec P2 free-listing media). */
   const [sound, setSound] = useState<File | null>(null);
   const [phone, setPhone] = useState("");
+  const [vehicleType, setVehicleType] = useState<"CAR" | "MOTORCYCLE">("CAR");
   const [selectedMake, setSelectedMake] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
@@ -46,11 +47,17 @@ export default function SubmitForm() {
     fetch("/api/makes").then(r => r.json()).then(d => setMakes(d)).catch(() => {});
   }, []);
 
+  // DB taxonomy (via /api/makes) carries vehicleType; legacy entries without it are cars.
+  const makesForType = useMemo(
+    () => makes.filter(m => (m.vehicleType ?? "CAR") === vehicleType),
+    [makes, vehicleType],
+  );
+
   const models = useMemo(() => {
     if (selectedMake === "Other") return [];
-    const make = makes.find(m => m.make === selectedMake);
+    const make = makesForType.find(m => m.make === selectedMake);
     return make?.models || [];
-  }, [selectedMake, makes]);
+  }, [selectedMake, makesForType]);
 
   function validate(): string[] {
     const errs: string[] = [];
@@ -86,6 +93,7 @@ export default function SubmitForm() {
       engine: fd.get("engine"),
       notes: description,
       photoFilenames: photos.map(f => f.name),
+      makeCatalog: makesForType,
     };
     const result = buildListingDraft(input);
     if (result.ok) {
@@ -184,6 +192,7 @@ export default function SubmitForm() {
 
     const data = {
       name: form.get("name"), email: form.get("email"), phone,
+      vehicleType,
       year: parseInt(selectedYear), make: finalMake, model: finalModel,
       trim: form.get("trim"), mileage: form.get("mileage") ? parseInt(form.get("mileage") as string) : null,
       exteriorColor: form.get("exteriorColor"), interiorColor: form.get("interiorColor"),
@@ -228,6 +237,24 @@ export default function SubmitForm() {
       {/* Vehicle Details */}
       <fieldset>
         <legend className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 uppercase tracking-wider">{t("vehicleDetails")}</legend>
+        <div className="mb-4 md:w-1/3">
+          <Select
+            label={`${t("vehicleType")} *`}
+            name="vehicleType"
+            value={vehicleType}
+            onChange={(v) => {
+              setVehicleType(v === "MOTORCYCLE" ? "MOTORCYCLE" : "CAR");
+              // The make list changes with the type; clear the previous choice.
+              setSelectedMake("");
+              setCustomMake("");
+              setCustomModel("");
+            }}
+            required
+          >
+            <option value="CAR">{t("vehicleTypeCar")}</option>
+            <option value="MOTORCYCLE">{t("vehicleTypeMotorcycle")}</option>
+          </Select>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Select label={`${t("year")} *`} value={selectedYear} onChange={setSelectedYear} required>
             <option value="">{t("selectYear")}</option>
@@ -235,7 +262,7 @@ export default function SubmitForm() {
           </Select>
           <Select label={`${t("make")} *`} value={selectedMake} onChange={(v) => { setSelectedMake(v); setCustomMake(""); }}>
             <option value="">{t("selectMake")}</option>
-            {makes.map(m => <option key={m.make} value={m.make}>{m.make}</option>)}
+            {makesForType.map(m => <option key={m.make} value={m.make}>{m.make}</option>)}
             <option value="Other">{t("other")}</option>
           </Select>
           {selectedMake === "Other" ? (

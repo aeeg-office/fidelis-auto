@@ -1,6 +1,8 @@
 export interface MakeEntry {
   make: string;
   models: string[];
+  /** Set when the entry comes from the DB taxonomy (`/api/makes`). Absent = car. */
+  vehicleType?: "CAR" | "MOTORCYCLE";
 }
 
 // ─── Years ────────────────────────────────────
