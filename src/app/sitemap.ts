@@ -43,6 +43,15 @@ const STATIC_ROUTES: StaticRoute[] = [
 
 const LOCALES = ["en", "ar"] as const;
 
+/**
+ * Static-route <lastmod>. Captured once at module scope so every URL that has no
+ * real content timestamp shares ONE stable value — the build/deploy date. Unlike the
+ * prior per-request `new Date()` (2026-11-22 audit: re-stamping every URL every request
+ * trained crawlers to distrust <lastmod>), a single build-time constant is stable across
+ * requests within a deployment and collapses to a real, crawlable signal per release.
+ */
+const SITEMAP_BUILT_AT = new Date();
+
 /** Locale-prefixed path, matching next-intl `localePrefix: "as-needed"`. */
 function localizedPath(locale: string, path: string): string {
   if (locale === "en") return path || "";
@@ -59,13 +68,13 @@ function alternatesFor(path: string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
-  // Static routes, both locales. Deliberately NO `lastModified`: a per-request
-  // `new Date()` stamped every static URL with the current time and taught crawlers
-  // to distrust the signal site-wide (2026-11-22 audit finding).
+  // Static routes, both locales. `lastModified` = the build date (`SITEMAP_BUILT_AT`),
+  // stable per deployment — see note above (2026-11-22 audit).
   for (const route of STATIC_ROUTES) {
     for (const locale of LOCALES) {
       entries.push({
         url: `${BASE_URL}${localizedPath(locale, route.path)}`,
+        lastModified: SITEMAP_BUILT_AT,
         changeFrequency: route.changeFrequency,
         priority: route.priority,
         alternates: alternatesFor(route.path),

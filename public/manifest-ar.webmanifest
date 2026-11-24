@@ -1,0 +1,63 @@
+{
+  "name": "فيديليس أوتو — وجهة السيارات في مصر",
+  "short_name": "فيديليس أوتو",
+  "id": "/ar",
+  "description": "من أجل حب السيارات. لكل سيارة حكاية.",
+  "start_url": "/ar",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a2e",
+  "theme_color": "#c9a84c",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["autos", "shopping"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "تصفح السيارات",
+      "short_name": "السيارات",
+      "description": "تصفح السيارات المتاحة",
+      "url": "/ar/vehicles",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "البحث",
+      "short_name": "البحث",
+      "description": "ابحث في جميع السيارات",
+      "url": "/ar/search",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

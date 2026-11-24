@@ -11,6 +11,7 @@ import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 import { ADSENSE_LOADER_URL } from "@/lib/adsense";
+import type { Metadata } from "next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -39,6 +40,18 @@ type Props = {
   params: Promise<{ locale: string }>;
 };
 
+/** Locale-aware PWA manifest: Arabic build when serving /ar, English otherwise. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    manifest: locale === "ar" ? "/manifest-ar.webmanifest" : "/manifest.webmanifest",
+  };
+}
+
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
 
@@ -65,6 +78,11 @@ export default async function LocaleLayout({ children, params }: Props) {
               url: "https://fidelisauto.com",
               description:
                 "A premium digital showroom for collector, classic, and enthusiast vehicles.",
+              // logo: header brand emblem (matches the navy/ivory header mark, alt "Fidelis Auto emblem").
+              logo: "https://fidelisauto.com/logo-mark.svg",
+              // sameAs: intentionally empty — no verified brand social/profile URLs (Instagram,
+              // Facebook page, WhatsApp Business, etc.) exist in the codebase, docs, or on the
+              // live site, and we only emit real URLs (never fabricated profiles).
               sameAs: [],
             }}
           />
