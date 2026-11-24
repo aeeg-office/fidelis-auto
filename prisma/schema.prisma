@@ -100,6 +100,7 @@ model City {
 
   country  Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
   vehicles Vehicle[]
+  serviceListings ServiceListing[]
 
   @@index([countryId, nameEn])
 }
@@ -448,8 +449,83 @@ model ServiceListing {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // ── Service directory (WS-SD, additive) ──
+  descriptionAr    String?  @db.Text // Arabic description (bilingual site); EN falls back when null
+  businessNameAr   String?  // Arabic trading name, searchable alongside businessName
+  source           ServiceSource             @default(SELF_SUBMITTED)
+  claimStatus      ServiceClaimStatus        @default(CLAIMED) // existing rows stay CLAIMED
+  verificationLevel ServiceVerificationLevel @default(UNVERIFIED)
+  sourceUrls       String?  @db.Text // JSON array. ADMIN-ONLY, never rendered publicly
+  researchedAt     DateTime?
+  lastVerifiedAt   DateTime?
+  cityId           String?
+  cityRef          City?    @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  governorate      String?
+  district         String?
+  landmark         String?
+  address          String?
+  mapsUrl          String?
+  hours            String?
+  email            String?
+  instagram        String?
+  facebook         String?
+  subType          String?  // "Authorised service centre" | "Independent specialist" | "Mobile service"
+  authorisedBrands String?  @db.Text // JSON array; only if confirmed on the brand's official locator
+  servicesOffered  String?  @db.Text // JSON array of concrete services
+  makesServed      String?  @db.Text // JSON array; makes from DB taxonomy
+  vehicleTypes     String?  @db.Text // JSON array: CAR | MOTORCYCLE | EV | HYBRID
+  eras             String?  @db.Text // JSON array, e.g. "Classic (pre-1980)"
+  options          String?  @db.Text // JSON object of flags (pickup-delivery, mobile, appointment-only, ...)
+  yearEstablished  Int?     // only if the business itself states it
+  // Claim-only fields. Research never fills these.
+  paymentMethods   String?
+  priceFrom        String?
+  warranty         String?
+  certifications   String?
+  dedupeKey        String?  @unique // normalised name + city + phone digits
+  leads            ServiceLead[]
+
   @@index([isPublished, category])
   @@index([ownerId])
+  @@index([source, claimStatus])
+  @@index([cityId])
+}
+
+enum ServiceSource {
+  SELF_SUBMITTED
+  DIRECTORY_RESEARCH
+}
+
+enum ServiceClaimStatus {
+  UNCLAIMED
+  CLAIM_PENDING
+  CLAIMED
+}
+
+enum ServiceVerificationLevel {
+  UNVERIFIED
+  SOURCE_VERIFIED
+  FIDELIS_VERIFIED
+}
+
+enum ServiceLeadKind {
+  WHATSAPP_TAP
+  CALL_TAP
+  WEBSITE_TAP
+  PROFILE_VIEW
+  CLAIM_CLICK
+}
+
+// Anonymous lead beacon. No IP, no user identity. dayHash is a day-bucketed hash for de-dup only.
+model ServiceLead {
+  id               String         @id @default(cuid())
+  serviceListingId String
+  serviceListing   ServiceListing @relation(fields: [serviceListingId], references: [id], onDelete: Cascade)
+  kind             ServiceLeadKind
+  dayHash          String?
+  createdAt        DateTime       @default(now())
+
+  @@index([serviceListingId, kind, createdAt])
 }
 
 // ── Vehicle Listing Requests (public submissions) ──
