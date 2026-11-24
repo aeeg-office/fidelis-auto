@@ -9,6 +9,18 @@
 
 const BASE_URL = "https://fidelisauto.com";
 
+/**
+ * Site-wide default social image. A page that sets its own `openGraph` object
+ * replaces the root layout's one entirely (metadata objects merge shallowly),
+ * so such pages must include this explicitly or they ship without og:image.
+ */
+export const DEFAULT_OG_IMAGE = {
+  url: `${BASE_URL}/images/og-default.png`,
+  width: 1200,
+  height: 630,
+  alt: "Fidelis Auto — Egypt's car destination",
+} as const;
+
 export type Locale = "en" | "ar";
 
 /** Root path for a locale (en is default and has no prefix). */

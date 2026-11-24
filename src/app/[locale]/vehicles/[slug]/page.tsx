@@ -1,5 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { getAlternates } from "@/lib/seo";
+import { buildMileage, buildVehicleOffer } from "@/lib/vehicle-structured-data";
+import { formatPrice } from "@/lib/price-format";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Gauge, Wrench, Palette } from "lucide-react";
 import Link from "next/link";
@@ -67,13 +69,6 @@ function getVehicleVideos(json: string | null | undefined): string[] {
   }
 }
 
-/** Structured-data price: parse the string price; omit when not parseable. */
-function parsePrice(price: string | null | undefined): number | null {
-  if (!price) return null;
-  const n = Number(price.trim());
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
-
 // ─── Data ──────────────────────────────────────
 
 type VehicleData = {
@@ -82,6 +77,8 @@ type VehicleData = {
   exteriorColor: string | null; interiorColor: string | null;
   engine: string | null; transmission: string | null; drivetrain: string | null;
   price: string | null; descriptionEn: string | null; description: string | null;
+  /** WS1 structured price/units (used for schema.org Offer + odometer). */
+  priceAmount: number | null; currency: string; mileageUnit: string; status: string;
   isPublished: boolean;
   /** City name (EN first, AR fallback) — used for the WS13 nearby-specialists link. */
   cityName: string | null;
@@ -136,6 +133,10 @@ async function getVehicle(slug: string): Promise<VehicleData | null> {
         transmission: vehicle.transmission,
         drivetrain: vehicle.drivetrain,
         price: vehicle.price,
+        priceAmount: vehicle.priceAmount,
+        currency: vehicle.currency,
+        mileageUnit: vehicle.mileageUnit,
+        status: vehicle.status,
         descriptionEn: vehicle.descriptionEn,
         description: vehicle.descriptionEn,
         isPublished: vehicle.isPublished,
@@ -227,7 +228,14 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
   const imagePath = vehicle.coverImage ?? `/images/placeholder-${slug}.svg`;
   const alternatesBody = getAlternates(bodyLocale, `/vehicles/${slug}`);
   const canonical = alternatesBody.canonical;
-  const parsedPrice = parsePrice(vehicle.price);
+  const offer = buildVehicleOffer({
+    priceAmount: vehicle.priceAmount,
+    currency: vehicle.currency,
+    price: vehicle.price,
+    status: vehicle.status,
+    url: canonical,
+  });
+  const displayPrice = formatPrice(vehicle, bodyLocale);
 
   return (
     <>
@@ -245,7 +253,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
         model: vehicle.model,
         modelDate: vehicle.year,
         vehicleIdentificationNumber: vehicle.vin || undefined,
-        mileageFromOdometer: vehicle.mileage ? { value: vehicle.mileage, unitText: "mi" } : undefined,
+        mileageFromOdometer: buildMileage(vehicle.mileage, vehicle.mileageUnit),
         vehicleTransmission: vehicle.transmission || undefined,
         vehicleEngine: vehicle.engine ? { name: vehicle.engine } : undefined,
         color: vehicle.exteriorColor || undefined,
@@ -253,17 +261,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
         url: canonical,
         image: absoluteUrl(imagePath) ?? undefined,
         description: vehicle.descriptionEn || vehicle.description || undefined,
-        ...(parsedPrice
-          ? {
-              offers: {
-                "@type": "Offer",
-                price: parsedPrice,
-                priceCurrency: "USD",
-                url: canonical,
-                availability: "https://schema.org/InStock",
-              },
-            }
-          : {}),
+        ...(offer ? { offers: offer } : {}),
       }} />
 
       <div className="container-page py-6">
@@ -334,7 +332,9 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
 
           <div className="lg:col-span-1 min-w-0">
             <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-6 space-y-4">
-              {!parsedPrice && (
+              {displayPrice ? (
+                <p className="text-2xl font-semibold text-[var(--color-text-primary)]" dir="auto">{displayPrice}</p>
+              ) : (
                 <p className="text-base font-medium text-[var(--color-text-primary)]">{t("priceOnRequest")}</p>
               )}
               <div className="grid grid-cols-2 gap-4">

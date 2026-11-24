@@ -4,6 +4,8 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Don't advertise the framework/version in an `x-powered-by` header (audit C-12).
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       // Future vehicle image CDN. Remove `unoptimized` on the Image component

@@ -8,7 +8,7 @@ import VehicleImage from "@/components/VehicleImage";
 import RecentlySold from "@/components/RecentlySold";
 import { getFeaturedVehicles, getRecentVehicles } from "@/lib/vehicle-data";
 import { getVisibleCollections } from "@/lib/collections-data";
-import { getAlternates } from "@/lib/seo";
+import { DEFAULT_OG_IMAGE, getAlternates } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: isAr ? "ar_EG" : "en_US",
       siteName: "Fidelis Auto",
+      url: getAlternates(locale, "").canonical,
+      images: [DEFAULT_OG_IMAGE],
     },
+    twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
   };
 }
 
