@@ -7,6 +7,10 @@ import { createOpaqueSessionToken, hashSessionToken } from "@/lib/session-token"
 
 const SESSION_COOKIE = "fidelis_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+// Client-readable "has a session" marker. fidelis_session is httpOnly (unreadable in JS),
+// so the Header guards its /api/auth/me call with this lightweight companion cookie —
+// anonymous visitors never fire the request and never log a 401 to the console.
+const SESSION_PRESENCE_COOKIE = "fidelis_logged_in";
 
 type SessionUser = Awaited<ReturnType<typeof prisma.user.findUnique>>;
 
@@ -29,6 +33,10 @@ export async function createUserSession(userId: string) {
   });
 
   (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions());
+  (await cookies()).set(SESSION_PRESENCE_COOKIE, "1", {
+    ...sessionCookieOptions(),
+    httpOnly: false,
+  });
 }
 
 export async function getCurrentUser(): Promise<SessionUser> {
@@ -86,6 +94,7 @@ export async function logoutUser() {
     });
   }
   (await cookies()).delete(SESSION_COOKIE);
+  (await cookies()).delete(SESSION_PRESENCE_COOKIE);
 }
 
 export async function hashPassword(password: string): Promise<string> {

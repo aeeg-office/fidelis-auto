@@ -27,6 +27,7 @@ type EntryData = {
   metaDescriptionAr: string | null;
   author: string;
   publishedAt: Date | null;
+  updatedAt: Date | null;
   editorialDate: Date | null;
   coverImage: string | null;
   category?: string | null;
@@ -49,6 +50,7 @@ async function getEntry(slug: string): Promise<EntryData | null> {
         metaDescriptionAr: true,
         author: true,
         publishedAt: true,
+        updatedAt: true,
         editorialDate: true,
         coverImage: true,
         category: true,
@@ -178,6 +180,7 @@ export default async function JournalEntryPage({
             name: entry.author,
           },
           datePublished: entry.publishedAt?.toISOString(),
+          dateModified: entry.updatedAt?.toISOString() ?? entry.publishedAt?.toISOString(),
           publisher: {
             "@type": "Organization",
             name: "Fidelis Auto",

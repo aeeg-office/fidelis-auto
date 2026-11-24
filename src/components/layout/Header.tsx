@@ -20,6 +20,11 @@ export default function Header() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Only ask /api/auth/me when a session actually exists. fidelis_session is httpOnly
+    // (unreadable here), so a lightweight non-secret companion cookie (`fidelis_logged_in=1`,
+    // set/cleared alongside the session in lib/user-auth) gates the call. Anonymous visitors
+    // never fire the request → no 401 error in the console.
+    if (!document.cookie.includes("fidelis_logged_in=1")) return;
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => setUser(d))

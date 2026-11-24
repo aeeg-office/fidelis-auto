@@ -258,7 +258,7 @@ export default function VehicleGallery({
               >
                 <VehicleImage
                   src={img.src}
-                  alt=""
+                  alt={img.alt || `${title} — photo ${i + 1}`}
                   fill
                   loading={i === index ? "eager" : "lazy"}
                   sizes="96px"
