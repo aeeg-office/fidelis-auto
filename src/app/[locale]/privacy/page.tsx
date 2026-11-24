@@ -12,6 +12,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
+// C-09: public, non-personal page - short ISR cache (120 s).
+export const revalidate = 120;
 export default async function PrivacyPage() {
   const t = await getTranslations("privacy");
 

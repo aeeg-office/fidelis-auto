@@ -12,7 +12,9 @@ import VehicleImage from "@/components/VehicleImage";
 import AdSlot from "@/components/AdSlot";
 import { renderJournalBody } from "@/lib/markdown";
 
-export const dynamic = "force-dynamic";
+// C-09: public journal article — short ISR cache (120 s). No user/personalized data.
+export const revalidate = 120;
+
 
 // ─── Types ──────────────────────────────────────
 

@@ -10,7 +10,11 @@ import { getFeaturedVehicles, getRecentVehicles } from "@/lib/vehicle-data";
 import { getVisibleCollections } from "@/lib/collections-data";
 import { DEFAULT_OG_IMAGE, getAlternates } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+// C-09: public, non-personal homepage — short ISR cache (120 s). Auth state is
+// resolved client-side in <Header> (SSR shell is anonymous), so a cached page
+// can never contain a logged-in user's data.
+export const revalidate = 120;
+
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("homepage");
