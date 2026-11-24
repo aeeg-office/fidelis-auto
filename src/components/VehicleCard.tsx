@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatPrice } from "@/lib/price-format";
 import { MapPin, Gauge, Wrench, Cog, Star } from "lucide-react";
 import VehicleImage from "./VehicleImage";
 
@@ -21,6 +22,9 @@ export interface VehicleCardData {
   /** FuelType enum value (e.g. "PETROL") when the listing has one — used by smart search/filters. */
   fuelType?: string | null;
   price?: string | null;
+  /** WS1 numeric price in minor units (priceAmount / 100) and its currency. */
+  priceAmount?: number | null;
+  currency?: string | null;
   city?: string | null;
   country?: string | null;
   image: string;
@@ -46,13 +50,6 @@ interface VehicleCardProps {
   priority?: boolean;
 }
 
-function extractPrice(value?: string | null): number | null {
-  if (!value) return null;
-  const clean = value.replace(/[^0-9]/g, "");
-  if (!clean) return null;
-  return parseInt(clean, 10);
-}
-
 const CATEGORY_STYLES: Record<string, string> = {
   Modern: "bg-[var(--color-surface)]/90 text-[var(--color-ink)] border-[var(--color-border)]",
   Classic: "bg-[var(--color-surface)]/90 text-[var(--color-ink)] border-[var(--color-border)]",
@@ -68,16 +65,14 @@ export default function VehicleCard({
   priority = false,
 }: VehicleCardProps) {
   const t = useTranslations("vehicleCard");
+  const locale = useLocale();
   const location =
     vehicle.city && vehicle.country ? `${vehicle.city}, ${vehicle.country}` : null;
   const categoryStyle = CATEGORY_STYLES[vehicle.category || ""] || CATEGORY_STYLES.Other;
-  const priceText = !vehicle.price
-    ? t("priceOnApplication")
-    : (() => {
-        const n = extractPrice(vehicle.price);
-        if (n === null) return vehicle.price === "POA" ? t("priceOnApplication") : vehicle.price;
-        return `$${n.toLocaleString()}`;
-      })();
+  // Listing's own currency (EGP default) — never a hardcoded "$" (audit C-14).
+  const priceText =
+    formatPrice(vehicle, locale) ??
+    (!vehicle.price || vehicle.price === "POA" ? t("priceOnApplication") : vehicle.price);
 
   return (
     <Link

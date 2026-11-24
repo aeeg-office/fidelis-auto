@@ -75,6 +75,8 @@ export async function getVehicles(opts: GetVehiclesOptions = {}): Promise<Vehicl
       bodyType: v.bodyType,
       fuelType: v.fuelType,
       price: v.price,
+      priceAmount: v.priceAmount,
+      currency: v.currency,
       city: v.city?.nameEn ?? v.city?.nameAr ?? null,
       country: v.country?.nameEn ?? v.country?.nameAr ?? null,
       createdAt: v.createdAt.getTime(),
