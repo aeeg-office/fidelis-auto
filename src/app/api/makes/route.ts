@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
-import { MAKES, dedupeMakes } from "@/lib/car-data";
+import { getFilterTaxonomy } from "@/lib/taxonomy";
+import { buildMakeCatalog, parseVehicleTypeParam } from "@/lib/make-catalog";
 
-// Server-side case/space-insensitive dedupe (source array is already deduped via
-// dedupeMakes at definition, but re-apply here so the API contract never returns
-// duplicate makes — "BMW" / "bmw" / "BMW " collapse to one entry). Ordering is
-// preserved (first occurrence wins, source list is alphabetical).
-export async function GET() {
-  return NextResponse.json(dedupeMakes(MAKES));
+/**
+ * GET /api/makes[?type=CAR|MOTORCYCLE]
+ *
+ * Source of truth is the DB taxonomy (Make/Model tables, seeded from
+ * prisma/taxonomy-data.ts — includes the Chinese brands sold in Egypt and the
+ * motorcycle makes). It is the same source the /vehicles filter bar uses
+ * (spec WS1b / A7), so the Sell form and the browse filters cannot disagree.
+ *
+ * Response: MakeEntry[] = { make, models, vehicleType }, deduplicated.
+ * If the DB taxonomy is unavailable, falls back to the legacy static car list
+ * (see buildMakeCatalog).
+ */
+export const dynamic = "force-dynamic";
+
+export async function GET(request: Request) {
+  const type = parseVehicleTypeParam(new URL(request.url).searchParams.get("type"));
+  const { makes } = await getFilterTaxonomy();
+  return NextResponse.json(buildMakeCatalog(makes, type));
 }

@@ -17,7 +17,7 @@
  */
 
 import { parseAmount } from "../../scripts/price-parser";
-import { MAKES, EXTERIOR_COLORS } from "./car-data";
+import { MAKES as STATIC_MAKES, EXTERIOR_COLORS, type MakeEntry } from "./car-data";
 
 export type DraftField =
   | "year"
@@ -67,6 +67,8 @@ export interface IntakeInput {
   currency?: unknown;
   notes?: unknown;
   photoFilenames?: unknown;
+  /** Make/model catalog for photo-name hints (DB taxonomy from /api/makes). */
+  makeCatalog?: readonly MakeEntry[];
 }
 
 export interface ListingDraft {
@@ -275,7 +277,13 @@ function buildPhraseRegex(phrase: string): RegExp | null {
   return new RegExp(`(?<![a-z0-9])${body}(?![a-z0-9])`);
 }
 
-export function extractPhotoHints(photoFilenames: unknown): PhotoHint[] {
+/**
+ * `catalog` is the make/model list to match against — the Sell form passes the
+ * DB taxonomy it loaded from /api/makes (incl. Chinese brands + motorcycle makes).
+ * Falls back to the legacy static list when no catalog is supplied.
+ */
+export function extractPhotoHints(photoFilenames: unknown, catalog?: readonly MakeEntry[]): PhotoHint[] {
+  const MAKES = catalog && catalog.length > 0 ? catalog : STATIC_MAKES;
   const names = Array.isArray(photoFilenames)
     ? photoFilenames.filter((f): f is string => typeof f === "string").slice(0, 30)
     : [];
@@ -380,7 +388,7 @@ export function buildListingDraft(input: IntakeInput): IntakeResult {
     if (parsed.amount === null) priceInvalid = true;
   }
 
-  const photoHints = extractPhotoHints(input.photoFilenames);
+  const photoHints = extractPhotoHints(input.photoFilenames, input.makeCatalog);
   const photoCount = Array.isArray(input.photoFilenames)
     ? input.photoFilenames.filter((f): f is string => typeof f === "string").length
     : 0;

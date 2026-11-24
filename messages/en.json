@@ -392,7 +392,10 @@
     "useArDraft": "Use Arabic draft",
     "keepMyText": "Keep my text",
     "draftCopied": "Draft copied to the description field — please review before submitting.",
-    "draftError": "Couldn't build a draft: {error}"
+    "draftError": "Couldn't build a draft: {error}",
+    "vehicleType": "Vehicle type",
+    "vehicleTypeCar": "Car",
+    "vehicleTypeMotorcycle": "Motorcycle"
   },
   "auth": {
     "signIn": "Sign In",

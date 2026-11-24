@@ -391,7 +391,10 @@
     "useArDraft": "استخدم المسودة العربية",
     "keepMyText": "الاحتفاظ بنصي",
     "draftCopied": "تم نسخ المسودة إلى حقل الوصف — يرجى المراجعة قبل الإرسال.",
-    "draftError": "تعذّر إنشاء المسودة: {error}"
+    "draftError": "تعذّر إنشاء المسودة: {error}",
+    "vehicleType": "نوع المركبة",
+    "vehicleTypeCar": "سيارة",
+    "vehicleTypeMotorcycle": "دراجة نارية"
   },
   "auth": {
     "signIn": "تسجيل الدخول",
