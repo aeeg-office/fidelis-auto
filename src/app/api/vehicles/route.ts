@@ -11,6 +11,12 @@ import { prisma } from "@/lib/prisma";
  *   priceMin / priceMax  digits (EGP pounds) — converted to piastres (priceAmount is smallest unit)
  *   city      string                      (matches the linked City.nameEn/nameAr)
  *   sort      newest | price_low | price_high              (default newest)
+ *   offset    non-negative int (pagination; default 0)
+ *   limit     positive int, max 100 (pagination; default 24)
+ *
+ * Response keeps the array shape (clients map/filter over it directly). Stable ordering:
+ * price sorts push NULL/missing prices to the END on both asc and desc, and a final id
+ * tiebreaker makes pagination deterministic on ties.
  *
  * WS9 extended filters (all optional, additive, enum-guarded like `type`):
  *   year            int                       (exact Vehicle.year)
@@ -71,6 +77,12 @@ export async function GET(request: Request) {
     const sortRaw = url.searchParams.get("sort");
     const sort = sortRaw && VALID_SORTS.has(sortRaw) ? sortRaw : "newest";
 
+    // Pagination: keep the existing array response shape and add offset/limit.
+    const limitRaw = asInt(url.searchParams.get("limit"));
+    const limit = limitRaw !== null ? Math.min(Math.max(limitRaw, 1), 100) : 24;
+    const offsetRaw = asInt(url.searchParams.get("offset"));
+    const offset = offsetRaw !== null ? Math.max(offsetRaw, 0) : 0;
+
     // price filters are in EGP pounds -> smallest units (piastres) for priceAmount.
     const priceMinPiastres = priceMinLbs !== null ? priceMinLbs * 100 : null;
     const priceMaxPiastres = priceMaxLbs !== null ? priceMaxLbs * 100 : null;
@@ -112,14 +124,19 @@ export async function GET(request: Request) {
     if (fuelTypeSafe) where.fuelType = fuelTypeSafe;
     if (transmission) where.transmission = { contains: transmission, mode: "insensitive" };
 
-    let orderBy: Record<string, string>[] = [{ order: "asc" }];
-    if (sort === "newest") orderBy = [{ createdAt: "desc" }];
-    else if (sort === "price_low") orderBy = [{ priceAmount: "asc" }, { order: "asc" }];
-    else if (sort === "price_high") orderBy = [{ priceAmount: "desc" }, { order: "asc" }];
+    // Stable ordering. NULL/missing priceAmount sorts LAST on BOTH asc and desc (Postgres default
+    // puts NULLs first on desc, which would surface unpriced rows at the top of price_high). A
+    // final `id` tiebreaker keeps pagination deterministic when sort keys collide.
+    let orderBy: (Record<string, unknown> | { id: "asc" })[] = [{ order: "asc" }, { id: "asc" }];
+    if (sort === "newest") orderBy = [{ createdAt: "desc" }, { id: "asc" }];
+    else if (sort === "price_low") orderBy = [{ priceAmount: { sort: "asc", nulls: "last" } }, { order: "asc" }, { id: "asc" }];
+    else if (sort === "price_high") orderBy = [{ priceAmount: { sort: "desc", nulls: "last" } }, { order: "asc" }, { id: "asc" }];
 
     const vehicles = await prisma.vehicle.findMany({
       where,
       orderBy,
+      skip: offset,
+      take: limit,
       select: {
         slug: true,
         title: true,

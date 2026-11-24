@@ -41,9 +41,9 @@ type ListingSubmission = {
   zipCode: string | null;
 };
 
-type SubmissionResult = { ok: true; value: ListingSubmission } | { ok: false; error: string };
-type UrlListResult = { ok: true; value: string | null } | { ok: false; error: string };
-type AudioUrlResult = { ok: true; value: string | null } | { ok: false; error: string };
+type SubmissionResult = { ok: true; value: ListingSubmission } | { ok: false; error: string; ar?: string };
+type UrlListResult = { ok: true; value: string | null } | { ok: false; error: string; ar?: string };
+type AudioUrlResult = { ok: true; value: string | null } | { ok: false; error: string; ar?: string };
 
 const asText = (value: unknown): string => typeof value === "string" ? value.trim() : "";
 const asOptionalText = (value: unknown): string | null => asText(value) || null;
@@ -62,7 +62,7 @@ function serializeUrlList(value: unknown, field: "Photo" | "Video"): UrlListResu
   const maximum = field === "Photo" ? 30 : 3;
   const uploadUrl = field === "Photo" ? PHOTO_UPLOAD_URL : VIDEO_UPLOAD_URL;
   if (!Array.isArray(value) || value.length > maximum || !value.every((item) => typeof item === "string" && uploadUrl.test(item))) {
-    return { ok: false, error: `${field} URLs must reference approved uploaded media.` };
+    return { ok: false, error: `${field} URLs must reference approved uploaded media.`, ar: `روابط ${field === "Photo" ? "الصور" : "الفيديو"} يجب أن تكون وسائط مرفوعة معتمدة.` };
   }
   return { ok: true, value: value.length ? JSON.stringify(value) : null };
 }
@@ -70,7 +70,7 @@ function serializeUrlList(value: unknown, field: "Photo" | "Video"): UrlListResu
 function serializeAudioUrl(value: unknown): AudioUrlResult {
   if (value == null) return { ok: true, value: null };
   if (typeof value !== "string" || !SOUND_UPLOAD_URL.test(value)) {
-    return { ok: false, error: "Engine sound must reference approved uploaded media." };
+    return { ok: false, error: "Engine sound must reference approved uploaded media.", ar: "صوت المحرك يجب أن يكون ملفاً مرفوعاً معتمداً." };
   }
   return { ok: true, value };
 }
@@ -80,17 +80,23 @@ export function normalizeListingSubmission(payload: ListingPayload, authenticate
   const email = asText(payload.email).toLowerCase();
   const make = asText(payload.make);
   const model = asText(payload.model);
-  if (!name || !email || !make || !model) return { ok: false, error: "Name, email, make, and model are required." };
+  // Task-3: the seller phone is mandatory on submit (matches the client form).
+  const phone = asOptionalText(payload.phone);
+  if (!name) return { ok: false, error: "Name is required.", ar: "الاسم مطلوب." };
+  if (!email) return { ok: false, error: "Email is required.", ar: "البريد الإلكتروني مطلوب." };
+  if (!make) return { ok: false, error: "Make is required.", ar: "ماركة السيارة مطلوبة." };
+  if (!model) return { ok: false, error: "Model is required.", ar: "موديل السيارة مطلوب." };
+  if (!phone) return { ok: false, error: "Seller phone number is required.", ar: "رقم هاتف البائع مطلوب." };
 
   const year = Number(payload.year);
   if (!Number.isInteger(year) || year < 1886 || year > new Date().getFullYear() + 1) {
-    return { ok: false, error: "A valid vehicle year is required." };
+    return { ok: false, error: "A valid vehicle year is required.", ar: "يرجى إدخال سنة سيارة صالحة." };
   }
 
   const mileageText = asText(payload.mileage);
   const mileage = mileageText ? Number(mileageText) : null;
   if (mileage !== null && (!Number.isInteger(mileage) || mileage < 0)) {
-    return { ok: false, error: "Mileage must be a non-negative whole number." };
+    return { ok: false, error: "Mileage must be a non-negative whole number.", ar: "قراءة العداد يجب أن تكون رقماً صحيحاً غير سالب." };
   }
 
   // WS1 vehicle type: CAR | MOTORCYCLE (default CAR; reject unknown values).
@@ -136,7 +142,7 @@ export function normalizeListingSubmission(payload: ListingPayload, authenticate
       userId: authenticatedUserId,
       name,
       email,
-      phone: asOptionalText(payload.phone),
+      phone,
       year,
       make,
       model,

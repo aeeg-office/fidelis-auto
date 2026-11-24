@@ -1,8 +1,10 @@
 /**
  * auto-publish.ts
- * Converts a manually-submitted ListingRequest into a live, published Vehicle
- * owned by the submitting user, linking its uploaded photos. Used only when the
- * ad-text scanner deems the submission clean.
+ * Publishes an admin-approved ListingRequest as a live Vehicle owned by the submitting
+ * user, linking its uploaded photos. Invoked only from the admin moderation "approve"
+ * action (never on submission) — no submission auto-publishes (FID-AUD-202). The audit
+ * trail is written by the caller (`LISTING_APPROVED`); this helper does not record any
+ * fake "auto-approval" event.
  */
 import { prisma } from "@/lib/prisma";
 import type { BodyType, FuelType } from "@prisma/client";
@@ -156,24 +158,16 @@ export async function autoPublish(
     });
   }
 
-  // Mark the submission approved.
+  // Mark the submission approved by administrator.
   await prisma.listingRequest.update({
     where: { id: listingId },
-    data: { status: "approved", notes: "Auto-approved at submission (no ad text violations)." },
+    data: { status: "approved", notes: "Approved and published by an administrator." },
   });
 
-  // Record the moderation decision (auto-approve) in the moderation log.
-  await prisma.moderationLog.create({
-    data: {
-      vehicleId: vehicle.id,
-      listingRequestId: listingId,
-      targetUserId: ownerId ?? null,
-      action: "AUTO_APPROVED",
-      previousStatus: "pending",
-      newStatus: "approved",
-      notes: "Auto-approved at submission (ad-text scanner clean).",
-    },
-  });
+  // NOTE: no moderation/audit row is written here. This helper only runs during an admin
+  // approval, and the caller (`/api/admin/submissions/[id]`) already records the accurate
+  // LISTING_APPROVED audit + moderation rows. Writing an "AUTO_APPROVED" row here would
+  // fabricate an auto-approval event that never happens (FID-AUD-202).
 
   return { ok: true, vehicleId: vehicle.id, listingId, published: true };
 }
