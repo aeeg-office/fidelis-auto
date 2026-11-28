@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { can, type AccountRole } from "@/lib/authorization";
 import { validateUpload, sniffUploadBytes, MAX_ORIGINAL_DIM, cappedOriginalFilename, capOriginalDimensions } from "@/lib/upload-policy";
 import { generateStudioDerivatives } from "@/lib/studio-pipeline";
+import { orientedSource } from "@/lib/image-orient";
 import { getCurrentUser } from "@/lib/user-auth";
 import { decidePhoneGate } from "@/lib/phone-gate";
 
@@ -27,12 +28,13 @@ const RASTER_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/av
  */
 async function generateMediaOpts(buffer: Buffer, uploadDir: string, filename: string): Promise<void> {
   const base = filename.replace(/\.[^.]+$/, "");
-  const source = sharp(buffer);
-  const meta = await source.metadata();
-  if (!meta.width || !meta.height) throw new Error(`Unreadable image metadata for ${filename}`);
+  // Upright pixels first (EXIF auto-orient) — otherwise phone photos come out sideways.
+  const oriented = await orientedSource(buffer).catch(() => null);
+  if (!oriented) throw new Error(`Unreadable image metadata for ${filename}`);
+  const source = oriented.source;
 
   // Capped original copy (Spec L).
-  const { width, height } = capOriginalDimensions(meta.width, meta.height, MAX_ORIGINAL_DIM);
+  const { width, height } = capOriginalDimensions(oriented.width, oriented.height, MAX_ORIGINAL_DIM);
   await source
     .clone()
     .resize({ width, height, fit: "inside", withoutEnlargement: true })

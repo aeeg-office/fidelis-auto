@@ -5,7 +5,7 @@
  * derivative files. Dry-run by default; pass --apply to write.
  *
  * Usage (from app tree, so tsx resolves paths/aliases):
- *   node --env-file=.env --import tsx scripts/backfill-studio.ts [--apply]
+ *   node --env-file=.env --import tsx scripts/backfill-studio.ts [--apply] [--fix-orientation]
  */
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -17,6 +17,7 @@ import sharp from "sharp";
 // execution (no top-level await) and resolve the app-local pipeline module.
 
 const APPLY = process.argv.includes("--apply");
+const FIX_ORIENTATION = process.argv.includes("--fix-orientation");
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads");
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }) });
 const RASTER = /\.(jpe?g|png|webp|avif)$/i;
@@ -58,12 +59,19 @@ async function main() {
         console.log(`  would-generate ${enhancedFile} (src ${row.src})`);
         continue;
       }
-      if (await exists(outPath)) {
-        skipped++;
-        continue;
-      }
       const buffer = await readFile(abs);
       if (!buffer.length) throw new Error("empty");
+      if (await exists(outPath)) {
+        // --fix-orientation regenerates studio copies of EXIF-rotated originals
+        // (previously written sideways); everything else stays skipped.
+        const { needsOrientation } = await import("../src/lib/image-orient");
+        const { default: sharp } = await import("sharp");
+        const probe = await sharp(buffer).metadata();
+        if (!(FIX_ORIENTATION && needsOrientation(probe.orientation))) {
+          skipped++;
+          continue;
+        }
+      }
       await generateStudioDerivatives(buffer, UPLOAD_DIR, file);
       created++;
       console.log(`  OK ${enhancedFile}`);

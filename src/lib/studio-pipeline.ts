@@ -1,6 +1,6 @@
 import { copyFile } from "fs/promises";
 import path from "path";
-import sharp from "sharp";
+import { orientedSource } from "./image-orient";
 import {
   MAX_ORIGINAL_DIM,
   capOriginalDimensions,
@@ -51,9 +51,11 @@ function scaledSigma(baseSigma: number, sourceLongest: number, targetLongest: nu
 
 export async function generateStudioDerivatives(buffer: Buffer, uploadDir: string, filename: string): Promise<void> {
   const base = filename.replace(/\.[^.]+$/, "");
-  const source = sharp(buffer);
-  const meta = await source.metadata();
-  if (!meta.width || !meta.height) return;
+  // Upright pixels (EXIF auto-orient); `meta` carries the upright dimensions.
+  const oriented = await orientedSource(buffer).catch(() => null);
+  if (!oriented) return;
+  const source = oriented.source;
+  const meta = { width: oriented.width, height: oriented.height };
 
   // Gentle gray-world white-balance: sample a tiny preview, derive a clamped
   // per-channel correction, then apply with a slight exposure/saturation lift
