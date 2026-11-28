@@ -18,7 +18,7 @@ async function localDataUrl(src: string): Promise<string | null> {
     if (buf.length === 0) return null;
     // Downscale to fit OG (1200w) so next/og's rasterizer never sees an
     // enormous buffer. 7–8MB phone JPEGs otherwise blow its glib limit.
-    const resized = await sharp(buf).resize(1200, 630, { fit: "cover" }).jpeg({ quality: 82 }).toBuffer();
+    const resized = await sharp(buf).rotate().resize(1200, 630, { fit: "cover" }).jpeg({ quality: 82 }).toBuffer();
     return `data:image/jpeg;base64,${resized.toString("base64")}`;
   } catch {
     return null;

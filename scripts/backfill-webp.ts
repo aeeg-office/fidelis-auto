@@ -1,7 +1,10 @@
 /**
  * Idempotent WebP backfill for existing uploads.
  *
- *   npx tsx scripts/backfill-webp.ts /path/to/uploads
+ *   npx tsx scripts/backfill-webp.ts /path/to/uploads [--fix-orientation]
+ *
+ *   --fix-orientation: also regenerate derivatives of originals that carry an
+ *   EXIF Orientation tag (they were written sideways before image-orient.ts).
  *
  * Scans the given directory (recursively) for raster originals
  * (*.jpg / *.jpeg / *.png / *.webp / *.avif) and, for each, writes the capped
@@ -19,6 +22,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import sharp from "sharp";
+import { orientedSource, needsOrientation } from "../src/lib/image-orient";
 import { MAX_ORIGINAL_DIM, capOriginalDimensions, cappedOriginalFilename } from "../src/lib/upload-policy";
 
 const DERIVATIVES = [
@@ -26,6 +30,8 @@ const DERIVATIVES = [
   { suffix: "-800", width: 800 },
   { suffix: "-1600", width: 1600 },
 ];
+
+const FIX_ORIENTATION = process.argv.includes("--fix-orientation");
 
 const INPUT_EXTS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
 
@@ -69,12 +75,16 @@ async function generateFor(file: string): Promise<"generated" | "skipped"> {
   // change adds the Spec L -2560.webp to uploads that predate it.
   const capped = path.join(dir, cappedOriginalFilename(filename));
   if (await exists(capped)) {
-    return "skipped";
+    // --fix-orientation: regenerate derivatives that were written sideways
+    // (original carries an EXIF Orientation tag). Originals are never touched.
+    if (!FIX_ORIENTATION) return "skipped";
+    const probe = await sharp(file).metadata();
+    if (!needsOrientation(probe.orientation)) return "skipped";
   }
 
-  const source = sharp(file);
-  const meta = await source.metadata();
-  if (!meta.width || !meta.height) throw new Error("not a readable image");
+  const oriented = await orientedSource(file);
+  const source = oriented.source;
+  const meta = { width: oriented.width, height: oriented.height };
 
   // Capped original copy (Spec L) — same policy as the upload pipeline.
   const { width, height } = capOriginalDimensions(meta.width, meta.height, MAX_ORIGINAL_DIM);
@@ -96,7 +106,7 @@ async function generateFor(file: string): Promise<"generated" | "skipped"> {
 }
 
 async function main(): Promise<void> {
-  const argDir = process.argv[2];
+  const argDir = process.argv.slice(2).find((a) => !a.startsWith("--"));
   if (!argDir) {
     console.error("Usage: npx tsx scripts/backfill-webp.ts <uploads-dir>");
     process.exit(1);
